@@ -1,19 +1,19 @@
 import { ScrollView, View } from "react-native";
 import { Layout, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { loadBudgetList } from "../services/budget";
+import { BudgetOperation, BudgetOperationType, loadBudgetList } from "../services/budget";
 import { scroll_styles, styles } from "../styles";
 
 
-function typeToValue(type : string) : number {
-  if( type == 'month') return 0;
-  if( type == 'trimester') return 1;
-  if( type == 'semester') return 2;
-  if( type == 'year') return 3;
+function typeToValue(type : BudgetOperationType) : number {
+  if( type == BudgetOperationType.MONTH) return 0;
+  if( type == BudgetOperationType.TRIMESTER) return 1;
+  if( type == BudgetOperationType.SEMESTER) return 2;
+  if( type == BudgetOperationType.YEAR) return 3;
   return -1;
 }
 
-function compareType(typeA : any, typeB : any) : number {
+function compareType(typeA : BudgetOperationType, typeB : BudgetOperationType) : number {
   return typeToValue(typeA) - typeToValue(typeB);
 }
 
@@ -21,15 +21,15 @@ export default function ExpenseAvailableScreen() {
     
   const budget_list = loadBudgetList();
   
-  const perMonth = function(budget : any) {
+  const perMonth = function(budget : BudgetOperation) {
     switch(budget.type) {
-      case 'month':
+      case BudgetOperationType.MONTH:
         return budget.value;
-      case 'trimester':
+      case BudgetOperationType.TRIMESTER:
         return budget.value / 3;
-      case 'semester':
+      case BudgetOperationType.SEMESTER:
           return budget.value / 6;
-      case 'year':
+      case BudgetOperationType.YEAR:
         return budget.value / 12;
     }
   };
@@ -41,12 +41,12 @@ export default function ExpenseAvailableScreen() {
 
     let new_reserve = budget.reserve + budget_available;
   
-    const items = budget.operations.map((item) => {
+    const items = budget.operations.map((operation : BudgetOperation) => {
       return {
-        name: item.name,
-        value: perMonth(item),
-        total: item.value,
-        type: item.type
+        name: operation.name,
+        value: perMonth(operation),
+        total: operation.value,
+        type: operation.type
       };
     })//
     .sort( (a, b ) => compareType(a.type, b.type))//

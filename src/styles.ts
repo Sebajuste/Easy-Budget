@@ -25,7 +25,7 @@ export const scroll_styles = StyleSheet.create({
       paddingTop: StatusBar.currentHeight,
     },
     scrollView: {
-      marginHorizontal: 20,
+      marginHorizontal: 0,
     },
     text: {
       fontSize: 42,
