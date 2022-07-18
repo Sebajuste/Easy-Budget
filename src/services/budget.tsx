@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Observable, share, Subscriber } from "rxjs";
 
 
 export enum BudgetOperationType {
@@ -11,12 +12,15 @@ export interface BudgetOperation {
     type: BudgetOperationType;
 }
 
-export interface Budget {
+export interface BudgetCategory {
     name: string;
     operations: Array<any>;
     reserve: number;
 }
 
+export interface Budget {
+    categories : Array<BudgetCategory>
+}
 
 export function budgetOperationTypeToString(operationType : BudgetOperationType) {
     switch(operationType) {
@@ -25,6 +29,16 @@ export function budgetOperationTypeToString(operationType : BudgetOperationType)
         case BudgetOperationType.SEMESTER: return "semester";
         case BudgetOperationType.YEAR: return "year";
         default: return "";
+    }
+}
+
+export function budgetOperationTypeFromString(operationTypeStr : string) {
+    switch(operationTypeStr) {
+        case 'month': return BudgetOperationType.MONTH;
+        case 'trimester': return BudgetOperationType.TRIMESTER;
+        case 'semester': return BudgetOperationType.SEMESTER;
+        case 'year': return BudgetOperationType.YEAR;
+        default: return BudgetOperationType.MONTH;
     }
 }
 
@@ -177,66 +191,98 @@ const communication_budget : Array<BudgetOperation> = [
     }
 ];
 
-let internal_budget_list : Array<Budget> = [
-    {
-        name: "Banque",
-        operations: bank_budget,
-        reserve: 0
-    }, {
-        name: "Logement",
-        operations: home_budget,
-        reserve: 300
-    }, {
-        name: "Alimentation",
-        operations: food_budget,
-        reserve: 0
-    }, {
-        name: "Loisirs",
-        operations: loisir_budget,
-        reserve: 0
-    }, {
-        name: "Achat & Shopping",
-        operations: shopping_budget,
-        reserve: 30
-    }, {
-        name: "Transport",
-        operations: transport_budget,
-        reserve: 0
-    }, {
-        name: "Santé",
-        operations: health_budget,
-        reserve: 0
-    }, {
-        name: "Téléphonie & Abonnements",
-        operations: communication_budget,
-        reserve: 0
-    }
-];
+let internal_budget : Budget = {
+    categories: [
+        {
+            name: "Banque",
+            operations: bank_budget,
+            reserve: 0
+        }, {
+            name: "Logement",
+            operations: home_budget,
+            reserve: 300
+        }, {
+            name: "Alimentation",
+            operations: food_budget,
+            reserve: 0
+        }, {
+            name: "Loisirs",
+            operations: loisir_budget,
+            reserve: 0
+        }, {
+            name: "Achat & Shopping",
+            operations: shopping_budget,
+            reserve: 30
+        }, {
+            name: "Transport",
+            operations: transport_budget,
+            reserve: 0
+        }, {
+            name: "Santé",
+            operations: health_budget,
+            reserve: 0
+        }, {
+            name: "Téléphonie & Abonnements",
+            operations: communication_budget,
+            reserve: 0
+        }
+    ]
+};
 
-export function loadBudgetList() : Array<Budget> {
+export function loadBudget() : Budget {
+    // console.log('loadBudget');
+    return internal_budget;
+}
 
-    return internal_budget_list;
+export function saveBudget(budget : Budget ) {
+    console.log('saveBudget : ', budget.categories[0]);
+    internal_budget = budget
+}
+
+
+let bugetChangeObserver : Subscriber<Budget>;
+
+let bugetChangeObservable : Observable<Budget>;
+
+function createObservableBudget() {
+
+    bugetChangeObservable = new Observable<Budget>(observer => {
+        bugetChangeObserver = observer;
+
+        observer.next( loadBudget() );
+
+    }).pipe(
+        share()
+    );
+    return bugetChangeObservable;
+}
+
+export function subscribeBudget() {
+    return bugetChangeObservable ? bugetChangeObservable : createObservableBudget();
+}
+
+export function saveBudgetCategory(bugetCategory : BudgetCategory) {
+
+
 
 }
 
-export function saveBudgetList(budget_list : Array<Budget> ) {
-    internal_budget_list = budget_list
-}
+
 
 
 
 export function useBudget() {
 
-    const [budget_list, setBudget] = useState( loadBudgetList() );
+    const [budget, setBudget] = useState( loadBudget() );
 
-    const saveBudgetList = (newBudgetList : Array<Budget> ) => {
-        setBudget(newBudgetList);
-        saveBudgetList(newBudgetList);
-        console.log('new newBudgetList : ', newBudgetList);
+    const saveBudgetList = (newBudget : Budget ) => {
+        setBudget(newBudget);
+        saveBudgetList(newBudget);
+        console.log('new newBudgetList : ', newBudget);
     };
 
 
-    return [budget_list, saveBudgetList];
+    return [budget, saveBudgetList];
 }
 
 export function budgetPerYear(operations: Array<BudgetOperation> ) {

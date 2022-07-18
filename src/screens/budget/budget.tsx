@@ -1,31 +1,33 @@
-import { ScrollView } from "react-native";
+import { Alert, ScrollView } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Budget, BudgetOperation, budgetOperationTypeToString, budgetPerYear, useBudget } from "../../services/budget";
+import { Budget, BudgetCategory, BudgetOperation, budgetOperationTypeToString, budgetPerYear, loadBudget, subscribeBudget, useBudget } from "../../services/budget";
 import { scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useEffect, useState } from "react";
 
 
-function BudgetSection({navigation, title, budget} : {title: string, budget : Budget}) {
+function BudgetSection({navigation, title, budgetCategory} : {navigation : any, title: string, budgetCategory : BudgetCategory}) {
 
-    const operations = budget.operations;
+    const operations = budgetCategory.operations;
 
     const total_year = budgetPerYear(operations);
   
     const section_items = operations ? operations.map((operation : BudgetOperation, index : number) => {
-      return (<Text key={index}>{operation.name} : {operation.value} € / { budgetOperationTypeToString(operation.type) } </Text>);
+      return (<Text key={index}>{operation.name} : {operation.value} € / { budgetOperationTypeToString(operation.type)}</Text>);
     }) : (<></>);
   
 
-    const edit = () => {
-      navigation.navigate({name: 'EditBudget', params: {budget: budget}});
+    const editAction = () => {
+      navigation.navigate({name: 'EditBudget', params: {budgetCategory: budgetCategory}});
     };
 
+    
     return (
       <>
-        <TopNav middleContent={title} rightContent={ <Icon name="edit" size={20} /> } rightAction={edit} />
+        <TopNav middleContent={title} rightContent={ <Icon name="edit" size={20} /> } rightAction={editAction} />
   
         <Section>
           <SectionContent>
@@ -41,25 +43,45 @@ function BudgetSection({navigation, title, budget} : {title: string, budget : Bu
   
   }
 
-export default function BudgetScreen({navigation}) {
+export default function BudgetScreen({navigation} : {navigation : any}) {
 
-    const [budget_list, setBudget] = useBudget();
+    // const [budget, setBudget] = useBudget();
 
-    const budget_items = budget_list.map((item : Budget, index : number) => {
-        return (<BudgetSection key={index} title={item.name} budget={item} navigation={navigation}></BudgetSection>);
+    // let budget = loadBudget();
+
+
+    const [budget, setBudget] = useState( loadBudget() ) ;
+
+    const [refreshCount, setRefreshCount] = useState(0);
+
+    // const budget = loadBudget();
+
+    useEffect(() => {
+
+      return navigation.addListener('focus', () => {
+        // const new_budget = loadBudget();
+        // Alert.alert('Refreshed');
+        // console.log('BudgetScreen Refreshed ', new_budget.categories[0]);
+
+        setRefreshCount( old => old + 1);
+        setBudget( old => loadBudget() );
       });
-    
-    
-      const total_year = budget_list//
-        .map( (item : Budget) => budgetPerYear(item.operations) )//
-        .reduce( (current : number, previous : number) => current + previous, 0 );
+
+    }, [navigation, budget]);
+
+    const budget_items = budget?.categories.map((item : BudgetCategory, index : number) => {
+      return (<BudgetSection key={index} title={item.name} budgetCategory={item} navigation={navigation}></BudgetSection>);
+    });
       
-      return (
+    const total_year = budget?.categories//
+      .map( (item : BudgetCategory) => budgetPerYear(item.operations) )//
+      .reduce( (current : number, previous : number) => current + previous, 0 );
+      
+    return (
         
         <SafeAreaView style={scroll_styles.container}>
           <ScrollView style={scroll_styles.scrollView}>
             
-              
               {budget_items}
     
               <Section>
@@ -69,10 +91,9 @@ export default function BudgetScreen({navigation}) {
                 </SectionContent>
               </Section>
     
-              <Button text="Add"></Button>
+              <Button text="Add" onPress={() => navigation.navigate('AddBudget')}></Button>
     
-            
           </ScrollView>
           </SafeAreaView>
-      );
+    );
 }

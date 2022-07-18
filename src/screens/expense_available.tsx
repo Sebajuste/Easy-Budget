@@ -1,7 +1,7 @@
 import { ScrollView, View } from "react-native";
 import { Layout, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BudgetOperation, BudgetOperationType, loadBudgetList } from "../services/budget";
+import { Budget, BudgetOperation, BudgetOperationType, loadBudget } from "../services/budget";
 import { scroll_styles, styles } from "../styles";
 
 
@@ -19,23 +19,23 @@ function compareType(typeA : BudgetOperationType, typeB : BudgetOperationType) :
 
 export default function ExpenseAvailableScreen() {
     
-  const budget_list = loadBudgetList();
+  const budget : Budget = loadBudget();
   
-  const perMonth = function(budget : BudgetOperation) {
-    switch(budget.type) {
+  const perMonth = function(budgetOperation : BudgetOperation) {
+    switch(budgetOperation.type) {
       case BudgetOperationType.MONTH:
-        return budget.value;
+        return budgetOperation.value;
       case BudgetOperationType.TRIMESTER:
-        return budget.value / 3;
+        return budgetOperation.value / 3;
       case BudgetOperationType.SEMESTER:
-          return budget.value / 6;
+          return budgetOperation.value / 6;
       case BudgetOperationType.YEAR:
-        return budget.value / 12;
+        return budgetOperation.value / 12;
     }
   };
 
 
-  const expenses_items = budget_list.map((budget, budget_index) => {
+  const expenses_items = budget.categories.map((budget, budget_index) => {
 
     const budget_available = budget.operations.map((item) => perMonth(item)).reduce((previous, current) => previous + current, 0);
 
