@@ -10,6 +10,7 @@ export interface BudgetOperation {
     name: string;
     value: number;
     type: BudgetOperationType;
+    dueDate: Date;
 }
 
 export interface BudgetCategory {
