@@ -1,5 +1,9 @@
-import { useState } from "react";
-import { Observable, share, Subscriber } from "rxjs";
+import { useEffect, useState } from "react";
+import Realm from "realm";
+import { map, mergeMap, Observable, share, Subscriber } from "rxjs";
+
+// const Realm = require('realm');
+// import { TEST_BUDGET } from "./budget_testdata";
 
 
 export enum BudgetOperationType {
@@ -10,18 +14,42 @@ export interface BudgetOperation {
     name: string;
     value: number;
     type: BudgetOperationType;
-    dueDate: Date;
+    dueDate?: Date;
 }
 
 export interface BudgetCategory {
     name: string;
-    operations: Array<any>;
+    operations: Array<BudgetOperation>;
     reserve: number;
 }
 
 export interface Budget {
     categories : Array<BudgetCategory>
 }
+
+const BudgetOperationSchema = {
+    name: "BudgetOperation",
+    properties: {
+        _id: "int",
+        name: "string",
+        value: "double",
+        type: "string",
+        dueDate: "date"
+    },
+    primaryKey: "_id"
+};
+
+const BudgetCategorySchema = {
+    name: "BudgetCategory",
+    properties: {
+        _id: "int",
+        name: "string",
+        operations: "BudgetOperation[]",
+        reserve: "double"
+    },
+    primaryKey: "_id"
+};
+
 
 export function budgetOperationTypeToString(operationType : BudgetOperationType) {
     switch(operationType) {
@@ -43,192 +71,10 @@ export function budgetOperationTypeFromString(operationTypeStr : string) {
     }
 }
 
-const bank_budget : Array<BudgetOperation> = [
-    {
-        "name": "PEL",
-        "value": 50,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Livret A",
-        "value": 50,
-        "type": BudgetOperationType.MONTH
-    }
-];
+// let internal_budget = Object.assign({}, TEST_BUDGET);
+let internal_budget : Budget = {categories: new Array()} as Budget;
 
-const home_budget : Array<BudgetOperation> = [
-    {
-        "name": "Loyer",
-        "value": 645.05,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Charges",
-        "value": 350,
-        "type": BudgetOperationType.TRIMESTER
-    }, {
-        "name": "Taxe habitation",
-        "value": 735,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Taxe foncière",
-        "value": 752,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Assurance hab.",
-        "value": 29,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Electricite",
-        "value": 62.99,
-        "type": BudgetOperationType.MONTH
-    }
-];
 
-const food_budget : Array<BudgetOperation> = [
-    {
-        "name": "Restaurants",
-        "value": 50,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Supermarché",
-        "value": 200,
-        "type": BudgetOperationType.MONTH
-    }
-    , {
-        "name": "Chat",
-        "value": 100,
-        "type": BudgetOperationType.TRIMESTER
-    }
-];
-
-const loisir_budget : Array<BudgetOperation> = [
-    {
-        "name": "Sorties",
-        "value": 50,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Voyages",
-        "value": 600,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Cadeaux",
-        "value": 25 * 12,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Cinema",
-        "value": 15,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Jeux Vidéos",
-        "value": 30,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Décoration",
-        "value": 20,
-        "type": BudgetOperationType.MONTH
-    }
-];
-
-const shopping_budget : Array<BudgetOperation> = [
-    {
-        "name": "Vêtement",
-        "value": 30,
-        "type": BudgetOperationType.TRIMESTER
-    }, {
-        "name": "Livres",
-        "value": 5 * 12,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Produits entretiens",
-        "value": 20,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Imprévus",
-        "value": 30,
-        "type": BudgetOperationType.MONTH
-    }
-];
-
-const transport_budget : Array<BudgetOperation> = [
-    {
-        "name": "Essence",
-        "value": 80,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Assurance",
-        "value": 894.28,
-        "type": BudgetOperationType.YEAR
-    }, {
-        "name": "Autoroute",
-        "value": 15,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Transports",
-        "value": 5,
-        "type": BudgetOperationType.MONTH
-    }
-];
-
-const health_budget : Array<BudgetOperation> = [
-    {
-        "name": "Divers",
-        "value": 100,
-        "type": BudgetOperationType.YEAR
-    }
-];
-
-const communication_budget : Array<BudgetOperation> = [
-    {
-        "name": "Internet",
-        "value": 38.99,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Licences",
-        "value": 15,
-        "type": BudgetOperationType.MONTH
-    }, {
-        "name": "Dons",
-        "value": 15,
-        "type": BudgetOperationType.MONTH
-    }
-];
-
-let internal_budget : Budget = {
-    categories: [
-        {
-            name: "Banque",
-            operations: bank_budget,
-            reserve: 0
-        }, {
-            name: "Logement",
-            operations: home_budget,
-            reserve: 300
-        }, {
-            name: "Alimentation",
-            operations: food_budget,
-            reserve: 0
-        }, {
-            name: "Loisirs",
-            operations: loisir_budget,
-            reserve: 0
-        }, {
-            name: "Achat & Shopping",
-            operations: shopping_budget,
-            reserve: 30
-        }, {
-            name: "Transport",
-            operations: transport_budget,
-            reserve: 0
-        }, {
-            name: "Santé",
-            operations: health_budget,
-            reserve: 0
-        }, {
-            name: "Téléphonie & Abonnements",
-            operations: communication_budget,
-            reserve: 0
-        }
-    ]
-};
 
 export function loadBudget() : Budget {
     // console.log('loadBudget');
@@ -270,6 +116,88 @@ export function saveBudgetCategory(bugetCategory : BudgetCategory) {
 
 
 
+
+/*
+ * 
+ * Budget Realm Observable
+ */
+
+let budgetRealmObservable : Observable<Realm>;
+
+function createBudgetRealmObservable() {
+
+    budgetRealmObservable = new Observable<Realm>(observer => {
+
+        let realm : Realm;
+
+        Realm.open({
+            path: "budget",
+            schema: [BudgetOperationSchema, BudgetCategorySchema]
+        }).then(r => {
+            realm = r;
+            observer.next(realm);
+            observer.complete();
+        }, observer.error);
+
+        return () => {
+            if( realm ) {
+                realm.close();
+            }
+        }
+
+    }).pipe(
+        share()
+    );
+    return budgetRealmObservable;
+}
+
+export function subscribeBudgetRealm() : Observable<Realm> {
+    return budgetRealmObservable ? budgetRealmObservable : createBudgetRealmObservable();
+}
+
+/**
+ * Listen change into budget_categories
+ */
+export function budgetCategoriesSubscribe() {
+
+    subscribeBudgetRealm().pipe(
+        map( realm => realm.objects("budget_categories") ), //
+        mergeMap(categories => {
+
+            const listener = (categories:any, changes:any) => {
+
+            };
+
+            return new Observable<any>(observer => {
+
+                categories.addListener(listener);
+
+                return () => {
+                    categories.removeListener(listener);
+                }
+
+            });
+
+        })
+
+    );
+
+}
+
+
+export function useBudgetCategories() {
+
+    const [categories, setCategories ] = useState();
+
+    
+
+    return [categories, setCategories ];
+}
+
+
+/*
+ *
+ */
 
 
 export function useBudget() {

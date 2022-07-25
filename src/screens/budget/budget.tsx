@@ -50,13 +50,19 @@ export default function BudgetScreen({navigation} : {navigation : any}) {
     // let budget = loadBudget();
 
 
-    const [budget, setBudget] = useState( loadBudget() ) ;
+    const [budget, setBudget] = useState( {categories: []} ) ;
 
     const [refreshCount, setRefreshCount] = useState(0);
 
     // const budget = loadBudget();
 
+
+    const [categories, setCategories] = useState([]);
+
+
     useEffect(() => {
+
+      
 
       return navigation.addListener('focus', () => {
         // const new_budget = loadBudget();
@@ -64,16 +70,19 @@ export default function BudgetScreen({navigation} : {navigation : any}) {
         // console.log('BudgetScreen Refreshed ', new_budget.categories[0]);
 
         setRefreshCount( old => old + 1);
-        setBudget( old => loadBudget() );
+        // setBudget( old => loadBudget() );
       });
 
     }, [navigation, budget]);
 
-    const budget_items = budget?.categories.map((item : BudgetCategory, index : number) => {
+
+    // const categories : Array<BudgetCategory> = [];
+
+    const budget_section_items = categories.map((item : BudgetCategory, index : number) => {
       return (<BudgetSection key={index} title={item.name} budgetCategory={item} navigation={navigation}></BudgetSection>);
     });
       
-    const total_year = budget?.categories//
+    const total_year = categories//
       .map( (item : BudgetCategory) => budgetPerYear(item.operations) )//
       .reduce( (current : number, previous : number) => current + previous, 0 );
       
@@ -82,7 +91,7 @@ export default function BudgetScreen({navigation} : {navigation : any}) {
         <SafeAreaView style={scroll_styles.container}>
           <ScrollView style={scroll_styles.scrollView}>
             
-              {budget_items}
+              {budget_section_items}
     
               <Section>
                 <SectionContent>
