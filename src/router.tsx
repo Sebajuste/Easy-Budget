@@ -6,13 +6,17 @@ import { Button, View } from 'react-native';
 
 
 import HomeScreen from "./screens/home";
-import BudgetScreen from "./screens/budget/budget";
-import CagnotteScreen from "./screens/cagnotte";
+import EnvelopesScreen from "./screens/envelope/envelopes_screen";
+import FundScreen from "./screens/fund/fund_screen";
 import ExpenseAvailableScreen from "./screens/expense_available";
-import { useState } from "react";
-import { BudgetCategory, BudgetOperation, useBudget } from "./services/budget";
-import CreateBudgetScreen from "./screens/budget/create";
+import CreateCategoryScreen from "./screens/budget/budget-category-form";
 import EditBudgetScreen from "./screens/budget/edit";
+import EnvelopeCreateScreen from "./screens/envelope/envelope_create_screen";
+import { AccountsScreen } from "./screens/account/accounts-screen";
+import { TransactionListScreen } from "./screens/transactions/transaction-list-screen";
+import { TransactionScreen } from "./screens/transactions/transaction-screen";
+import { AccountScreen } from "./screens/account/account-screen";
+import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 
 
 
@@ -26,18 +30,27 @@ const Tab = createBottomTabNavigator();
 
 
 const navTo = (navigation: any, pageName : string) => {
-    console.log('navigate');
     navigation.navigate(pageName);
 };
 
 
-function MainStackScreen() {
+function MainStackScreen({navigation} : any) {
 
     return (
         <Stack.Navigator>
             <Stack.Screen name="Main" component={BudgetStackScreen} options={{title: '', headerShown: false}}/>
-            <Stack.Screen name="AddBudget" component={ CreateBudgetScreen } options={{title: 'Add'}}/>
+
+            <Stack.Screen name="CreateCategory" component={ CreateCategoryScreen } options={{title: 'Add'}}/>
+            <Stack.Screen name="EditCategory" component={ CreateCategoryScreen } options={{title: 'Edit'}}/>
+
+            <Stack.Screen name="CreateEnvelope" component={ EnvelopeCreateScreen } options={{title: 'Envelope'}}/>
+            <Stack.Screen name="FillEnvelope" component={ EnvelopFillScreen } options={{title: 'Fill Envelope'}} />
+            
             <Stack.Screen name="EditBudget" component={ EditBudgetScreen } options={{title: 'Edit'}}/>
+            <Stack.Screen name="AccountTransaction" component={ TransactionListScreen } options={{title: 'Transactions' }} />
+            <Stack.Screen name="Transaction" component={ TransactionScreen } options={{title: 'Transaction'}}/>
+
+            <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: 'Create Account'}}/>
         </Stack.Navigator>
     );
 
@@ -48,9 +61,8 @@ function BudgetStackScreen() {
     return (
         <Tab.Navigator>
             <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Budget" component={BudgetScreen} options={ ({navigation}) => { return {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'AddBudget')}></Button>)} } } />
-            <Tab.Screen name="Cagnottes" component={CagnotteScreen} />
-            <Tab.Screen name="Dépenses possibles" component={ExpenseAvailableScreen} />
+            <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => { return {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>)} } } />
+            <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => { return {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>) }; } } />
         </Tab.Navigator>
     );
 

@@ -6,6 +6,7 @@ import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Budget, BudgetCategory, BudgetOperation, BudgetOperationType, budgetOperationTypeFromString, budgetOperationTypeToString, loadBudget, saveBudget, saveBudgetCategory, useBudget } from "../../services/budget";
+import { deleteCategory } from "../../services/sqlite/budget_dao_sqlite";
 import { scroll_styles } from "../../styles";
 
 
@@ -112,6 +113,7 @@ export default function EditBudgetScreen({ navigation, route } : {navigation : a
 
     const [date, setDate] = useState(new Date());
 
+    /*
     useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', () => {
@@ -142,6 +144,7 @@ export default function EditBudgetScreen({ navigation, route } : {navigation : a
             saveBudget(budget);
         }
     });
+    */
 
 
     const renameBudget = (name: string) => {
@@ -214,6 +217,13 @@ export default function EditBudgetScreen({ navigation, route } : {navigation : a
         const budget : Budget = loadBudget();
         budget.categories = budget.categories.filter((item: BudgetCategory) => item.name != budgetCategory.name );
         saveBudget( budget );
+
+
+        deleteCategory(budgetCategory).then(() => {
+
+        }, err => {
+            console.log('error : ', err);
+        });
 
         const popAction = StackActions.pop(1);
         navigation.dispatch(popAction);

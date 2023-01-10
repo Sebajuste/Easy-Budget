@@ -39,7 +39,7 @@ export default function ExpenseAvailableScreen() {
 
     const budget_available = budget.operations.map((item) => perMonth(item)).reduce((previous, current) => previous + current, 0);
 
-    let new_reserve = budget.reserve + budget_available;
+    let new_reserve = budget.funds + budget_available;
   
     const items = budget.operations.map((operation : BudgetOperation) => {
       return {
