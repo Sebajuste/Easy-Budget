@@ -1,5 +1,5 @@
 import { ScrollView, TouchableHighlight, View } from "react-native";
-import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
+import { Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/budget";
@@ -42,17 +42,17 @@ function EnvelopComponent({envelope, onSelect} : {envelope: Envelope, onSelect?:
 
   return (
     <TouchableHighlight onLongPress={longPressHandler}>
-    <View style={{margin: 5, flexDirection: 'row', borderBottomColor: 'grey', borderBottomWidth: 1}}>
-      <View style={{flex: 2}}>
-        <Text style={{fontSize: 21}}>{envelope.name}</Text>
-        <EnvelopeLoad envelope={envelope} />
-        <Text style={{fontSize: 12, fontStyle: 'italic'}}>{ periodToString(envelope.period) } { dueDate } </Text>
+      <View style={{margin: 5, flexDirection: 'row', borderBottomColor: 'grey', borderBottomWidth: 1}}>
+        <View style={{flex: 2}}>
+          <Text style={{fontSize: 21}}>{envelope.name}</Text>
+          <EnvelopeLoad envelope={envelope} />
+          <Text style={{fontSize: 12, fontStyle: 'italic'}}>{ periodToString(envelope.period) } { dueDate } </Text>
+        </View>
+        <View style={{flex: 1}}>
+          <Text style={{textAlign: 'right'}}>{envelope.funds.toFixed(2)} €</Text>
+          <Text style={{textAlign: 'right', fontSize: 14}}>{envelope.amount} €</Text>
+        </View>
       </View>
-      <View style={{flex: 1}}>
-        <Text style={{textAlign: 'right'}}>{envelope.funds.toFixed(2)} €</Text>
-        <Text style={{textAlign: 'right', fontSize: 14}}>{envelope.amount} €</Text>
-      </View>
-    </View>
     </TouchableHighlight>
   );
 
@@ -64,7 +64,7 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
     const total_year = budgetPerYear(envelopes);
 
     const selectEnvelopHandler = (envelope: Envelope) => {
-      navigation.navigate({name: 'FillEnvelope', params: {envelope: envelope}});
+      navigation.navigate({name: 'FillEnvelope', params: {envelopeCategory: envelopeCategory, envelope: envelope}});
     };
   
     const section_items = envelopes.map((envelope : Envelope, index : number) => {
@@ -105,9 +105,6 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
 
 export default function EnvelopesScreen({navigation} : {navigation : any}) {
 
-
-    const [loading, setLoading] = useState(false);
-
     const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
@@ -122,23 +119,6 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
       envelopeDao.load().then(setEnvelopes);
     }, [isFocused])
 
-    if( loading )  {
-      return (
-        <View>
-          <Text>Loading...</Text>
-        </View>
-      );
-    }
-
-    /*
-    if( ! budget || !budget.categories ) {
-      return (
-        <View>
-          <Text>No Budget found</Text>
-        </View>
-      );
-    }
-    */
 
     const envelopes_group = _.groupBy(envelopes, 'category_id');
 
@@ -146,14 +126,7 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
       return (<EnvelopeSection key={index} title={item.name} envelopeCategory={item} envelopes={envelopes_group[item._id] ? envelopes_group[item._id] : []} navigation={navigation} />);
     });
       
-
     const total_year = budgetPerYear(envelopes);
-
-    /*
-    const total_year = enve//
-      .map( (item : EnvelopeCategory) => budgetPerYear(item.envelopes) )//
-      .reduce( (current : number, previous : number) => current + previous, 0 );
-    */
 
     return (
         

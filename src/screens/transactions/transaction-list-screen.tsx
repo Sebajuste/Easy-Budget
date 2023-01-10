@@ -6,7 +6,7 @@ import { scroll_styles } from "../../styles";
 import { Button, CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { useEffect, useState } from "react";
 import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Transaction } from "../../services/transaction";
+import { Transaction, TransactionType } from "../../services/transaction";
 
 export function TransactionListScreen({navigation, route} : any) {
 
@@ -14,7 +14,6 @@ export function TransactionListScreen({navigation, route} : any) {
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-    
 
     const reconciledHandler = (transaction: Transaction, val: boolean) => {
 
@@ -27,15 +26,13 @@ export function TransactionListScreen({navigation, route} : any) {
     useEffect(() => {
         const transactionDao = new TransactionDaoStorage();
         transactionDao.load().then(transactions => {
-            return account ? _.filter(transactions, transaction => transaction.account_id == account._id) : transactions;
+            return account ? _.filter(transactions, transaction => transaction.account_id == account._id && transaction.transactionType === TransactionType.PAIMENT ) : transactions;
         }).then(setTransactions);
     }, []);
 
     const transactions_ordered = _.orderBy(transactions, ['date'], ['desc']);
 
     const transaction_items = transactions_ordered.map((transaction: Transaction, index) => {
-
-        console.log(JSON.stringify(transaction))
 
         return (
             <Section key={index}>

@@ -1,6 +1,12 @@
+
+export enum TransactionType {
+    FILL, PAIMENT
+}
+
 export interface Transaction {
     _id: string;
     name: string;
+    transactionType: TransactionType;
     amount: number;
     envelope_id: string;
     account_id: string;

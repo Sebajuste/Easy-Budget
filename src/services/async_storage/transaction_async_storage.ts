@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { AsyncStorage } from "react-native";
-import { Transaction, TransactionDao } from "../transaction";
+import { envelopeNextDate } from "../budget";
+import { Transaction, TransactionDao, TransactionType } from "../transaction";
 import { AccountDaoStorage } from "./account_async_storage";
 import { EnvelopeDaoStorage } from "./budget_async_storage";
 
@@ -23,7 +24,6 @@ export class TransactionDaoStorage implements TransactionDao {
     async add(transaction: Transaction): Promise<boolean> {
 
         const accountDao = new AccountDaoStorage();
-        // const budgetDao = new BudgetDaoStorage();
         const envelopeDao = new EnvelopeDaoStorage();
 
         if( transaction.amount == 0) {
@@ -34,18 +34,26 @@ export class TransactionDaoStorage implements TransactionDao {
 
             transactions.push(transaction);
 
-            console.log(`transaction.envelope_id: ${transaction.envelope_id}`);
-            console.log(`transaction.account_id: ${transaction.account_id}`);
-
             const envelope = _.find(envelopes, envelope => envelope._id == transaction.envelope_id);
             const account = _.find(accounts, account => account._id == transaction.account_id);
 
-            console.log(`[${envelope?.name}] envelope.funds: ${envelope?.funds}, transaction.amount: ${transaction.amount}, delta: ${(envelope ? (envelope.funds - transaction.amount) : '??')}`)
-            console.log(`account.envelope_balance: ${account ? account.envelope_balance : '??'}, transaction.amount: ${transaction.amount}, delta: ${(account ? (account.envelope_balance - transaction.amount) : '??')}`)
-            
-            if(envelope && account && account.envelope_balance - transaction.amount > 0 && envelope.funds + transaction.amount > 0) {
+            if(transaction.transactionType == TransactionType.FILL && envelope && account && account.envelope_balance - transaction.amount >= 0 && envelope.funds + transaction.amount >= 0) {
                 envelope.funds += transaction.amount;
                 account.envelope_balance -= transaction.amount;
+
+                return Promise.all([
+                    this.save(transactions),
+                    accountDao.save(accounts),
+                    envelopeDao.save(envelopes)
+                ]).then(v => true);
+            }
+
+            console.log(`transaction - account.balance: ${account?.balance}, transaction.amount: ${transaction.amount}`);
+
+            if(transaction.transactionType == TransactionType.PAIMENT && envelope && account && account.balance - transaction.amount >= 0 && envelope.funds - transaction.amount >= 0) {
+                envelope.funds -= transaction.amount;
+                account.balance -= transaction.amount;
+                envelope.dueDate = envelopeNextDate(envelope);
 
                 return Promise.all([
                     this.save(transactions),

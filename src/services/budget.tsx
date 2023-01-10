@@ -9,7 +9,7 @@ export interface Envelope {
     amount: number;
     funds: number;
     period: Period;
-    dueDate?: Date;
+    dueDate: Date;
     category_id: string;
 }
 
@@ -102,6 +102,32 @@ export function budgetPerYear(envelopes: Array<Envelope> ) {
     });
   
     return result;
+}
+
+export function envelopeNextDate(envelope: Envelope) : Date {
+
+  const date = envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : new Date(envelope.dueDate.toISOString()) ) : new Date();
+
+  switch(envelope.period) {
+    case Period.MONTH: {
+      date.setMonth(date.getMonth()+1);
+      break;
+    }
+    case Period.TRIMESTER: {
+      date.setMonth(date.getMonth()+3);
+      break;
+    }
+    case Period.SEMESTER: {
+      date.setMonth(date.getMonth()+6);
+      break;
+    }
+    case Period.YEAR: {
+      date.setFullYear(date.getFullYear()+1);
+      break;
+    }
+  }
+  return date;
+
 }
 
 /*

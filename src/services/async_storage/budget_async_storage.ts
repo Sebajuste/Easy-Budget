@@ -74,7 +74,7 @@ export class EnvelopeCategoryDaoStorage implements EnvelopeCategoryDao {
 
     async remove(envelopeCategorie : EnvelopeCategory) : Promise<void> {
         return this.load().then(categories => {
-            categories = _.remove(categories, cat => cat._id == envelopeCategorie._id);
+            categories = _.remove(categories, cat => cat._id != envelopeCategorie._id);
             return this.save(categories);
         });
     }
@@ -105,7 +105,7 @@ export class EnvelopeDaoStorage implements EnvelopeDao {
 
     async remove(envelope : Envelope) : Promise<void> {
         this.load().then(envelopes => {
-            envelopes = _.remove(envelopes, item => item._id == envelope._id);
+            envelopes = _.remove(envelopes, item => item._id != envelope._id);
             return this.save(envelopes);
         });
     }

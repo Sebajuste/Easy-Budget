@@ -9,20 +9,6 @@ import { useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
 
-const ACCOUNTS = [{
-    _id: 'a',
-    name: 'Courant',
-    balance: 500,
-    envelope_balance: 0
-}, {
-    _id: 'b',
-    name: 'Epargne',
-    balance: 1500,
-    envelope_balance: 0
-}] as Array<Account>;
-
-
-
 export function AccountView() {
 
 

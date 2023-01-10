@@ -1,11 +1,11 @@
 import { StackActions } from "@react-navigation/native";
-import _, { uniqueId } from "lodash";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import { EnvelopeCategory } from "../../services/budget";
 import uuid from 'react-native-uuid';
-import { EnvelopeCategoryDaoStorage } from "../../services/async_storage/budget_async_storage";
+import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
 
 export default function CreateCategoryScreen({navigation, route} : {navigation : any, route : any}) {
 
@@ -13,16 +13,23 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
 
     const [name, setName] = useState( envelopeCategory ? envelopeCategory.name : '');
 
-    // const [budget, setBudget] = useBudget( );
-    // const budgetDao = new BudgetDaoStorage();
+    const [hasEnvelope, setHasEnvelope] = useState(false);
 
     const categoryDao = new EnvelopeCategoryDaoStorage();
+    const envelopeDao = new EnvelopeDaoStorage();
+
+    useEffect(() => {
+
+        envelopeDao.load()//
+            .then(envelopes => _.filter(envelopes, envelope => envelope.category_id == envelopeCategory._id))//
+            .then(envelopes => envelopes.length > 0)//
+            .then(setHasEnvelope);
+
+    }, []);
 
     const saveHandler = async () => {
 
         if( envelopeCategory ) {
-
-            console.log('update category');
 
             categoryDao.load().then(categories => {
 
@@ -36,22 +43,7 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
                 navigation.dispatch(popAction);
             });
 
-            /*
-            budgetDao.get().then(budget => {
-                if( budget ) {
-                    const cat = budget.categories.filter(cat => cat._id == envelopeCategory._id && cat.name == envelopeCategory.name)[0];
-                    cat.name = name;
-                    budgetDao.save(budget).then(v => {
-                        const popAction = StackActions.pop(1);
-                        navigation.dispatch(popAction);
-                    });
-                }
-            });
-            */
-            
         } else {
-
-            console.log('add category');
 
             const newEnvelopeCategory = {
                 _id: uuid.v4(),
@@ -64,17 +56,6 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
                 navigation.dispatch(popAction);
             });
 
-            /*
-            budgetDao.get().then(budget => {
-                if( budget ) {
-                    budget.categories.push(newEnvelopeCategory);
-                    budgetDao.save(budget).then(v => {
-                        const popAction = StackActions.pop(1);
-                        navigation.dispatch(popAction);
-                    });
-                }
-            });
-            */
         }
 
     };
@@ -86,22 +67,9 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
             navigation.dispatch(popAction);
         });
 
-        /*
-        budgetDao.get().then(budget => {
-            if( budget ) {
-                const index = budget.categories.findIndex( cat => cat._id == envelopeCategory._id && cat.name == envelopeCategory.name);
-                budget.categories.splice(index, 1);
-                budgetDao.save(budget).then(v => {
-                    const popAction = StackActions.pop(1);
-                    navigation.dispatch(popAction);
-                });
-            }
-
-        });
-        */
-
     };
 
+    const deleteDisabled = hasEnvelope;
 
     return (
         <Layout style={{margin: 10}}>
@@ -114,7 +82,7 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
             />
 
             <View style={{ flexDirection: 'row'}}>
-                { envelopeCategory ? <Button style={{margin: 5, flexGrow: 1}} status="danger" text="DELETE" onPress={deleteHandler}></Button> : <></> }
+                { envelopeCategory ? <Button style={{margin: 5, flexGrow: 1}} status="danger" text="DELETE" disabled={deleteDisabled} onPress={deleteHandler}></Button> : <></> }
                 <Button style={{margin: 5, flexGrow: 1}} status="primary" text="SAVE" onPress={saveHandler}></Button>
             </View>
         </Layout>
