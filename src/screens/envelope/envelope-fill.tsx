@@ -10,8 +10,6 @@ import uuid from 'react-native-uuid';
 import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
 import { StackActions } from "@react-navigation/native";
 import { Transaction, TransactionType } from "../../services/transaction";
-import { EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
-import { EnvelopForm } from "./envelop-config";
 import { scroll_styles } from "../../styles";
 import TransactionView from "../transactions/transaction-view";
 
