@@ -18,7 +18,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sebajuste.easybudget"
     },
     "android": {
       "package": "com.sebajuste.easybudget",
@@ -30,6 +31,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dfd08850-848b-4a2c-b932-e5cacbfcd448"
+      }
     }
   }
 }
