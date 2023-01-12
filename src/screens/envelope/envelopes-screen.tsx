@@ -1,15 +1,16 @@
-import { ScrollView, TouchableHighlight, View } from "react-native";
+import { ScrollView, Settings, TouchableHighlight, View } from "react-native";
 import { Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/budget";
-import { scroll_styles } from "../../styles";
+import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
 import _ from "lodash";
+import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
 
 
 
@@ -109,14 +110,20 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
 
+    const [revenue, setRevenue] = useState(0);
+
     const isFocused = useIsFocused();
 
     useEffect(() => {
       const categoriesDao = new EnvelopeCategoryDaoStorage();
       const envelopeDao = new EnvelopeDaoStorage();
+      const settingsDao = new SettingsDaoStorage();
 
       categoriesDao.load().then(setCategories);
       envelopeDao.load().then(setEnvelopes);
+
+      settingsDao.load().then(settings => setRevenue(settings.revenue));
+
     }, [isFocused])
 
 
@@ -128,6 +135,10 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
       
     const total_year = budgetPerYear(envelopes);
 
+    const monthBudget = total_year/12;
+
+    const budgetStyle = revenue >= monthBudget ? container_state_styles.success : container_state_styles.danger;
+
     return (
         
         <SafeAreaView style={scroll_styles.container}>
@@ -137,14 +148,18 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
     
               <Section>
                 <SectionContent>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{flex: 2}}>Year budget : </Text>
-                  <Text style={{textAlign: 'right'}}> {total_year.toFixed(2)} €</Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{flex: 2}}>Month budget : </Text>
-                  <Text style={{textAlign: 'right'}}>{(total_year/12).toFixed(2)} €</Text>
-                </View>
+                  <View style={{flexDirection: 'row', padding: 10, ...budgetStyle}}>
+                    <Text style={{flex: 2}}>Month budget : </Text>
+                    <Text style={{textAlign: 'right'}}>{monthBudget.toFixed(2)} €</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', padding: 10}}>
+                    <Text style={{flex: 2}}>Revenue : </Text>
+                    <Text style={{textAlign: 'right'}}>{revenue.toFixed(2)} €</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', padding: 10}}>
+                    <Text style={{flex: 2, fontSize: 12, fontStyle: 'italic'}}>Year budget : </Text>
+                    <Text style={{textAlign: 'right', fontSize: 12, fontStyle: 'italic'}}> {total_year.toFixed(2)} €</Text>
+                  </View>
                 </SectionContent>
               </Section>
   

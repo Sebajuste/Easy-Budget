@@ -31,3 +31,27 @@ export const scroll_styles = StyleSheet.create({
       fontSize: 42,
     },
 });
+
+export const container_state_styles = StyleSheet.create({
+  danger: {
+    backgroundColor: '#cc261b'
+  },
+  info: {
+    backgroundColor: 'cyan'
+  },
+  success: {
+    backgroundColor: '#57a140'
+  }
+});
+
+export const text_state_styles = StyleSheet.create({
+  danger: {
+    color: 'red'
+  },
+  info: {
+    color: 'cyan'
+  },
+  success: {
+    color: '#57a140'
+  }
+});

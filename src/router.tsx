@@ -6,7 +6,7 @@ import { Button, TouchableWithoutFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import HomeScreen from "./screens/home";
-import EnvelopesScreen from "./screens/envelope/envelopes_screen";
+import EnvelopesScreen from "./screens/envelope/envelopes-screen";
 import CreateCategoryScreen from "./screens/envelope/category-screen";
 import { AccountsScreen } from "./screens/account/accounts-screen";
 import { TransactionListScreen } from "./screens/transactions/transaction-list-screen";
@@ -14,8 +14,7 @@ import { TransactionScreen } from "./screens/transactions/transaction-screen";
 import { AccountScreen } from "./screens/account/account-screen";
 import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 import { EnvelopeConfigScreen } from "./screens/envelope";
-import { TutoAccountScreen, TutoEnvelopeScreen, TutoInfoEnvelopeScreen, TutoInfoFinalScreen, TutoScreen } from "./screens/tuto/tuto-screen";
-// import { Ionicons } from "@expo/vector-icons";
+import { TutoAccountScreen, TutoEnvelopeScreen, TutoFinalScreen, TutoFirstFillEnvelopeScreen, TutoInfoEnvelopeScreen, TutoInfoFillEnvelopeScreen, TutoRevenueScreen, TutoScreen } from "./screens/tuto/tuto-screen";
 
 
 
@@ -51,12 +50,14 @@ function MainStackScreen({navigation} : any) {
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: 'Create Account'}}/>
 
-            <Stack.Screen name="TutoScreen" component={ TutoScreen } options={{title: 'Create Account'}}/>
+            <Stack.Screen name="TutoScreen" component={ TutoScreen } options={{title: 'Create Account'}} />
             <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: 'Create Account', headerRight: () => (<Button title="+" onPress={() => navigation.navigate({name: 'CreateAccount'})}></Button>) })}/>
+            <Stack.Screen name="TutoRevenueScreen" component={ TutoRevenueScreen } options={{title: 'Revenue'}} />
             <Stack.Screen name="TutoInfoEnvelopeScreen" component={TutoInfoEnvelopeScreen} options={{title: 'Create Envelopes'}} />
             <Stack.Screen name="TutoEnvelopeScreen" component={TutoEnvelopeScreen} options={ ({navigation}) => ({title: 'Create Envelopes', headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>)} ) } />
-            <Stack.Screen name="TutoInfoFinalScreen" component={TutoInfoFinalScreen} options={{title: 'Manage transaction'}} />
-            
+            <Stack.Screen name="TutoInfoFillEnvelopeScreen" component={TutoInfoFillEnvelopeScreen} options={{title: 'Fill Envelopes'}} />
+            <Stack.Screen name="TutoFirstFillEnvelopeScreen" component={TutoFirstFillEnvelopeScreen} options={{title: 'Fill Envelopes'}} />
+            <Stack.Screen name="TutoFinalScreen" component={TutoFinalScreen} options={{title: 'Ready'}} />
 
         </Stack.Navigator>
     );

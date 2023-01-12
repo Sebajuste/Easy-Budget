@@ -30,6 +30,8 @@ export class TransactionDaoStorage implements TransactionDao {
             return await false;
         }
 
+        console.log('TransactionDaoStorage::add ', transaction._id);
+
         return Promise.all([this.load(), envelopeDao.load(), accountDao.load()]).then( ([transactions, envelopes, accounts]) => {
 
             transactions.push(transaction);
@@ -37,18 +39,23 @@ export class TransactionDaoStorage implements TransactionDao {
             const envelope = _.find(envelopes, envelope => envelope._id == transaction.envelope_id);
             const account = _.find(accounts, account => account._id == transaction.account_id);
 
+            console.log(`[${transaction._id}] transaction - balance: ${account?.balance}, envelope_balance: ${account?.envelope_balance}, transaction.amount: ${transaction.amount}`);
+
             if(transaction.transactionType == TransactionType.FILL && envelope && account && account.envelope_balance - transaction.amount >= 0 && envelope.funds + transaction.amount >= 0) {
                 envelope.funds += transaction.amount;
                 account.envelope_balance -= transaction.amount;
+
+                console.log(`[${transaction._id}] writing...`);
 
                 return Promise.all([
                     this.save(transactions),
                     accountDao.save(accounts),
                     envelopeDao.save(envelopes)
-                ]).then(v => true);
+                ]).then(v => {
+                    console.log(`[${transaction._id}] done`);
+                    return true;
+                });
             }
-
-            console.log(`transaction - account.balance: ${account?.balance}, transaction.amount: ${transaction.amount}`);
 
             if(transaction.transactionType == TransactionType.PAIMENT && envelope && account && account.balance - transaction.amount >= 0 && envelope.funds - transaction.amount >= 0) {
                 envelope.funds -= transaction.amount;
@@ -66,6 +73,30 @@ export class TransactionDaoStorage implements TransactionDao {
         });
 
     }
+
+    async addAll(transactions : Transaction[]) : Promise<boolean[]> {
+
+        const self = this;
+
+        const results : boolean[] = [];
+
+        async function chain(transactions : Transaction[]) : Promise<boolean> {
+            const transaction = transactions.pop();
+            if( transaction ) {
+                return await self.add(transaction).then(r => {
+                    results.push(r);
+                    return chain(transactions);
+                });
+            }
+            return false;
+        }
+
+        return chain(transactions).then(v => {
+            // results.push(r);
+            return results;
+        });
+
+    };
 
     async remove(transaction: Transaction) : Promise<boolean> {
 

@@ -53,23 +53,25 @@ export function periodFromString(operationTypeStr : string) {
     }
 }
 
+export function countMonth(period: Period) {
+  switch(period) {
+    case Period.MONTH: {
+      return 1;
+    }
+    case Period.TRIMESTER: {
+      return 3;
+    }
+    case Period.SEMESTER: {
+      return 6;
+    }
+    case Period.YEAR: {
+      return 12;
+    }
+  }
+}
+
 export function budgetPerMonth(amount : number, period: Period) {
-
-    switch(period) {
-        case Period.MONTH: {
-          return amount;
-        }
-        case Period.TRIMESTER: {
-          return amount / 3;
-        }
-        case Period.SEMESTER: {
-          return amount / 6;
-        }
-        case Period.YEAR: {
-          return amount / 12;
-        }
-      }
-
+  return amount / countMonth(period);
 }
 
 export function budgetPerYear(envelopes: Array<Envelope> ) {

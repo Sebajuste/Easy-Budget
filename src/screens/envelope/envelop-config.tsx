@@ -88,6 +88,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         });
     };
 
+    const now = new Date();
+
     const formValid = name.trim().length > 0 && amount.trim().length > 0 && parseFloat(amount) != 0;
 
     return (
@@ -133,7 +135,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                 <View>
 
                     <View>
-                        { showDueDate ? (<SelectDateComponent label="Due Date" date={dueDate} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
+                        { showDueDate ? (<SelectDateComponent label="Due Date" date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
                     </View>
 
                 </View>

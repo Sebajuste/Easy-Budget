@@ -4,7 +4,7 @@ import { clearAsyncStorageDB } from "../services/async_storage/async_storage";
 import { Envelope } from "../services/budget";
 import { Transaction, TransactionType } from "../services/transaction";
 import { scroll_styles } from "../styles";
-import PaiementListView from "./paiment/paiment-list-view";
+import PaymentListView from "./payment/payment-list-view";
 import uuid from 'react-native-uuid';
 import { useEffect, useState } from "react";
 import { TransactionDaoStorage } from "../services/async_storage/transaction_async_storage";
@@ -44,7 +44,7 @@ export default function HomeScreen({navigation} : any) {
         clearAsyncStorageDB();
     };
 
-    const paimentHandler = (envelope : Envelope) => {
+    const paymentHandler = (envelope : Envelope) => {
       // navigation.navigate('', {par});
 
       const transaction = {
@@ -64,7 +64,6 @@ export default function HomeScreen({navigation} : any) {
     };
 
     useEffect(() => {
-
       checkDatabase().then(setDatabaseCheck).catch(console.error);
 
       const settingsDao = new SettingsDaoStorage();
@@ -89,7 +88,7 @@ export default function HomeScreen({navigation} : any) {
         <View style={{ flex: 1, margin: 10 }}>
           <Text>Next paiements : </Text>
           <ScrollView style={scroll_styles.scrollView}>
-            <PaiementListView onPaiement={paimentHandler} />
+            <PaymentListView onPayment={paymentHandler} />
           </ScrollView>
         </View>
       </SafeAreaView>
