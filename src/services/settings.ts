@@ -13,10 +13,12 @@ export interface Settings {
 }
 
 
-export interface SettingsDao {
+export abstract class SettingsDao {
 
-    load() : Promise<Settings>;
+    abstract load() : Promise<Settings>;
 
-    save(settings : Settings) : Promise<void>;
+    abstract save(settings : Settings) : Promise<void>;
 
 }
+
+

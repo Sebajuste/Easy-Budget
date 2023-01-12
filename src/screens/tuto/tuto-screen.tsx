@@ -5,15 +5,16 @@ import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
-import { EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
+import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
-import { budgetPerMonth, countMonth, Envelope } from "../../services/budget";
+import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory } from "../../services/envelope";
 import { Transaction, TransactionType } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import uuid from 'react-native-uuid';
 import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
+import { Account } from "../../services/account";
 
 
 
@@ -190,7 +191,7 @@ export function TutoInfoFillEnvelopeScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Start to fill your envelopes. After that, each month, you must the envelopes with the revenue splited.</Text>
+                <Text style={{margin: 10, fontSize: 24}}>Start to fill your envelopes. After that, each month, you must to fill the envelopes with the revenue splited.</Text>
             </View>
 
             <View style={{margin: 10}}>
@@ -205,6 +206,12 @@ export function TutoInfoFillEnvelopeScreen({navigation} : any) {
 
 export function TutoEnvelopeScreen({navigation} : any) {
 
+    const [countCategories, setCountCategories] = useState(0);
+
+    const changeHandler = (categories: EnvelopeCategory[]) => {
+        setCountCategories(categories.length);
+    };
+
     const nextHandler = () => {
         navigation.navigate({name: 'TutoInfoFillEnvelopeScreen'});
     };
@@ -212,10 +219,13 @@ export function TutoEnvelopeScreen({navigation} : any) {
 
     return (
         <>
-            <EnvelopesScreen navigation={navigation} />
-            <View style={{margin: 10}}>
-                <Button text="NEXT" onPress={nextHandler}></Button>
-            </View>
+            <EnvelopesScreen navigation={navigation} onChange={changeHandler} />
+            { countCategories > 0 ? (
+                <View style={{margin: 10}}>
+                    <Button text="NEXT" onPress={nextHandler}></Button>
+                </View>
+            ) : null }
+            
         </>
     );
 
@@ -297,18 +307,26 @@ export function TutoRevenueScreen({navigation} : any) {
 
 export function TutoAccountScreen({navigation} : any) {
 
+    const [countAccount, setCountAccount] = useState(0);
+
+    const changeHandler = (accounts: Account[]) => {
+        setCountAccount(accounts.length);
+    }
+
     const nextHandler = () => {
-
         navigation.navigate({name: 'TutoRevenueScreen'});
-
     };
 
     return (
         <>
-            <AccountsScreen navigation={navigation}></AccountsScreen>
-            <View style={{margin: 10}}>
-                <Button text="NEXT" onPress={nextHandler}></Button>
-            </View>
+            <AccountsScreen navigation={navigation} onChange={changeHandler}></AccountsScreen>
+
+            { countAccount > 0 ? (
+                <View style={{margin: 10}}>
+                    <Button text="NEXT" onPress={nextHandler}></Button>
+                </View>
+            ) : null }
+            
         </>
     );
 

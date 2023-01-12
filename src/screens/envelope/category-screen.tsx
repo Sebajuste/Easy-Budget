@@ -3,9 +3,9 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { EnvelopeCategory } from "../../services/budget";
+import { EnvelopeCategory } from "../../services/envelope";
 import uuid from 'react-native-uuid';
-import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
+import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 
 export default function CreateCategoryScreen({navigation, route} : {navigation : any, route : any}) {
 

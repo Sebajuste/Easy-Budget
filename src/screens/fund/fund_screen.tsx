@@ -1,7 +1,7 @@
 import { ScrollView, View } from "react-native";
 import { Layout, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Budget, loadBudget } from "../../services/budget";
+import { Budget, loadBudget } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
 
 

@@ -4,7 +4,7 @@ import { ScrollView, View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput, ThemeContext } from "react-native-rapi-ui";
 import { Account } from "../../services/account";
 import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
-import { Envelope } from "../../services/budget";
+import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";

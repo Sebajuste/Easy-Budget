@@ -1,7 +1,7 @@
 import { AsyncStorage } from "react-native";
 import { SettingsDao, Settings, DEFAULT_SETTINGS } from "../settings";
 
-export class SettingsDaoStorage implements SettingsDao {
+export class SettingsDaoStorage extends SettingsDao {
 
     async load() : Promise<Settings> {
         const json = await AsyncStorage.getItem('settings');

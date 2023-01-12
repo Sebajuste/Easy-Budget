@@ -1,12 +1,12 @@
 import _ from "lodash";
 import { AsyncStorage } from "react-native";
-import { envelopeNextDate } from "../budget";
+import { envelopeNextDate } from "../envelope";
 import { Transaction, TransactionDao, TransactionType } from "../transaction";
 import { AccountDaoStorage } from "./account_async_storage";
-import { EnvelopeDaoStorage } from "./budget_async_storage";
+import { EnvelopeDaoStorage } from "./envelope-async-storage";
 
 
-export class TransactionDaoStorage implements TransactionDao {
+export class TransactionDaoStorage extends TransactionDao {
 
 
     async load() : Promise<Transaction[]> {

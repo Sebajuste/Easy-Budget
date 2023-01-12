@@ -14,14 +14,14 @@ export interface Transaction {
     reconciled: boolean;
 }
 
-export interface TransactionDao {
+export abstract class TransactionDao {
 
-    load() : Promise<Transaction[]>;
+    abstract load() : Promise<Transaction[]>;
 
-    save(transactions: Transaction[]) : Promise<void>;
+    abstract save(transactions: Transaction[]) : Promise<void>;
 
-    add(transaction: Transaction): Promise<boolean>;
+    abstract add(transaction: Transaction): Promise<boolean>;
 
-    remove(transaction: Transaction): Promise<boolean>;
+    abstract remove(transaction: Transaction): Promise<boolean>;
 
 }

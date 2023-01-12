@@ -1,14 +1,14 @@
 import { ScrollView, Settings, TouchableHighlight, View } from "react-native";
-import { Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
+import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/budget";
+import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/envelope";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
+import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import _ from "lodash";
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
 
@@ -86,7 +86,7 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
   
         <Section>
           <SectionContent>
-            {section_items}
+            {section_items.length > 0 ? section_items : <Text style={{textAlign: "center", fontSize: 20, margin: 10}}>Click on the + to add a first envelope</Text>}
           </SectionContent>
           <SectionContent>
             <View style={{flexDirection: 'row'}}>
@@ -104,7 +104,7 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
   
   }
 
-export default function EnvelopesScreen({navigation} : {navigation : any}) {
+export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: EnvelopeCategory[]) => void}) {
 
     const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
 
@@ -114,12 +114,19 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
 
     const isFocused = useIsFocused();
 
+    const createCategoryHandler = () => {
+      navigation.navigate('CreateCategory');
+    };
+
     useEffect(() => {
       const categoriesDao = new EnvelopeCategoryDaoStorage();
       const envelopeDao = new EnvelopeDaoStorage();
       const settingsDao = new SettingsDaoStorage();
 
-      categoriesDao.load().then(setCategories);
+      categoriesDao.load().then(result => {
+        setCategories(result);
+        if( onChange ) onChange(result);
+      });
       envelopeDao.load().then(setEnvelopes);
 
       settingsDao.load().then(settings => setRevenue(settings.revenue));
@@ -142,10 +149,14 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
     return (
         
         <SafeAreaView style={scroll_styles.container}>
-          <ScrollView style={scroll_styles.scrollView}>
-            
+
+          { (budget_items.length == 0) ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', margin: 20, }}>
+              <Button text="Create First category" onPress={createCategoryHandler} />
+            </View>
+          ) : (
+            <ScrollView style={scroll_styles.scrollView}>
               {budget_items}
-    
               <Section>
                 <SectionContent>
                   <View style={{flexDirection: 'row', padding: 10, ...budgetStyle}}>
@@ -162,8 +173,10 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
                   </View>
                 </SectionContent>
               </Section>
-  
-          </ScrollView>
-          </SafeAreaView>
+            </ScrollView>
+          ) }
+
+            
+        </SafeAreaView>
     );
 }

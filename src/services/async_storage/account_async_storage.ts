@@ -1,7 +1,7 @@
 import { AsyncStorage } from "react-native";
 import { Account, AccountDao } from "../account";
 
-export class AccountDaoStorage implements AccountDao {
+export class AccountDaoStorage extends AccountDao {
 
     async load() : Promise<Account[]> {
         const json_accounts = await AsyncStorage.getItem('accounts');

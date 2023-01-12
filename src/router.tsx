@@ -88,15 +88,15 @@ function BudgetStackScreen() {
     )};
 
     const homeIconHandler = ({ tintColor } : any) => (
-        <Icon name="home" size={25} color={tintColor} />
+        <Icon name="home" size={25} color={tintColor} style={{color: tintColor}} />
     );
 
     const envelopeIconHandler = ({ tintColor } : any) => (
-        <Icon name="envelope-o" size={25} color={tintColor} />
+        <Icon name="envelope-o" size={25} color={tintColor} style={{color: tintColor}} />
     );
 
     const accountIconHandler = ({ tintColor } : any) => (
-        <Icon name="bank" size={25} color={tintColor} />
+        <Icon name="bank" size={25} color={tintColor} style={{color: tintColor}} />
     );
 
 
