@@ -1,5 +1,4 @@
 
-
 export interface Account {
     _id: string;
     name: string;
@@ -14,8 +13,6 @@ export interface AccountOperation {
     date: Date;
 }
 
-
-
 export interface EnvelopeFill {
     _id: string;
     amount: number;
@@ -24,10 +21,10 @@ export interface EnvelopeFill {
     date: Date;
 }
 
-export interface AccountDao {
+export abstract class AccountDao {
 
-    load() : Promise<Account[]>;
+    abstract load() : Promise<Account[]>;
 
-    save(accounts: Account[]) : Promise<void>
+    abstract save(accounts: Account[]) : Promise<void>
 
 }

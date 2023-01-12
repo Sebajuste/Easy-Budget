@@ -18,13 +18,13 @@
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native": "^6.0.11",
     "@react-navigation/native-stack": "^6.7.0",
-    "@types/lodash": "^4.14.191",
     "expo": "~45.0.0",
     "expo-asset": "~8.5.0",
     "expo-dev-client": "~1.0.1",
     "expo-font": "~10.1.0",
     "expo-splash-screen": "~0.15.1",
     "expo-status-bar": "~1.3.0",
+    "expo-updates": "~0.13.4",
     "lodash": "^4.17.21",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -35,10 +35,11 @@
     "react-native-uuid": "^2.0.1",
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "0.17.7",
-    "rxjs": "^7.5.6",
-    "expo-updates": "~0.13.4"
+    "rxjs": "^7.5.6"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/react-native-vector-icons": "^6.4.12",
     "@babel/core": "^7.12.9",
     "@types/jest": "^28.1.5",
     "@types/react": "^18.0.15",

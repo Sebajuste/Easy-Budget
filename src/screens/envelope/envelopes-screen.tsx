@@ -1,15 +1,16 @@
-import { ScrollView, TouchableHighlight, View } from "react-native";
-import { Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
+import { ScrollView, Settings, TouchableHighlight, View } from "react-native";
+import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/budget";
-import { scroll_styles } from "../../styles";
+import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/envelope";
+import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
+import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import _ from "lodash";
+import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
 
 
 
@@ -85,7 +86,7 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
   
         <Section>
           <SectionContent>
-            {section_items}
+            {section_items.length > 0 ? section_items : <Text style={{textAlign: "center", fontSize: 20, margin: 10}}>Click on the + to add a first envelope</Text>}
           </SectionContent>
           <SectionContent>
             <View style={{flexDirection: 'row'}}>
@@ -103,20 +104,33 @@ function EnvelopeSection({navigation, title, envelopeCategory, envelopes} : {nav
   
   }
 
-export default function EnvelopesScreen({navigation} : {navigation : any}) {
+export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: EnvelopeCategory[]) => void}) {
 
     const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
 
+    const [revenue, setRevenue] = useState(0);
+
     const isFocused = useIsFocused();
+
+    const createCategoryHandler = () => {
+      navigation.navigate('CreateCategory');
+    };
 
     useEffect(() => {
       const categoriesDao = new EnvelopeCategoryDaoStorage();
       const envelopeDao = new EnvelopeDaoStorage();
+      const settingsDao = new SettingsDaoStorage();
 
-      categoriesDao.load().then(setCategories);
+      categoriesDao.load().then(result => {
+        setCategories(result);
+        if( onChange ) onChange(result);
+      });
       envelopeDao.load().then(setEnvelopes);
+
+      settingsDao.load().then(settings => setRevenue(settings.revenue));
+
     }, [isFocused])
 
 
@@ -128,27 +142,41 @@ export default function EnvelopesScreen({navigation} : {navigation : any}) {
       
     const total_year = budgetPerYear(envelopes);
 
+    const monthBudget = total_year/12;
+
+    const budgetStyle = revenue >= monthBudget ? container_state_styles.success : container_state_styles.danger;
+
     return (
         
         <SafeAreaView style={scroll_styles.container}>
-          <ScrollView style={scroll_styles.scrollView}>
-            
+
+          { (budget_items.length == 0) ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', margin: 20, }}>
+              <Button text="Create First category" onPress={createCategoryHandler} />
+            </View>
+          ) : (
+            <ScrollView style={scroll_styles.scrollView}>
               {budget_items}
-    
               <Section>
                 <SectionContent>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{flex: 2}}>Year budget : </Text>
-                  <Text style={{textAlign: 'right'}}> {total_year.toFixed(2)} €</Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{flex: 2}}>Month budget : </Text>
-                  <Text style={{textAlign: 'right'}}>{(total_year/12).toFixed(2)} €</Text>
-                </View>
+                  <View style={{flexDirection: 'row', padding: 10, ...budgetStyle}}>
+                    <Text style={{flex: 2}}>Month budget : </Text>
+                    <Text style={{textAlign: 'right'}}>{monthBudget.toFixed(2)} €</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', padding: 10}}>
+                    <Text style={{flex: 2}}>Revenue : </Text>
+                    <Text style={{textAlign: 'right'}}>{revenue.toFixed(2)} €</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', padding: 10}}>
+                    <Text style={{flex: 2, fontSize: 12, fontStyle: 'italic'}}>Year budget : </Text>
+                    <Text style={{textAlign: 'right', fontSize: 12, fontStyle: 'italic'}}> {total_year.toFixed(2)} €</Text>
+                  </View>
                 </SectionContent>
               </Section>
-  
-          </ScrollView>
-          </SafeAreaView>
+            </ScrollView>
+          ) }
+
+            
+        </SafeAreaView>
     );
 }

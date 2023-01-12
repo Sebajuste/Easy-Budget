@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { Button, Text } from "react-native-rapi-ui";
 
 
-export function SelectDateComponent({date, label, onChange, style} : {date : Date, label?: string, onChange : any, style ?: any}) {
+export function SelectDateComponent({date, label, minimumDate, onChange, style} : {date : Date, label?: string, minimumDate?: Date, onChange : any, style ?: any}) {
 
     const dateStr = date.toISOString().slice(0,10);// .replace(/-/g,"");
 
@@ -19,7 +19,7 @@ export function SelectDateComponent({date, label, onChange, style} : {date : Dat
         <View style={style}>
             <Text style={{ fontSize: 12 }} >{ label }</Text>
             <Text style={{ fontSize: 20, margin: 2, padding: 10, borderWidth: 1, borderRadius: 5, borderColor: '#ccc', backgroundColor: 'white'}} onPress={() => setShowDatePicker(true)}>{dateStr}</Text>
-            { showDatePicker ? <DateTimePicker value={date} onChange={onDateChange} /> : <></>}
+            { showDatePicker ? <DateTimePicker value={date} minimumDate={minimumDate} onChange={onDateChange} /> : <></>}
         </View>
     );
 

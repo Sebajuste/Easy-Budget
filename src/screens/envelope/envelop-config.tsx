@@ -3,8 +3,8 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { SelectDateComponent } from "../../components/select-date";
-import { EnvelopeDaoStorage } from "../../services/async_storage/budget_async_storage";
-import { budgetPerMonth, Envelope, EnvelopeCategory, Period, periodFromString, periodToString } from "../../services/budget";
+import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
+import { budgetPerMonth, Envelope, EnvelopeCategory, Period, periodFromString, periodToString } from "../../services/envelope";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
 
@@ -88,6 +88,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         });
     };
 
+    const now = new Date();
+
     const formValid = name.trim().length > 0 && amount.trim().length > 0 && parseFloat(amount) != 0;
 
     return (
@@ -133,7 +135,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                 <View>
 
                     <View>
-                        { showDueDate ? (<SelectDateComponent label="Due Date" date={dueDate} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
+                        { showDueDate ? (<SelectDateComponent label="Due Date" date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
                     </View>
 
                 </View>
