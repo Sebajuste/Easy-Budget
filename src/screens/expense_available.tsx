@@ -1,7 +1,7 @@
 import { ScrollView, View } from "react-native";
 import { Layout, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Budget, BudgetOperation, BudgetOperationType, loadBudget } from "../services/budget";
+import { Budget, BudgetOperation, BudgetOperationType, loadBudget } from "../services/envelope";
 import { scroll_styles, styles } from "../styles";
 
 
@@ -39,7 +39,7 @@ export default function ExpenseAvailableScreen() {
 
     const budget_available = budget.operations.map((item) => perMonth(item)).reduce((previous, current) => previous + current, 0);
 
-    let new_reserve = budget.reserve + budget_available;
+    let new_reserve = budget.funds + budget_available;
   
     const items = budget.operations.map((operation : BudgetOperation) => {
       return {

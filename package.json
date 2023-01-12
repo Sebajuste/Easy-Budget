@@ -7,7 +7,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "build:android:preview": "eas build --platform android --profile preview",
+    "build:ios:preview": "eas build --platform ios --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
@@ -25,6 +27,7 @@
     "expo-splash-screen": "~0.15.1",
     "expo-sqlite": "~10.2.0",
     "expo-status-bar": "~1.3.0",
+    "expo-updates": "~0.13.4",
     "lodash": "^4.17.21",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -38,6 +41,8 @@
     "rxjs": "^7.5.6"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/react-native-vector-icons": "^6.4.12",
     "@babel/core": "^7.12.9",
     "@types/jest": "^28.1.5",
     "@types/react": "^18.0.15",
