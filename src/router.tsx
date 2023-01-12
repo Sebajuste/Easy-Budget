@@ -14,6 +14,8 @@ import { TransactionScreen } from "./screens/transactions/transaction-screen";
 import { AccountScreen } from "./screens/account/account-screen";
 import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 import { EnvelopeConfigScreen } from "./screens/envelope";
+import { TutoAccountScreen, TutoEnvelopeScreen, TutoInfoEnvelopeScreen, TutoInfoFinalScreen, TutoScreen } from "./screens/tuto/tuto-screen";
+// import { Ionicons } from "@expo/vector-icons";
 
 
 
@@ -33,8 +35,6 @@ const navTo = (navigation: any, pageName : string) => {
 
 function MainStackScreen({navigation} : any) {
 
-    
-
     return (
         <Stack.Navigator>
             <Stack.Screen name="Main" component={BudgetStackScreen} options={{title: '', headerShown: false}}/>
@@ -50,6 +50,14 @@ function MainStackScreen({navigation} : any) {
             <Stack.Screen name="Transaction" component={ TransactionScreen } options={{title: 'Transaction'}}/>
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: 'Create Account'}}/>
+
+            <Stack.Screen name="TutoScreen" component={ TutoScreen } options={{title: 'Create Account'}}/>
+            <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: 'Create Account', headerRight: () => (<Button title="+" onPress={() => navigation.navigate({name: 'CreateAccount'})}></Button>) })}/>
+            <Stack.Screen name="TutoInfoEnvelopeScreen" component={TutoInfoEnvelopeScreen} options={{title: 'Create Envelopes'}} />
+            <Stack.Screen name="TutoEnvelopeScreen" component={TutoEnvelopeScreen} options={ ({navigation}) => ({title: 'Create Envelopes', headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>)} ) } />
+            <Stack.Screen name="TutoInfoFinalScreen" component={TutoInfoFinalScreen} options={{title: 'Manage transaction'}} />
+            
+
         </Stack.Navigator>
     );
 
@@ -57,11 +65,45 @@ function MainStackScreen({navigation} : any) {
 
 function BudgetStackScreen() {
 
+    const screenOptionsHandler = ({route} : any) => {(
+        {
+            tabBarIcon: ({ focused, color, size } : any) => {
+                let iconName;
+    
+                if (route.name === 'Home') {
+                iconName = focused
+                    ? 'ios-information-circle'
+                    : 'ios-information-circle-outline';
+                } else if (route.name === 'Settings') {
+                iconName = focused ? 'ios-list-box' : 'ios-list';
+                }
+    
+                // You can return any component that you like here!
+                return <Text>Test</Text>;
+            },
+            tabBarActiveTintColor: 'tomato',
+            tabBarInactiveTintColor: 'gray',
+        }
+    )};
+
+    const homeIconHandler = ({ tintColor } : any) => (
+        <Icon name="home" size={25} color={tintColor} />
+    );
+
+    const envelopeIconHandler = ({ tintColor } : any) => (
+        <Icon name="envelope-o" size={25} color={tintColor} />
+    );
+
+    const accountIconHandler = ({ tintColor } : any) => (
+        <Icon name="bank" size={25} color={tintColor} />
+    );
+
+
     return (
-        <Tab.Navigator>
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => { return {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>)} } } />
-            <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => { return {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>) }; } } />
+        <Tab.Navigator >
+            <Tab.Screen name="Home" component={HomeScreen} options={ ({navigation}) => ({tabBarIcon: homeIconHandler}) } />
+            <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>), tabBarIcon: envelopeIconHandler} ) } />
+            <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />
         </Tab.Navigator>
     );
 
