@@ -2,15 +2,15 @@ import { ScrollView, Settings, TouchableHighlight, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EnvelopeCategory, Envelope, periodToString, budgetPerYear } from "../../services/envelope";
+import { EnvelopeCategory, Envelope, periodToString, budgetPerYear, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import _ from "lodash";
-import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
+import { Database, getDao } from "../../services/dao-manager";
+import { SettingsDao } from "../../services/settings";
 
 
 
@@ -119,17 +119,17 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     };
 
     useEffect(() => {
-      const categoriesDao = new EnvelopeCategoryDaoStorage();
-      const envelopeDao = new EnvelopeDaoStorage();
-      const settingsDao = new SettingsDaoStorage();
 
-      categoriesDao.load().then(result => {
-        setCategories(result);
-        if( onChange ) onChange(result);
+      const categoriesDao = getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, Database.ASYNC_STORAGE);
+      const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+      const settingsDao = getDao<SettingsDao>(SettingsDao, Database.ASYNC_STORAGE);
+
+      Promise.all([categoriesDao.load(), envelopeDao.load(), settingsDao.load()]).then( ([categories, envelopes, settings]) => {
+        setCategories(categories);
+        setEnvelopes(envelopes);
+        setRevenue(settings.revenue);
+        if( onChange ) onChange(categories);
       });
-      envelopeDao.load().then(setEnvelopes);
-
-      settingsDao.load().then(settings => setRevenue(settings.revenue));
 
     }, [isFocused])
 

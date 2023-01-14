@@ -16,14 +16,27 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
     }
 
     async save(envelopeCategories: EnvelopeCategory[]) : Promise<void> {
-        return await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
+        await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
     }
 
     async add(envelopeCategorie : EnvelopeCategory) : Promise<void> {
         envelopeCategorie._id = uuid.v4() as string;
         return this.load().then(categories => {
             categories.push(envelopeCategorie);
+            console.log('push cat ', envelopeCategorie );
             return this.save(categories);
+        });
+    }
+
+    async update(category : EnvelopeCategory) : Promise<void> {
+        return this.load().then(categories => {
+            const result = _.find(categories, item => item._id == category._id );
+            if( result ) {
+                result.name = category.name;
+                return this.save(categories);
+            }
+            throw new Error('Cannot find item');
+
         });
     }
 
@@ -55,6 +68,22 @@ export class EnvelopeDaoStorage extends EnvelopeDao {
         await this.load().then(envelopes => {
             envelopes.push(envelope);
             return this.save(envelopes);
+        });
+    }
+
+    async update(envelope : Envelope) : Promise<void> {
+        return this.load().then(envelopes => {
+            const result = _.find(envelopes, item => item._id == envelope._id);
+            if( result ) {
+                result.name = envelope.name;
+                result.amount = envelope.amount;
+                result.category_id = envelope.category_id;
+                result.dueDate = envelope.dueDate;
+                result.funds = envelope.funds;
+                result.period = envelope.period;
+                return this.save(envelopes);
+            }
+            throw new Error('Cannot find item');
         });
     }
 

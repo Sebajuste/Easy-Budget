@@ -3,20 +3,19 @@ export enum Period {
     MONTH, TRIMESTER, SEMESTER, YEAR
 }
 
+export interface EnvelopeCategory {
+  _id: string | number;
+  name: string;
+}
+
 export interface Envelope {
-    _id : string;
+    _id : string | number;
     name: string;
     amount: number;
     funds: number;
     period: Period;
     dueDate: Date;
     category_id: string;
-}
-
-export interface EnvelopeCategory {
-    _id: string;
-    name: string;
-    envelopes: Envelope[];
 }
 
 export function periodToString(budgetPeriod : Period) {
@@ -121,14 +120,16 @@ export function envelopeNextDate(envelope: Envelope) : Date {
 
 export abstract class EnvelopeCategoryDao {
   abstract load() : Promise<EnvelopeCategory[]>;
-  abstract save(envelopeCategories: EnvelopeCategory[]) : Promise<void>;
+  // abstract save(envelopeCategories: EnvelopeCategory[]) : Promise<void>;
   abstract add(envelopeCategorie : EnvelopeCategory) : Promise<void>;
+  abstract update(envelopeCategorie : EnvelopeCategory) : Promise<void>;
   abstract remove(envelopeCategorie : EnvelopeCategory) : Promise<void>;
 }
 
 export abstract class EnvelopeDao {
   abstract load() : Promise<Envelope[]>;
-  abstract save(envelopes: Envelope[]) : Promise<void>;
+  // abstract save(envelopes: Envelope[]) : Promise<void>;
   abstract add(envelope : Envelope) : Promise<void>;
+  abstract update(envelope : Envelope) : Promise<void>;
   abstract remove(envelope : Envelope) : Promise<void>;
 };

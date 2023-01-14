@@ -3,10 +3,10 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import { parse } from "uuid";
-import { Account } from "../../services/account";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
+import { Account, AccountDao } from "../../services/account";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
+import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -16,20 +16,18 @@ export function AccountScreen({navigation, route} : any) {
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '');
 
-    const accountDao = new AccountDaoStorage();
+    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
 
     const saveHandler = () => {
+        const balanceFloat = parseFloat(balance);
+        const account = {
+            _id: uuid.v4(),
+            name: name,
+            balance: balanceFloat,
+            envelope_balance: balanceFloat,
+        } as Account;
 
-        accountDao.load().then(accounts => {
-            const balanceFloat = parseFloat(balance);
-            accounts.push({
-                _id: uuid.v4(),
-                name: name,
-                balance: balanceFloat,
-                envelope_balance: balanceFloat,
-            } as Account);
-            return accountDao.save(accounts);
-        }).then(v => {
+        accountDao?.add(account).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
         });

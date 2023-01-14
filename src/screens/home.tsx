@@ -7,15 +7,15 @@ import { scroll_styles } from "../styles";
 import PaymentListView from "./payment/payment-list-view";
 import uuid from 'react-native-uuid';
 import { useEffect, useState } from "react";
-import { TransactionDaoStorage } from "../services/async_storage/transaction_async_storage";
 import _ from "lodash";
 import { EnvelopeDaoStorage } from "../services/async_storage/envelope-async-storage";
 import { AccountDaoStorage } from "../services/async_storage/account_async_storage";
-import { SettingsDaoStorage } from "../services/async_storage/settings_async_storage";
+import { DATABASE_TYPE, getDao } from "../services/dao-manager";
+import { SettingsDao } from "../services/settings";
 
 
 async function checkDatabase() {
-  const transactionDao = new TransactionDaoStorage();
+  // const transactionDao = new TransactionDaoStorage();
   const envelopeDao = new EnvelopeDaoStorage();
   const accountDao = new AccountDaoStorage();
 
@@ -66,9 +66,9 @@ export default function HomeScreen({navigation} : any) {
     useEffect(() => {
       checkDatabase().then(setDatabaseCheck).catch(console.error);
 
-      const settingsDao = new SettingsDaoStorage();
+      const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE);
 
-      settingsDao.load().then(settings => {
+      settingsDao?.load().then(settings => {
         if( !settings.tuto_shown ) {
           startTuto();
         }

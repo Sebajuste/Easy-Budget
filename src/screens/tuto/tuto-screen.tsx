@@ -4,17 +4,15 @@ import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
-import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
-import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory } from "../../services/envelope";
-import { Transaction, TransactionType } from "../../services/transaction";
+import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory, EnvelopeDao } from "../../services/envelope";
+import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import uuid from 'react-native-uuid';
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Account } from "../../services/account";
+import { Account, AccountDao } from "../../services/account";
+import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 
 
@@ -51,6 +49,10 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
+    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
         const now = new Date();
@@ -75,10 +77,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const fillCalculation = () => {
 
-        const envelopeDao = new EnvelopeDaoStorage();
-        const accountDao = new AccountDaoStorage();
-
-        Promise.all([envelopeDao.load(), accountDao.load()]).then(([envelopes, accounts]) => {
+        Promise.all([envelopeDao?.load(), accountDao?.load()]).then(([envelopes, accounts]) => {
 
             const fill_required_envelopes = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => (fill_required) );
             const fill_required = _.sum(fill_required_envelopes);
@@ -99,10 +98,6 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
     };
 
     const fillAutoHandler = () => {
-
-        const envelopeDao = new EnvelopeDaoStorage();
-        const transactionDao = new TransactionDaoStorage();
-        const accountDao = new AccountDaoStorage();
 
         const now = new Date();
 

@@ -17,4 +17,19 @@ export class AccountDaoStorage extends AccountDao {
 
     }
 
+    add(account: Account): Promise<void> {
+        return this.load().then(accounts => {
+            accounts.push(account);
+            return this.save(accounts);
+        });
+    }
+
+    update(account: Account): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
+    delete(account: Account): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
 }

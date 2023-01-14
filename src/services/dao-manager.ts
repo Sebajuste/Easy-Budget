@@ -8,12 +8,12 @@ export enum Database {
 
 export const DATABASE_TYPE = Database.ASYNC_STORAGE;
 
-export function getDao<T>(clazz : T&Function, database : Database) : T | undefined {
+export function getDao<T>(clazz: any, database : Database) : T {
 
 	switch(database) {
     case Database.ASYNC_STORAGE: {
       return ASYNC_STORAGE_DAO[clazz.name] as T;
     }
   }
-  return undefined;
+  throw new Error('Cannot find database')
 }

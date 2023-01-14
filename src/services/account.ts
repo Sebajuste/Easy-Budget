@@ -1,30 +1,22 @@
 
 export interface Account {
-    _id: string;
+    _id: string | number;
     name: string;
     balance: number;
     envelope_balance: number;
-}
-
-export interface AccountOperation {
-    _id: string;
-    name: string;
-    amount: number;
-    date: Date;
-}
-
-export interface EnvelopeFill {
-    _id: string;
-    amount: number;
-    envelope_id: string;
-    account_id: string;
-    date: Date;
+    created_at: Date;
 }
 
 export abstract class AccountDao {
 
     abstract load() : Promise<Account[]>;
 
-    abstract save(accounts: Account[]) : Promise<void>
+    // abstract save(accounts: Account[]) : Promise<void>;
+
+    abstract add(account: Account) : Promise<void>;
+
+    abstract update(account: Account) : Promise<void>;
+
+    abstract delete(account: Account) : Promise<void>;
 
 }

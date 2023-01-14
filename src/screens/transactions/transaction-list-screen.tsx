@@ -5,8 +5,8 @@ import { SafeAreaView, ScrollView, View } from "react-native";
 import { scroll_styles } from "../../styles";
 import { Button, CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { useEffect, useState } from "react";
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Transaction, TransactionType } from "../../services/transaction";
+import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
+import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 export function TransactionListScreen({navigation, route} : any) {
 
@@ -14,6 +14,7 @@ export function TransactionListScreen({navigation, route} : any) {
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
 
     const reconciledHandler = (transaction: Transaction, val: boolean) => {
 
@@ -24,7 +25,7 @@ export function TransactionListScreen({navigation, route} : any) {
     };
 
     useEffect(() => {
-        const transactionDao = new TransactionDaoStorage();
+        
         transactionDao.load().then(transactions => {
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id && transaction.transactionType === TransactionType.PAIMENT ) : transactions;
         }).then(setTransactions);

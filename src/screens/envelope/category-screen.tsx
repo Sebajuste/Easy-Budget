@@ -3,9 +3,9 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { EnvelopeCategory } from "../../services/envelope";
+import { EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
 import uuid from 'react-native-uuid';
-import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
+import { Database, getDao } from "../../services/dao-manager";
 
 export default function CreateCategoryScreen({navigation, route} : {navigation : any, route : any}) {
 
@@ -15,12 +15,12 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
 
     const [hasEnvelope, setHasEnvelope] = useState(false);
 
-    const categoryDao = new EnvelopeCategoryDaoStorage();
-    const envelopeDao = new EnvelopeDaoStorage();
+    const categoryDao = getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, Database.ASYNC_STORAGE);
+    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
 
     useEffect(() => {
 
-        envelopeDao.load()//
+        envelopeDao?.load()//
             .then(envelopes => _.filter(envelopes, envelope => envelope.category_id == envelopeCategory._id))//
             .then(envelopes => envelopes.length > 0)//
             .then(setHasEnvelope);
@@ -31,7 +31,13 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
 
         if( envelopeCategory ) {
 
-            categoryDao.load().then(categories => {
+            categoryDao.update(envelopeCategory).then(v => {
+                const popAction = StackActions.pop(1);
+                navigation.dispatch(popAction);
+            });
+
+            /*
+            categoryDao?.load().then(categories => {
 
                 const cat = _.find(categories, cat => cat._id == envelopeCategory._id );
                 if( cat ) {
@@ -42,13 +48,13 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             });
+            */
 
         } else {
 
             const newEnvelopeCategory = {
                 _id: uuid.v4(),
-                name: name,
-                envelopes: []
+                name: name
             } as EnvelopeCategory;
 
             categoryDao.add(newEnvelopeCategory).then(v => {
@@ -62,7 +68,7 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
 
     const deleteHandler = () => {
 
-        categoryDao.remove(envelopeCategory).then(v => {
+        categoryDao?.remove(envelopeCategory).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
         });

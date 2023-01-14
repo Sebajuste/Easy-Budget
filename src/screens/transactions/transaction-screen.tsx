@@ -2,14 +2,12 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
 import { SelectDateComponent } from "../../components/select-date";
-import { Transaction, TransactionType } from "../../services/transaction";
-import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
-import { Envelope } from "../../services/envelope";
+import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
+import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { StackActions, useIsFocused } from "@react-navigation/native";
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Account } from "../../services/account";
+import { Account, AccountDao } from "../../services/account";
+import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 
 export function TransactionScreen({navigation, route} : any) {
@@ -36,10 +34,14 @@ export function TransactionScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
+    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+
     const payHandler = () => {
 
         if( account ) {
-        const transactionDao = new TransactionDaoStorage();
+        
         transaction.name = name;
         transaction.transactionType = TransactionType.PAIMENT;
         transaction.amount = parseFloat(amount);
@@ -62,20 +64,8 @@ export function TransactionScreen({navigation, route} : any) {
 
     };
 
-    /*
-    const selectAccountHandler = (id: string) => {
-        setAccountID(id);
-        const accountDao = new AccountDaoStorage();
-        accountDao.load().then(accounts => _.find(accounts, item => item._id == accountID) )//
-            .then(setAccount);
-    };
-    */
-
-    
-
     useEffect(() => {
-        const accountDao = new AccountDaoStorage();
-        const envelopeDao = new EnvelopeDaoStorage();
+        
 
         envelopeDao.load().then(envelopes => {
 

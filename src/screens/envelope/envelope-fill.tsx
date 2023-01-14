@@ -1,17 +1,16 @@
 import { Slider } from "@miblanchard/react-native-slider";
 import { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Button, Layout, Picker, Text, TextInput, ThemeContext } from "react-native-rapi-ui";
-import { Account } from "../../services/account";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
+import { Button, Layout, Picker, Text } from "react-native-rapi-ui";
+import { Account, AccountDao } from "../../services/account";
 import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
 import { StackActions } from "@react-navigation/native";
-import { Transaction, TransactionType } from "../../services/transaction";
+import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import TransactionView from "../transactions/transaction-view";
+import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 
 
@@ -36,6 +35,9 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
+    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+
     const selectAccountHandler = (value: string) => {
         setAccountID(value);
         const account = _.find(accounts, account => value == accountID );
@@ -49,7 +51,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const saveHandler = () => {
 
-        const transactionDao = new TransactionDaoStorage();
+        
 
         const account = _.find(accounts, account => account._id == accountID );
         if( account ) {
@@ -64,7 +66,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 reconciled: true
             } as Transaction;
 
-            transactionDao.add(transaction).then(v => {
+            transactionDao?.add(transaction).then(v => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             });
@@ -74,11 +76,10 @@ export function EnvelopFillScreen({navigation, route} : any) {
     };
 
     useEffect(() => {
-        const accountDao = new AccountDaoStorage();
-        const transactionDao = new TransactionDaoStorage();
-        accountDao.load().then(setAccounts);
         
-        transactionDao.load()//
+        accountDao?.load().then(setAccounts);
+        
+        transactionDao?.load()//
             .then(items => _.filter(items, item => item.envelope_id == envelope._id)  )//
             .then(items => _.orderBy(items, ['date'], ['desc'] ) )//
             .then(setTransactions);
@@ -101,7 +102,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
     const accountItems = accounts.map(account => {
         return {
             label: `${account.name} [${account.envelope_balance}]`,
-            value: account._id
+            value: account._id as string
         };
     });
 
@@ -121,7 +122,6 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 null
             }
             
-
             <View style={{ margin: 2, flexDirection: 'row' }}>
                 <View style={{flex: 1, margin: 2}}>
                     <Text style={{ fontSize: 12 }}>Account</Text>
