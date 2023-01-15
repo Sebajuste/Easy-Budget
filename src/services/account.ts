@@ -13,7 +13,7 @@ export abstract class AccountDao {
 
     // abstract save(accounts: Account[]) : Promise<void>;
 
-    abstract add(account: Account) : Promise<void>;
+    abstract add(account: Account) : Promise<number|string|undefined>;
 
     abstract update(account: Account) : Promise<void>;
 

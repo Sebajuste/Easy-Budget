@@ -7,9 +7,9 @@ import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
-import TransactionView from "../transactions/transaction-view";
+import EnvelopeTransactionView from "../transactions/transaction-view";
 import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 
@@ -31,12 +31,12 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const [accounts, setAccounts] = useState<Account[]>([]);
 
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<EnvelopeTransaction[]>([]);
 
     const amount = solde - funds;
 
     const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+    const transactionDao = getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);
@@ -55,16 +55,15 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
         const account = _.find(accounts, account => account._id == accountID );
         if( account ) {
-            const transaction : Transaction = {
+            const transaction : EnvelopeTransaction = {
                 _id: uuid.v4(),
                 name: `Fill Envelope ${envelope.name}`,
-                transactionType: TransactionType.FILL,
                 amount: amount,
                 envelope_id: envelope._id,
                 account_id: account?._id,
                 date: new Date(),
                 reconciled: true
-            } as Transaction;
+            } as EnvelopeTransaction;
 
             transactionDao?.add(transaction).then(v => {
                 const popAction = StackActions.pop(1);
@@ -111,7 +110,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
         navigation.dispatch(action);
     };
 
-    const transactions_items = transactions?.map((transaction, index) => <TransactionView transaction={transaction} key={index} />);
+    const transactions_items = transactions?.map((transaction, index) => <EnvelopeTransactionView transaction={transaction} key={index} />);
 
     return (
         <Layout style={{margin: 10}}>

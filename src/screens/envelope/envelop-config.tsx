@@ -82,21 +82,6 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
             navigation.dispatch(popAction);
         });
 
-        /*
-        envelopeDao?.load().then(envelopes => {
-            const env = _.find(envelopes, item => item._id == envelope._id);
-            if( env ) {
-                env.name = name;
-                env.amount = parseFloat(amount);
-                env.period = period;
-                env.dueDate = dueDate;
-                return envelopeDao?.save(envelopes).then(v => {
-                    const popAction = StackActions.pop(1);
-                    navigation.dispatch(popAction);
-                });
-            }
-        });
-        */
     }
 
     const deleteHandler = () => {

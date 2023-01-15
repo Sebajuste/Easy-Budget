@@ -1,22 +1,21 @@
-import { Account } from "../../services/account";
-import uuid from 'react-native-uuid';
-import _ from "lodash";
-import { SafeAreaView, ScrollView, View } from "react-native";
-import { scroll_styles } from "../../styles";
-import { Button, CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { useEffect, useState } from "react";
-import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
+import { SafeAreaView, ScrollView, View } from "react-native";
+import { Button, CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
+import _ from "lodash";
+import { Account } from "../../services/account";
+import { scroll_styles } from "../../styles";
 import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 
-export function TransactionListScreen({navigation, route} : any) {
+export function AccountTransactionListScreen({navigation, route} : any) {
 
     const account : Account = route.params?.account;
 
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
 
-    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+    const transactionDao = getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
 
-    const reconciledHandler = (transaction: Transaction, val: boolean) => {
+    const reconciledHandler = (transaction: AccountTransaction, val: boolean) => {
 
     };
 
@@ -27,13 +26,13 @@ export function TransactionListScreen({navigation, route} : any) {
     useEffect(() => {
         
         transactionDao.load().then(transactions => {
-            return account ? _.filter(transactions, transaction => transaction.account_id == account._id && transaction.transactionType === TransactionType.PAIMENT ) : transactions;
+            return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);
     }, []);
 
     const transactions_ordered = _.orderBy(transactions, ['date'], ['desc']);
 
-    const transaction_items = transactions_ordered.map((transaction: Transaction, index) => {
+    const transaction_items = transactions_ordered.map((transaction: AccountTransaction, index) => {
 
         return (
             <Section key={index}>

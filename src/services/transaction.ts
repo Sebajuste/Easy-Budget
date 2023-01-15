@@ -1,12 +1,29 @@
 
-export enum TransactionType {
-    FILL, PAIMENT
-}
-
-export interface Transaction {
+export interface EnvelopeTransaction {
     _id: string | number;
     name: string;
-    transactionType: TransactionType;
+    amount: number;
+    envelope_id: string;
+    account_id: string | number;
+    date: Date;
+}
+
+export abstract class EnvelopeTransactionDao {
+
+    abstract load() : Promise<EnvelopeTransaction[]>;
+
+    abstract add(transaction: EnvelopeTransaction): Promise<string|number|undefined>;
+
+    abstract addAll(transactions : EnvelopeTransaction[]) : Promise<boolean[]>;
+
+    abstract remove(transaction: EnvelopeTransaction): Promise<boolean>;
+
+}
+
+
+export interface AccountTransaction {
+    _id: string | number;
+    name: string;
     amount: number;
     envelope_id: string;
     account_id: string | number;
@@ -14,16 +31,14 @@ export interface Transaction {
     reconciled: boolean;
 }
 
-export abstract class TransactionDao {
+export abstract class AccountTransactionDao {
 
-    abstract load() : Promise<Transaction[]>;
+    abstract load() : Promise<AccountTransaction[]>;
 
-    // abstract save(transactions: Transaction[]) : Promise<void>;
+    abstract add(transaction: AccountTransaction): Promise<string|number|undefined>;
 
-    abstract add(transaction: Transaction): Promise<boolean>;
+    abstract addAll(transactions : AccountTransaction[]) : Promise<boolean[]>;
 
-    abstract addAll(transactions : Transaction[]) : Promise<boolean[]>;
-
-    abstract remove(transaction: Transaction): Promise<boolean>;
+    abstract remove(transaction: AccountTransaction): Promise<boolean>;
 
 }

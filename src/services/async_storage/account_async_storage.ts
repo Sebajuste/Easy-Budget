@@ -1,5 +1,6 @@
 import { AsyncStorage } from "react-native";
 import { Account, AccountDao } from "../account";
+import uuid from 'react-native-uuid';
 
 export class AccountDaoStorage extends AccountDao {
 
@@ -17,10 +18,11 @@ export class AccountDaoStorage extends AccountDao {
 
     }
 
-    add(account: Account): Promise<void> {
+    add(account: Account): Promise<string|number|undefined> {
+        account._id = uuid.v4() as string;
         return this.load().then(accounts => {
             accounts.push(account);
-            return this.save(accounts);
+            return this.save(accounts).then(v => account._id);
         });
     }
 

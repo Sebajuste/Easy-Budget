@@ -1,11 +1,15 @@
 
 export enum Period {
-    MONTH, TRIMESTER, SEMESTER, YEAR
+    MONTH = "MONTH",
+    TRIMESTER = "TRIMESTER",
+    SEMESTER = "SEMESTER",
+    YEAR = "YEAR"
 }
 
 export interface EnvelopeCategory {
   _id: string | number;
   name: string;
+  color: string;
 }
 
 export interface Envelope {
@@ -121,7 +125,7 @@ export function envelopeNextDate(envelope: Envelope) : Date {
 export abstract class EnvelopeCategoryDao {
   abstract load() : Promise<EnvelopeCategory[]>;
   // abstract save(envelopeCategories: EnvelopeCategory[]) : Promise<void>;
-  abstract add(envelopeCategorie : EnvelopeCategory) : Promise<void>;
+  abstract add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined>;
   abstract update(envelopeCategorie : EnvelopeCategory) : Promise<void>;
   abstract remove(envelopeCategorie : EnvelopeCategory) : Promise<void>;
 }
@@ -129,7 +133,7 @@ export abstract class EnvelopeCategoryDao {
 export abstract class EnvelopeDao {
   abstract load() : Promise<Envelope[]>;
   // abstract save(envelopes: Envelope[]) : Promise<void>;
-  abstract add(envelope : Envelope) : Promise<void>;
+  abstract add(envelope : Envelope) : Promise<string|number|undefined>;
   abstract update(envelope : Envelope) : Promise<void>;
   abstract remove(envelope : Envelope) : Promise<void>;
 };

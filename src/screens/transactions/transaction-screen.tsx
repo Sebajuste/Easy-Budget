@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { SelectDateComponent } from "../../components/select-date";
-import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
 import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import { Account, AccountDao } from "../../services/account";
 import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 
 
-export function TransactionScreen({navigation, route} : any) {
+export function AccountTransactionScreen({navigation, route} : any) {
 
-    const transaction : Transaction = route.params?.transaction;
+    const transaction : AccountTransaction = route.params?.transaction;
 
     const [name, setName] = useState( transaction ? transaction.name: '');
 
@@ -34,27 +34,25 @@ export function TransactionScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
-    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+    const transactionDao = getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
     const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
     const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
 
     const payHandler = () => {
 
         if( account ) {
-        
-        transaction.name = name;
-        transaction.transactionType = TransactionType.PAIMENT;
-        transaction.amount = parseFloat(amount);
-        transaction.envelope_id = envelopID;
-        transaction.account_id = account._id;
-        transaction.date = date;
-        transaction.reconciled = false;
-        
-        transactionDao.add(transaction).then(result => {
-            console.log(`Result : ${result ? 'true' : 'false' }`)
-            const popAction = StackActions.pop(1);
-            navigation.dispatch(popAction);
-        }).catch(console.error);
+            transaction.name = name;
+            transaction.amount = parseFloat(amount);
+            transaction.envelope_id = envelopID;
+            transaction.account_id = account._id;
+            transaction.date = date;
+            transaction.reconciled = false;
+            
+            transactionDao.add(transaction).then(result => {
+                console.log(`Result : ${result ? 'true' : 'false' }`)
+                const popAction = StackActions.pop(1);
+                navigation.dispatch(popAction);
+            }).catch(console.error);
         }
     };
 

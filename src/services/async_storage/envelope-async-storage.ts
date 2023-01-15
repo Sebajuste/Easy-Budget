@@ -3,8 +3,6 @@ import { AsyncStorage } from "react-native";
 import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../envelope";
 import uuid from 'react-native-uuid';
 
-
-
 export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
 
     async load() : Promise<EnvelopeCategory[]> {
@@ -19,13 +17,12 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
         await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
     }
 
-    async add(envelopeCategorie : EnvelopeCategory) : Promise<void> {
+    async add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined> {
         envelopeCategorie._id = uuid.v4() as string;
         return this.load().then(categories => {
             categories.push(envelopeCategorie);
-            console.log('push cat ', envelopeCategorie );
             return this.save(categories);
-        });
+        }).then(r => (envelopeCategorie._id));
     }
 
     async update(category : EnvelopeCategory) : Promise<void> {
@@ -63,11 +60,11 @@ export class EnvelopeDaoStorage extends EnvelopeDao {
         return await AsyncStorage.setItem('envelopes', JSON.stringify(envelopes) );
     }
 
-    async add(envelope : Envelope) : Promise<void> {
-        // envelope._id = uuid.v4();
-        await this.load().then(envelopes => {
+    async add(envelope : Envelope) : Promise<string|number|undefined> {
+        envelope._id = uuid.v4() as string;
+        return await this.load().then(envelopes => {
             envelopes.push(envelope);
-            return this.save(envelopes);
+            return this.save(envelopes).then(v => envelope._id as string|number|undefined);
         });
     }
 

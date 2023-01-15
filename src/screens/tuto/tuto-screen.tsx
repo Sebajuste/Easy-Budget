@@ -6,13 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
 import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory, EnvelopeDao } from "../../services/envelope";
-import { Transaction, TransactionDao, TransactionType } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
-import uuid from 'react-native-uuid';
 import { Account, AccountDao } from "../../services/account";
 import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 
 
 
@@ -51,7 +50,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
     const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = getDao<TransactionDao>(TransactionDao, DATABASE_TYPE);
+    const transactionDao = getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
@@ -111,16 +110,13 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
                     if( temp_account ) {
                         temp_account.temp_balance -= fill_required;
-                        const transaction : Transaction = {
-                            _id: uuid.v4() as string,
+                        const transaction : EnvelopeTransaction = {
                             name: `Auto fill ${envelope.name as string}`,
-                            transactionType: TransactionType.FILL,
                             amount: fill_required as number,
                             envelope_id: envelope._id,
                             account_id: temp_account.account._id,
                             date: now,
-                            reconciled: false
-                        } as Transaction;
+                        } as EnvelopeTransaction;
 
                         return transaction;
                     }

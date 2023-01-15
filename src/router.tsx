@@ -6,11 +6,14 @@ import { Button, TouchableWithoutFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import HomeScreen from "./screens/home";
+
 import EnvelopesScreen from "./screens/envelope/envelopes-screen";
-import CreateCategoryScreen from "./screens/envelope/category-screen";
 import { AccountsScreen } from "./screens/account/accounts-screen";
-import { TransactionListScreen } from "./screens/transactions/transaction-list-screen";
-import { TransactionScreen } from "./screens/transactions/transaction-screen";
+
+import CreateCategoryScreen from "./screens/envelope/category-screen";
+
+import { AccountTransactionListScreen } from "./screens/transactions/transaction-list-screen";
+import { AccountTransactionScreen } from "./screens/transactions/transaction-screen";
 import { AccountScreen } from "./screens/account/account-screen";
 import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 import { EnvelopeConfigScreen } from "./screens/envelope";
@@ -32,12 +35,16 @@ const navTo = (navigation: any, pageName : string) => {
 };
 
 
+/*
+            
+*/
+
+
 function MainStackScreen({navigation} : any) {
 
     return (
         <Stack.Navigator>
             <Stack.Screen name="Main" component={BudgetStackScreen} options={{title: '', headerShown: false}}/>
-
             <Stack.Screen name="CreateCategory" component={ CreateCategoryScreen } options={{title: 'Add'}}/>
             <Stack.Screen name="EditCategory" component={ CreateCategoryScreen } options={{title: 'Edit'}}/>
 
@@ -45,8 +52,8 @@ function MainStackScreen({navigation} : any) {
             <Stack.Screen name="CreateEnvelope" component={ EnvelopeConfigScreen } options={{title: 'New Envelope'}}/>
             <Stack.Screen name="FillEnvelope" component={ EnvelopFillScreen } options={{title: 'Fill Envelope'}} />
             
-            <Stack.Screen name="AccountTransaction" component={ TransactionListScreen } options={{title: 'Transactions' }} />
-            <Stack.Screen name="Transaction" component={ TransactionScreen } options={{title: 'Transaction'}}/>
+            <Stack.Screen name="AccountTransaction" component={ AccountTransactionListScreen } options={{title: 'Transactions' }} />
+            <Stack.Screen name="Transaction" component={ AccountTransactionScreen } options={{title: 'Transaction'}}/>
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: 'Create Account'}}/>
 
@@ -99,6 +106,10 @@ function BudgetStackScreen() {
         <Icon name="bank" size={25} color={tintColor} style={{color: tintColor}} />
     );
 
+    /*
+            
+            
+    */
 
     return (
         <Tab.Navigator >

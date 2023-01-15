@@ -36,20 +36,6 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
                 navigation.dispatch(popAction);
             });
 
-            /*
-            categoryDao?.load().then(categories => {
-
-                const cat = _.find(categories, cat => cat._id == envelopeCategory._id );
-                if( cat ) {
-                    cat.name = name;
-                }
-                return categoryDao.save(categories);
-            }).then(v => {
-                const popAction = StackActions.pop(1);
-                navigation.dispatch(popAction);
-            });
-            */
-
         } else {
 
             const newEnvelopeCategory = {
