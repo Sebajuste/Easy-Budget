@@ -3,9 +3,9 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
+import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
 import uuid from 'react-native-uuid';
-import { Database, getDao } from "../../services/dao-manager";
+import { DAOFactory, Database, DATABASE_TYPE, getDao } from "../../services/dao-manager";
 
 export default function CreateCategoryScreen({navigation, route} : {navigation : any, route : any}) {
 
@@ -15,8 +15,8 @@ export default function CreateCategoryScreen({navigation, route} : {navigation :
 
     const [hasEnvelope, setHasEnvelope] = useState(false);
 
-    const categoryDao = getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, Database.ASYNC_STORAGE);
-    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const categoryDao = DAOFactory.getDAO<EnvelopeCategory>(EnvelopeCategoryDao, DATABASE_TYPE); // getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, Database.ASYNC_STORAGE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
 
     useEffect(() => {
 

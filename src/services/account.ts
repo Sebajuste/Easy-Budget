@@ -1,3 +1,4 @@
+import { DAO } from "./dao";
 
 export interface Account {
     _id: string | number;
@@ -7,7 +8,7 @@ export interface Account {
     created_at: Date;
 }
 
-export abstract class AccountDao {
+export abstract class AccountDao extends DAO<Account> {
 
     abstract load() : Promise<Account[]>;
 
@@ -17,6 +18,6 @@ export abstract class AccountDao {
 
     abstract update(account: Account) : Promise<void>;
 
-    abstract delete(account: Account) : Promise<void>;
+    abstract remove(account: Account) : Promise<void>;
 
 }

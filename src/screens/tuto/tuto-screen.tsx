@@ -10,8 +10,9 @@ import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import { Account, AccountDao } from "../../services/account";
-import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE, getDao } from "../../services/dao-manager";
 import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { SettingsDao } from "../../services/settings";
 
 
 
@@ -48,9 +49,9 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
-    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
-    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO<EnvelopeTransaction>(EnvelopeTransactionDao, DATABASE_TYPE); // getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
@@ -251,11 +252,10 @@ export function TutoRevenueScreen({navigation} : any) {
 
     const [revenue, setRevenue] = useState('0.00');
 
-    const settingsDao = new SettingsDaoStorage();
+    const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE ); // new SettingsDaoStorage();
 
     const nextHandler = () => {
 
-        
         settingsDao.load().then(settings => {
             settings.revenue = parseFloat(revenue);
             return settings;

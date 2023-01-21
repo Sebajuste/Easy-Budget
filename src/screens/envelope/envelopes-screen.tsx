@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
-import { Database, DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE, getDao } from "../../services/dao-manager";
 import { SettingsDao } from "../../services/settings";
 
 
@@ -120,9 +120,9 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     useEffect(() => {
 
-      const categoriesDao = getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, DATABASE_TYPE);
+      const categoriesDao = DAOFactory.getDAO<EnvelopeCategory>(EnvelopeCategoryDao, DATABASE_TYPE); // getDao<EnvelopeCategoryDao>(EnvelopeCategoryDao, DATABASE_TYPE);
       
-      const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+      const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
       const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE);
 
       Promise.all([categoriesDao.load(), envelopeDao.load(), settingsDao.load()]).then( ([categories, envelopes, settings]) => {

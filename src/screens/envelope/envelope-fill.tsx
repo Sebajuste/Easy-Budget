@@ -7,10 +7,10 @@ import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import EnvelopeTransactionView from "../transactions/transaction-view";
-import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 
 
@@ -35,8 +35,8 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
-    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO<EnvelopeTransaction>(EnvelopeTransactionDao, DATABASE_TYPE); // getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);
@@ -51,8 +51,6 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const saveHandler = () => {
 
-        
-
         const account = _.find(accounts, account => account._id == accountID );
         if( account ) {
             const transaction : EnvelopeTransaction = {
@@ -65,7 +63,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 reconciled: true
             } as EnvelopeTransaction;
 
-            transactionDao?.add(transaction).then(v => {
+            transactionDao.add(transaction).then(v => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             });
@@ -76,9 +74,9 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     useEffect(() => {
         
-        accountDao?.load().then(setAccounts);
+        accountDao.load().then(setAccounts);
         
-        transactionDao?.load()//
+        transactionDao.load()//
             .then(items => _.filter(items, item => item.envelope_id == envelope._id)  )//
             .then(items => _.orderBy(items, ['date'], ['desc'] ) )//
             .then(setTransactions);

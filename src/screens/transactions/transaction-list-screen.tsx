@@ -4,7 +4,7 @@ import { Button, CheckBox, Section, SectionContent, Text } from "react-native-ra
 import _ from "lodash";
 import { Account } from "../../services/account";
 import { scroll_styles } from "../../styles";
-import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 
 export function AccountTransactionListScreen({navigation, route} : any) {
@@ -13,7 +13,8 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
 
-    const transactionDao = getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
+    // const transactionDao = getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE);
 
     const reconciledHandler = (transaction: AccountTransaction, val: boolean) => {
 
@@ -24,7 +25,6 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     };
 
     useEffect(() => {
-        
         transactionDao.load().then(transactions => {
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);

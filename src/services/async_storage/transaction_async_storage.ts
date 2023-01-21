@@ -9,7 +9,11 @@ import { EnvelopeDaoStorage } from "./envelope-async-storage";
 
 
 
-export class AccountTransactionDaoDaoStorage extends AccountTransactionDao {
+export class AccountTransactionDaoStorage extends AccountTransactionDao {
+
+    update(transaction: AccountTransaction): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
     
     async load(): Promise<AccountTransaction[]> {
         const json_transactions = await AsyncStorage.getItem('account_transactions');
@@ -77,7 +81,7 @@ export class AccountTransactionDaoDaoStorage extends AccountTransactionDao {
         });
     }
 
-    remove(transaction: AccountTransaction): Promise<boolean> {
+    remove(transaction: AccountTransaction): Promise<void> {
         const accountDao = new AccountDaoStorage();
         const envelopeDao = new EnvelopeDaoStorage();
 
@@ -97,10 +101,10 @@ export class AccountTransactionDaoDaoStorage extends AccountTransactionDao {
                     this.save(transactions),
                     accountDao.save(accounts),
                     envelopeDao.save(envelopes)
-                ]).then(v => true);
+                ]).then(v => {});
             }
 
-            return false;
+            return;
         });
     }
 
@@ -108,6 +112,9 @@ export class AccountTransactionDaoDaoStorage extends AccountTransactionDao {
 
 
 export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
+    update(entry: EnvelopeTransaction): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
 
 
     async load() : Promise<EnvelopeTransaction[]> {
@@ -160,7 +167,7 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
 
     }
 
-    async addAll(transactions : EnvelopeTransaction[]) : Promise<boolean[]> {
+    async addAll(transactions : EnvelopeTransaction[]) : Promise<string[]|number[]|undefined[]> {
 
         const self = this;
 
@@ -183,7 +190,7 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
 
     };
 
-    async remove(transaction: EnvelopeTransaction) : Promise<boolean> {
+    async remove(transaction: EnvelopeTransaction) : Promise<void> {
 
         const accountDao = new AccountDaoStorage();
         const envelopeDao = new EnvelopeDaoStorage();
@@ -204,10 +211,9 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
                     this.save(transactions),
                     accountDao.save(accounts),
                     envelopeDao.save(envelopes)
-                ]).then(v => true);
+                ]).then(v => {});
             }
 
-            return false;
         });
 
     }

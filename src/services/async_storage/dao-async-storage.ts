@@ -1,42 +1,30 @@
 import { AsyncStorage } from "react-native";
 import { AccountDao } from "../account";
-import { DatabaseManager } from "../dao-manager";
 import { EnvelopeCategoryDao, EnvelopeDao } from "../envelope";
-import { DEFAULT_SETTINGS, SettingsDao } from "../settings";
+import { RevenueDao } from "../revenue";
+import { SettingsDao } from "../settings";
 import { AccountTransactionDao, EnvelopeTransactionDao } from "../transaction";
 import { AccountDaoStorage } from "./account_async_storage";
+import { DatabaseManagerAsyncStorage } from "./database-manager-storage";
 import { EnvelopeCategoryDaoStorage, EnvelopeDaoStorage } from "./envelope-async-storage";
+import { RevenueDaoStorage } from "./revenue-storage";
 import { SettingsDaoStorage } from "./settings_async_storage";
-import { AccountTransactionDaoDaoStorage, EnvelopeTransactionDaoStorage } from "./transaction_async_storage";
+import { AccountTransactionDaoStorage, EnvelopeTransactionDaoStorage } from "./transaction_async_storage";
 
 
-class DatabaseManagerAsyncStorange extends DatabaseManager {
+export const DB_MANAGER_ASYNC = new DatabaseManagerAsyncStorage();
 
-    async init(): Promise<void> {
-        // throw new Error("Method not implemented.");
-        
-    }
+export const ASYNC_STORAGE_DAO : {[key: string] : any } = {
 
-    async delete(): Promise<void> {
-        await AsyncStorage.setItem('accounts', JSON.stringify([]));
-        await AsyncStorage.setItem('transactions', JSON.stringify([]));
-        await AsyncStorage.setItem('envelopes_transactions', JSON.stringify([]));
-        await AsyncStorage.setItem('account_transactions', JSON.stringify([]));
-        await AsyncStorage.setItem('envelope_categories', JSON.stringify([]));
-        await AsyncStorage.setItem('envelopes', JSON.stringify([]));
-        await AsyncStorage.setItem('settings', JSON.stringify(DEFAULT_SETTINGS));
-    }
-
-}
-
-export const ASYNC_STORAGE_DAO = {
-
-    [DatabaseManager.name]: new DatabaseManagerAsyncStorange(),
+    // [DatabaseManager.name]: new DatabaseManagerAsyncStorage(),
+    
     [AccountDao.name]: new AccountDaoStorage(),
+    [RevenueDao.name]: new RevenueDaoStorage(),
+    [SettingsDao.name]: new SettingsDaoStorage(),
+    
     [EnvelopeCategoryDao.name]: new EnvelopeCategoryDaoStorage(),
     [EnvelopeDao.name]: new EnvelopeDaoStorage(),
-    [SettingsDao.name]: new SettingsDaoStorage(),
+    
     [EnvelopeTransactionDao.name]: new EnvelopeTransactionDaoStorage(),
-    [AccountTransactionDao.name]: new AccountTransactionDaoDaoStorage(),
-
+    [AccountTransactionDao.name]: new AccountTransactionDaoStorage(),
 };

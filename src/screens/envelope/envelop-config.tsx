@@ -6,7 +6,7 @@ import { SelectDateComponent } from "../../components/select-date";
 import { budgetPerMonth, Envelope, EnvelopeCategory, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
-import { Database, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 
 const operation_type_picker_items = [
@@ -44,7 +44,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const showDueDate = period != Period.MONTH;
 
-    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
 
     const addHandler = () => {
 

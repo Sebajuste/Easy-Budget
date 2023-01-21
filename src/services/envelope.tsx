@@ -1,3 +1,4 @@
+import { DAO } from "./dao";
 
 export enum Period {
     MONTH = "MONTH",
@@ -122,7 +123,7 @@ export function envelopeNextDate(envelope: Envelope) : Date {
 }
 
 
-export abstract class EnvelopeCategoryDao {
+export abstract class EnvelopeCategoryDao extends DAO<EnvelopeCategory> {
   abstract load() : Promise<EnvelopeCategory[]>;
   // abstract save(envelopeCategories: EnvelopeCategory[]) : Promise<void>;
   abstract add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined>;
@@ -130,7 +131,7 @@ export abstract class EnvelopeCategoryDao {
   abstract remove(envelopeCategorie : EnvelopeCategory) : Promise<void>;
 }
 
-export abstract class EnvelopeDao {
+export abstract class EnvelopeDao extends DAO<Envelope> {
   abstract load() : Promise<Envelope[]>;
   // abstract save(envelopes: Envelope[]) : Promise<void>;
   abstract add(envelope : Envelope) : Promise<string|number|undefined>;

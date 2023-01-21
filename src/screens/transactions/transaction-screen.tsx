@@ -6,7 +6,7 @@ import { SelectDateComponent } from "../../components/select-date";
 import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import { Account, AccountDao } from "../../services/account";
-import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 
 
@@ -34,9 +34,9 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
-    const transactionDao = getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
-    const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const envelopeDao = getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
 
     const payHandler = () => {
 

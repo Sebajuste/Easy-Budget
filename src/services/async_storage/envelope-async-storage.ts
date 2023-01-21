@@ -4,6 +4,10 @@ import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "..
 import uuid from 'react-native-uuid';
 
 export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
+    
+    addAll(entry: EnvelopeCategory[]): Promise<(string | number | undefined)[]> {
+        throw new Error("Method not implemented.");
+    }
 
     async load() : Promise<EnvelopeCategory[]> {
         const json = await AsyncStorage.getItem('envelope_categories');
@@ -47,6 +51,9 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
 }
 
 export class EnvelopeDaoStorage extends EnvelopeDao {
+    addAll(entry: Envelope[]): Promise<(string | number | undefined)[]> {
+        throw new Error("Method not implemented.");
+    }
 
     async load() : Promise<Envelope[]> {
         const json = await AsyncStorage.getItem('envelopes');

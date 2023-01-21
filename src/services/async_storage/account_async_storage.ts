@@ -1,6 +1,8 @@
 import { AsyncStorage } from "react-native";
-import { Account, AccountDao } from "../account";
 import uuid from 'react-native-uuid';
+import _ from "lodash";
+
+import { Account, AccountDao } from "../account";
 
 export class AccountDaoStorage extends AccountDao {
 
@@ -26,12 +28,19 @@ export class AccountDaoStorage extends AccountDao {
         });
     }
 
+    addAll(accounts: Account[]): Promise<string[] | number[] | undefined[]> {
+        throw new Error("Method not implemented.");
+    }
+
     update(account: Account): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
-    delete(account: Account): Promise<void> {
-        throw new Error("Method not implemented.");
+    remove(account: Account): Promise<void> {
+        return this.load().then(accounts => {
+            accounts = _.remove(accounts, act => act._id != account._id);
+            return this.save(accounts);
+        });
     }
 
 }
