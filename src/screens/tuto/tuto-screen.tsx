@@ -49,9 +49,9 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
-    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAO<EnvelopeTransaction>(EnvelopeTransactionDao, DATABASE_TYPE); // getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
@@ -281,7 +281,7 @@ export function TutoRevenueScreen({navigation} : any) {
                 <Text style={{margin: 10, fontSize: 24}}>Enter your average global revenue per month</Text>
 
                 <View style={{ margin: 20, width: 200}}>
-                    <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} />
+                    <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} keyboardType="numeric" />
                 </View>
 
             </View>

@@ -43,7 +43,7 @@ export default function HomeScreen({navigation} : any) {
 
     const clearDatabaseHandler = () => {
 
-      dbManager.delete();
+      dbManager.delete().then(dbManager.init);
 
         // dbManager.delete();
     };

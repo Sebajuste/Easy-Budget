@@ -14,7 +14,7 @@ export default function PaymentListView({onPayment} : {onPayment?: (envelop: Env
 
     const isFocused = useIsFocused();
 
-    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
 
     useEffect(() => {
 

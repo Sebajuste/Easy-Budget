@@ -20,8 +20,6 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
 
-    // const [accountID, setAccountID] = useState( transaction ? transaction.account_id : '' );
-
     const [date, setDate] = useState( transaction ? ( typeof transaction.date === 'string' ? new Date(transaction.date) : transaction.date ) : new Date());
 
     const [envelopItems, setEnvelopItems] = useState<any[]>([]);
@@ -115,6 +113,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                             placeholder="0.00"
                             value={amount}
                             onChangeText={(val) => setAmount(val)}
+                            keyboardType="numeric"
                         />
                     </View>
                 </View>

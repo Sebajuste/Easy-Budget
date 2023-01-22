@@ -44,7 +44,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const showDueDate = period != Period.MONTH;
 
-    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
 
     const addHandler = () => {
 
@@ -117,6 +117,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                             placeholder="0.00"
                             value={amount}
                             onChangeText={(val) => setAmount(val)}
+                            keyboardType="numeric"
                         />
                     </View>
 

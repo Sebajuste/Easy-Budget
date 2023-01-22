@@ -11,12 +11,12 @@ export abstract class RevenueDao extends DAO<Revenue> {
 
     abstract load(): Promise<Revenue[]>;
 
-    abstract add(entry: Revenue): Promise<string | number | undefined>;
+    abstract add(revenue: Revenue): Promise<string | number | undefined>;
 
-    abstract addAll(entry: Revenue[]): Promise<(string | number | undefined)[]>;
+    abstract addAll(revenue: Revenue[]): Promise<(string | number | undefined)[]>;
 
-    abstract update(entry: Revenue): Promise<void>;
+    abstract update(revenue: Revenue): Promise<void>;
 
-    abstract remove(entry: Revenue): Promise<void>;
+    abstract remove(revenue: Revenue): Promise<void>;
 
 }

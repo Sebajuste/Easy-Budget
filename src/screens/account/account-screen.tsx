@@ -58,6 +58,7 @@ export function AccountScreen({navigation, route} : any) {
                     placeholder="0.00"
                     value={balance}
                     onChangeText={setBalance}
+                    keyboardType="numeric"
                 />
             </View>
 

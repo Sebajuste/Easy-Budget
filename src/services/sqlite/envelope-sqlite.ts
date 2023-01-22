@@ -1,5 +1,5 @@
 import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao, Period } from "../envelope";
-import { sqlite_client } from './dao-sqlite';
+import { sqlite_client } from "./database-manager-sqlite";
 
 export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
     

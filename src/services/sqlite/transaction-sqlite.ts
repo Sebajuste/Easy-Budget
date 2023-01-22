@@ -1,6 +1,5 @@
 import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao } from "../transaction";
-import { sqlite_client } from "./dao-sqlite";
-
+import { sqlite_client } from "./database-manager-sqlite";
 
 
 

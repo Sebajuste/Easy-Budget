@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import { Settings, SettingsDao } from '../settings';
-import { sqlite_client } from "./dao-sqlite";
+import { sqlite_client } from "./database-manager-sqlite";
 
 
 export class SettingsDaoSQLite extends SettingsDao {

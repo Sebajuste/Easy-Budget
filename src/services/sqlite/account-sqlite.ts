@@ -1,7 +1,5 @@
-import { SQLStatementErrorCallback } from "expo-sqlite";
 import { Account, AccountDao } from "../account";
-import { SQLBuilder } from "../sql";
-import { sqlite_client } from "./dao-sqlite";
+import { sqlite_client } from "./database-manager-sqlite";
 
 
 

@@ -1,5 +1,11 @@
-import SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite';
 import { DatabaseManager } from "../database-manager";
+
+const SQLITE_VERSION = "1.0";
+
+export const sqlite_client = SQLite.openDatabase('easy_budget.db', SQLITE_VERSION, "", 1, (db) => {
+    new DatabaseManagerSQLite(db).init();
+});
 
 export class DatabaseManagerSQLite extends DatabaseManager {
 
@@ -48,7 +54,8 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 { sql: `CREATE TABLE IF NOT EXISTS t_category_cat (
                     cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     cat_name TEXT NOT NULL,
-                    cat_color TEXT NOT NULL
+                    cat_color TEXT NOT NULL,
+                    cat_icon TEXT NOT NULL
                 )`, args: [] },
                 { sql: `CREATE TABLE t_envelopes_evp (
                     evp_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,7 +106,7 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 { sql: `CREATE TABLE t_revenue_rev (
                     rev_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     rev_name TEXT NOT NULL UNIQUE,
-                    rev_amount INTEGER NOT NULL
+                    rev_amount INTEGER NOT NULL CHECK rev_amount > 0
                 )`,args: []},
 
                 // Settings
@@ -111,10 +118,10 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 
             ], false, (err : any) => {
     
-                console.log('Init database done');
-    
                 if( err ) {
+                    console.log('Init database error', err);
                     reject(err);
+                    console.log('Init database done');
                 } else {
                     resolve(null);
                 }

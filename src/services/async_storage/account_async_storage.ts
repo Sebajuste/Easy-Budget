@@ -15,7 +15,7 @@ export class AccountDaoStorage extends AccountDao {
     }
 
     async save(accounts: Account[]) {
-       
+        
         return await AsyncStorage.setItem('accounts', JSON.stringify(accounts));
 
     }
@@ -33,7 +33,15 @@ export class AccountDaoStorage extends AccountDao {
     }
 
     update(account: Account): Promise<void> {
-        throw new Error("Method not implemented.");
+        return this.load().then(accounts => {
+            const result = _.find(accounts, item => item._id == account._id );
+            if( result ) {
+                result.name = account.name;
+                result.balance = account.balance;
+                return this.save(accounts);
+            }
+            throw new Error('Cannot find item');
+        });
     }
 
     remove(account: Account): Promise<void> {

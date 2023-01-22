@@ -10,7 +10,7 @@ import HomeScreen from "./screens/home";
 import EnvelopesScreen from "./screens/envelope/envelopes-screen";
 import { AccountsScreen } from "./screens/account/accounts-screen";
 
-import CreateCategoryScreen from "./screens/envelope/category-screen";
+import CategoryScreen from "./screens/envelope/category-screen";
 
 import { AccountTransactionListScreen } from "./screens/transactions/transaction-list-screen";
 import { AccountTransactionScreen } from "./screens/transactions/transaction-screen";
@@ -18,6 +18,8 @@ import { AccountScreen } from "./screens/account/account-screen";
 import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 import { EnvelopeConfigScreen } from "./screens/envelope";
 import { TutoAccountScreen, TutoEnvelopeScreen, TutoFinalScreen, TutoFirstFillEnvelopeScreen, TutoInfoEnvelopeScreen, TutoInfoFillEnvelopeScreen, TutoRevenueScreen, TutoScreen } from "./screens/tuto/tuto-screen";
+import RevenueScreen from "./screens/revenues/revenue-screen";
+import RevenueListScreen from "./screens/revenues/revenue-list-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -56,6 +58,10 @@ function BudgetStackScreen() {
         <Icon name="home" size={25} color={tintColor} style={{color: tintColor}} />
     );
 
+    const revenueIconHandler = ({tintColor} : any) => (
+        <Icon name="euro" size={25} color={tintColor} style={{color: tintColor}} />
+    );
+
     const envelopeIconHandler = ({ tintColor } : any) => (
         <Icon name="envelope-o" size={25} color={tintColor} style={{color: tintColor}} />
     );
@@ -73,6 +79,7 @@ function BudgetStackScreen() {
     return (
         <Tab.Navigator >
             <Tab.Screen name="Home" component={HomeScreen} options={ ({navigation}) => ({tabBarIcon: homeIconHandler}) } />
+            <Tab.Screen name="Revenues" component={RevenueListScreen} options={ ({navigation}) => ({tabBarIcon: revenueIconHandler}) } />
             <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>), tabBarIcon: envelopeIconHandler} ) } />
             <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />
         </Tab.Navigator>
@@ -83,8 +90,8 @@ function BudgetStackScreen() {
 
 /*
 
-    <Stack.Screen name="CreateCategory" component={ CreateCategoryScreen } options={{title: 'Add'}}/>
-            <Stack.Screen name="EditCategory" component={ CreateCategoryScreen } options={{title: 'Edit'}}/>
+    <Stack.Screen name="CreateCategory" component={ CategoryScreen } options={{title: 'Add'}}/>
+            <Stack.Screen name="EditCategory" component={ CategoryScreen } options={{title: 'Edit'}}/>
 
             <Stack.Screen name="ConfigEnvelope" component={ EnvelopeConfigScreen } options={{title: 'Envelope'}}/>
             <Stack.Screen name="CreateEnvelope" component={ EnvelopeConfigScreen } options={{title: 'New Envelope'}}/>
@@ -113,8 +120,12 @@ function MainStackScreen({navigation} : any) {
         <Stack.Navigator>
             <Stack.Screen name="Main" component={BudgetStackScreen} options={{title: '', headerShown: false}}/>
             
-            <Stack.Screen name="CreateCategory" component={ CreateCategoryScreen } options={{title: 'Add'}}/>
-            <Stack.Screen name="EditCategory" component={ CreateCategoryScreen } options={{title: 'Edit'}}/>
+            <Stack.Screen name="CreateRevenue" component={ RevenueScreen } options={{title: 'Add'}}/>
+            <Stack.Screen name="EditRevenue" component={ RevenueScreen } options={{title: 'Edit'}}/>
+
+
+            <Stack.Screen name="CreateCategory" component={ CategoryScreen } options={{title: 'Add'}}/>
+            <Stack.Screen name="EditCategory" component={ CategoryScreen } options={{title: 'Edit'}}/>
 
             <Stack.Screen name="ConfigEnvelope" component={ EnvelopeConfigScreen } options={{title: 'Envelope'}}/>
             <Stack.Screen name="CreateEnvelope" component={ EnvelopeConfigScreen } options={{title: 'New Envelope'}}/>

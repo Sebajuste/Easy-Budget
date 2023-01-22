@@ -11,6 +11,7 @@ export interface EnvelopeCategory {
   _id: string | number;
   name: string;
   color: string;
+  icon: string;
 }
 
 export interface Envelope {

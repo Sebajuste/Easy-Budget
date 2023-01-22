@@ -2,7 +2,6 @@ import { ASYNC_STORAGE_DAO, DB_MANAGER_ASYNC } from "./async_storage/dao-async-s
 import { DAO } from "./dao";
 import { DatabaseManager } from "./database-manager";
 import { SQLITE_DAO } from "./sqlite/dao-sqlite";
-import { sqlite_client } from './sqlite/dao-sqlite';
 
 export enum Database {
     ASYNC_STORAGE = "async_storage",
@@ -31,24 +30,23 @@ export class DAOFactory {
   }
 
   static getDAO<T>(table: typeof DAO<T>, database : Database) : DAO<T> {
-
     switch(database) {
       case Database.ASYNC_STORAGE: {
         const dao = ASYNC_STORAGE_DAO[table.name];
         if( dao ) {
           return dao;
         }
-        throw new Error(`Invalid DAO type ${table.name}`);
+        break;
       }
       case Database.SQLite: {
         const dao = SQLITE_DAO[table.name];
         if( dao ) {
           return dao;
         }
-        throw new Error(`Invalid DAO type ${table.name}`);
+        break;
       }
     }
-    throw new Error("Invalid DAO type");
+    throw new Error(`Invalid DAO type ${table.name} for ${database}`);
   }
 
 }
@@ -61,7 +59,6 @@ export function getDao<T>(clazz: any, database : Database) : T {
 
     case Database.ASYNC_STORAGE: {
       return ASYNC_STORAGE_DAO[clazz.name] as T;
-      break;
     }
     case Database.SQLite: {
       return SQLITE_DAO[clazz.name] as T;

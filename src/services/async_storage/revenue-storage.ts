@@ -7,17 +7,17 @@ import { Revenue, RevenueDao } from "../revenue";
 export class RevenueDaoStorage extends RevenueDao {
 
     async load() : Promise<Revenue[]> {
-        const json_accounts = await AsyncStorage.getItem('revenues');
-        if( json_accounts ) {
-            return JSON.parse(json_accounts) ;
+        const json_revenues = await AsyncStorage.getItem('revenues');
+        if( json_revenues ) {
+            return JSON.parse(json_revenues) ;
         }
         return [];
     }
 
     async save(revenues: Revenue[]) {
-       
-        return await AsyncStorage.setItem('revenues', JSON.stringify(revenues));
 
+        return await AsyncStorage.setItem('revenues', JSON.stringify(revenues));
+        
     }
 
     add(revenue: Revenue): Promise<string|number|undefined> {
@@ -33,7 +33,15 @@ export class RevenueDaoStorage extends RevenueDao {
     }
 
     update(revenue: Revenue): Promise<void> {
-        throw new Error("Method not implemented.");
+        return this.load().then(revenues => {
+            const result = _.find(revenues, item => item._id == revenue._id );
+            if( result ) {
+                result.name = revenue.name;
+                result.amount = revenue.amount;
+                return this.save(revenues);
+            }
+            throw new Error('Cannot find item');
+        });
     }
 
     remove(revenue: Revenue): Promise<void> {

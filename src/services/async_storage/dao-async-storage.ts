@@ -16,8 +16,6 @@ export const DB_MANAGER_ASYNC = new DatabaseManagerAsyncStorage();
 
 export const ASYNC_STORAGE_DAO : {[key: string] : any } = {
 
-    // [DatabaseManager.name]: new DatabaseManagerAsyncStorage(),
-    
     [AccountDao.name]: new AccountDaoStorage(),
     [RevenueDao.name]: new RevenueDaoStorage(),
     [SettingsDao.name]: new SettingsDaoStorage(),

@@ -34,10 +34,10 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
             const result = _.find(categories, item => item._id == category._id );
             if( result ) {
                 result.name = category.name;
+                result.color = category.color;
                 return this.save(categories);
             }
             throw new Error('Cannot find item');
-
         });
     }
 

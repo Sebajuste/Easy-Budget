@@ -7,14 +7,10 @@ import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import EnvelopeTransactionView from "../transactions/transaction-view";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-
-
-
-
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -35,8 +31,8 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAO<EnvelopeTransaction>(EnvelopeTransactionDao, DATABASE_TYPE); // getDao<EnvelopeTransactionDao>(EnvelopeTransactionDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);
@@ -73,23 +69,22 @@ export function EnvelopFillScreen({navigation, route} : any) {
     };
 
     useEffect(() => {
-        
+        console.log('EnvelopFillScreen use effect');
         accountDao.load().then(setAccounts);
         
         transactionDao.load()//
             .then(items => _.filter(items, item => item.envelope_id == envelope._id)  )//
             .then(items => _.orderBy(items, ['date'], ['desc'] ) )//
             .then(setTransactions);
+        
     }, []);
 
     if( !envelope ) {
-
         return (
             <Layout style={{margin: 10}}>
                 <Text>No Envelope</Text>
             </Layout>
         );
-
     }
 
     const account = _.find(accounts, account => account._id == accountID );
