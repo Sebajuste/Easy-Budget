@@ -43,11 +43,13 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         });
     }
 
-    close() {
-        return this.db.closeAsync().then(() => {
-            console.log('Database closed');
-            this.db = null;
-        });
+    async close() {
+        if( this.db ) {
+            return this.db.closeAsync().then(() => {
+                console.log('Database closed');
+                // this.db = null;
+            });
+        }
     }
 
     public init(): Promise<void> {
@@ -56,12 +58,6 @@ export class DatabaseManagerSQLite extends DatabaseManager {
             this.client.exec([
                 { sql: 'PRAGMA foreign_keys = ON;', args: [] },
     
-                // { sql: 'DROP TABLE t_account_act', args: []},
-                // { sql: 'DROP TABLE t_category_cat', args: []},
-                // { sql: 'DROP TABLE t_envelope_evp', args: []},
-                
-                // { sql: 'DROP TABLE t_transaction_tst', args: []},
-
                 // Envelopes
                 { sql: `CREATE TABLE IF NOT EXISTS t_category_cat (
                     cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -151,7 +147,8 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 { sql: `CREATE TABLE IF NOT EXISTS t_revenue_rev (
                     rev_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     rev_name TEXT NOT NULL UNIQUE,
-                    rev_amount DECIMAL(10,2) NOT NULL
+                    rev_amount DECIMAL(10,2) NOT NULL,
+                    rev_expect_date DATE NOT NULL
                 )`, args: []},
                 { sql: `CREATE TRIGGER IF NOT EXISTS check_rev_amount_insert
                     BEFORE INSERT

@@ -129,7 +129,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
                     throw new Error(`No account found to fill amount [${fill_required}]`);
                 });
             }).then(transactions => _.filter(transactions, tx => tx.amount != 0) )//
-            .then( transactionDao.addAll )//
+            .then( transactions => transactionDao.addAll(transactions) )//
             .then(result => {
                 nextHandler();
             })//

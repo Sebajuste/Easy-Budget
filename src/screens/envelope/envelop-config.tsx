@@ -48,6 +48,10 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const addHandler = () => {
 
+        if( period == Period.MONTHLY ) {
+            dueDate.setDate(1)
+        }
+
         const envelope : Envelope = {
             _id: uuid.v4(),
             name: name,

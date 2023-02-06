@@ -1,6 +1,6 @@
 import { SafeAreaView, ScrollView, View } from "react-native";
 import { Button, Text } from "react-native-rapi-ui";
-import { Envelope } from "../services/envelope";
+import { Envelope, EnvelopeDao } from "../services/envelope";
 import { scroll_styles } from "../styles";
 import { useEffect, useState } from "react";
 import _ from "lodash";
@@ -9,12 +9,15 @@ import _ from "lodash";
 // import { DatabaseManager, DATABASE_TYPE, getDao } from "../services/dao-manager";
 // import { SettingsDao } from "../services/settings";
 import { DAOFactory, DATABASE_TYPE } from "../services/dao-manager";
+import { AccountTransaction, EnvelopeTransactionDao } from "../services/transaction";
+import { AccountDao } from "../services/account";
+import NextPaymentListView from "./payment/payment-list-view";
 
 
 async function checkDatabase() {
-  // const transactionDao = new TransactionDaoStorage();
-  //const envelopeDao = new EnvelopeDaoStorage();
-  //const accountDao = new AccountDaoStorage();
+  const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE); // new TransactionDaoStorage();
+  const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
+  const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
 
   /*
   const total_fill = await transactionDao.load()//
@@ -22,17 +25,15 @@ async function checkDatabase() {
     .then(transactions => _.sum(_.map(transactions, transaction => transaction.amount ) ) );
   */
  
-    /*
+
   const total_funds = await envelopeDao.load().then(envelopes => _.sum(_.map(envelopes, envelope => envelope.funds )) );
 
   const total_account_filled = await accountDao.load()//
     .then(accounts => _.map(accounts, account => account.balance - account.envelope_balance))//
     .then(totals => _.sum(totals));
 
-  // console.log('total_fill: ', total_fill, ', total_funds: ', total_funds, ', total_account_filled: ', total_account_filled);
+  return Math.abs(total_account_filled - total_funds) < 0.001;
   
-  return total_account_filled == total_funds;
-  */
 }
 
 export default function HomeScreen({navigation} : any) {
@@ -42,7 +43,7 @@ export default function HomeScreen({navigation} : any) {
     const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
 
     const clearDatabaseHandler = () => {
-
+      console.log('Clear DB')
       dbManager.delete().then(() => {
         return dbManager.init();
       }).then(() => {
@@ -55,17 +56,16 @@ export default function HomeScreen({navigation} : any) {
     const paymentHandler = (envelope : Envelope) => {
       // navigation.navigate('', {par});
 
-      /*
+      
       const transaction = {
-        _id: uuid.v4(),
         name: `Paiement ${envelope.name}`,
         amount: envelope.amount,
         envelope_id: envelope._id,
         date: new Date().toISOString() as any,
-      } as Transaction;
+      } as AccountTransaction;
 
       navigation.navigate({name: 'Transaction', params: {transaction: transaction} });
-      */
+    
     };
 
     const startTuto = () => {
@@ -73,9 +73,9 @@ export default function HomeScreen({navigation} : any) {
     };
 
     useEffect(() => {
-      /*
+      
       checkDatabase().then(setDatabaseCheck).catch(console.error);
-
+      /*
       const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE);
 
       settingsDao.load().then(settings => {
@@ -86,7 +86,7 @@ export default function HomeScreen({navigation} : any) {
       */
     }, []);
 
-    // <PaymentListView onPayment={paymentHandler} />
+    // 
 
     return (
       <SafeAreaView style={scroll_styles.container}>
@@ -99,7 +99,7 @@ export default function HomeScreen({navigation} : any) {
         <View style={{ flex: 1, margin: 10 }}>
           <Text>Next paiements : </Text>
           <ScrollView style={scroll_styles.scrollView}>
-            
+            <NextPaymentListView onPayment={paymentHandler} />
           </ScrollView>
         </View>
       </SafeAreaView>

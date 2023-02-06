@@ -107,6 +107,8 @@ function EnvelopeSection({navigation, category, envelopes} : {navigation : any, 
 
 export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: EnvelopeCategory[]) => void}) {
 
+    const [loading, setLoading] = useState(false);
+
     const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
@@ -124,7 +126,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     };
 
     useEffect(() => {
-
+      setLoading(true);
       Promise.all([categoriesDao.load(), envelopeDao.load(), revenueDao.load()]).then( ([categories, envelopes, revenues]) => {
         setCategories(categories);
         setEnvelopes(envelopes);
@@ -132,11 +134,13 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
         if( onChange ) onChange(categories);
       }).catch(err => {
         console.error(err);
+      }).finally(() => {
+        setLoading(false);
       });
 
     }, [isFocused])
 
-
+    
     const envelopes_group = _.groupBy(envelopes, 'category_id');
 
     const budget_items = categories.map((category : EnvelopeCategory, index : number) => {
@@ -148,6 +152,12 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const monthBudget = total_year/12;
 
     const budgetStyle = revenue >= monthBudget ? container_state_styles.success : container_state_styles.danger;
+
+    if( loading ) {
+      <SafeAreaView style={scroll_styles.container}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    }
 
     return (
         

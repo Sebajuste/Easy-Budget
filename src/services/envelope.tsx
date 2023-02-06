@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { DAO } from "./dao";
 
 export enum Period {
@@ -121,6 +122,12 @@ export function envelopeNextDate(envelope: Envelope) : Date {
   }
   return date;
 
+}
+
+export function updateNextDueDate(envelopes: Envelope[]) : Envelope[] {
+  const checkDate = new Date();
+  checkDate.setMonth(checkDate.getMonth()-1);
+  return _.filter(envelopes, envelope => envelope.dueDate.getTime() < checkDate.getTime()).map(envelope => Object.assign({}, envelope, {dueDate: envelopeNextDate(envelope)}));
 }
 
 

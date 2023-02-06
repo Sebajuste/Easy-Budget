@@ -108,25 +108,6 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
     load(): Promise<Envelope[]> {
         return new Promise((resolve, reject) => {
 
-            /*
-            const SQL = knex.select(
-                "evp_id as _id",
-                "evp_name as name",
-                "evp_current_amount as funds",
-                "evp_target_amount as amount",
-                knex.raw(`CASE evp_target_period
-                    WHEN 'MONTH' THEN '${Period.MONTH}'
-                    WHEN 'TRIMESTER' THEN '${Period.TRIMESTER}'
-                    WHEN 'SEMESTER' THEN '${Period.SEMESTER}'
-                    WHEN 'YEAR' THEN '${Period.YEAR}'
-                    ELSE '${Period.MONTH}'
-                    END AS period`),
-                "evp_due_date as dueDate",
-                "evp_category_id as category_id",
-            ).from("t_envelope_evp")//
-            .toString();
-            */
-
             const SQL = `
             SELECT evp_id as _id,
                 evp_name as name,
@@ -146,7 +127,15 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
 
             sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
-                    resolve(_array);
+
+                    
+                    resolve( _array.map(item => {
+                        item.dueDate = new Date(item.dueDate);
+                        return item;
+                    }) );
+                    
+                   // resolve( _array );
+
                 }, (tx, err) => {
                     reject(err);
                     return true;
@@ -157,18 +146,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
     }
 
     add(envelope: Envelope): Promise<string|number|undefined> {
-        /*
-        const SQL = knex('t_envelope_evp')//
-            .insert({
-                evp_name: envelope.name,
-                evp_current_amount: envelope.funds,
-                evp_target_amount: envelope.amount,
-                evp_target_period: envelope.period.toString(),
-                evp_due_date: envelope.dueDate,
-                evp_category_id: envelope.category_id,
-            })//
-            .toString();
-        */
+
         const SQL = `INSERT INTO t_envelope_evp (
             evp_name,
             evp_current_amount,

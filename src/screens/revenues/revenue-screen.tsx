@@ -2,6 +2,7 @@ import { StackActions } from "@react-navigation/native";
 import { useState } from "react"
 import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
+import { SelectDateComponent } from "../../components/select-date";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Revenue, RevenueDao } from "../../services/revenue";
 
@@ -16,6 +17,8 @@ export default function RevenueScreen({navigation, route} : any) {
 
     const [amount, setAmount] = useState( revenue?.amount.toString() || '' );
 
+    const [expectDate, setExpectDate] = useState( revenue?.expecteDate || new Date() );
+
     const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
 
     const saveHandler = () => {
@@ -24,12 +27,13 @@ export default function RevenueScreen({navigation, route} : any) {
         if( revenue) {
             revenue.name = name;
             revenue.amount = parseFloat(amount.trim());
+            revenue.expecteDate = expectDate;
             revenueDao.update(revenue).then(() => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
         } else {
-            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim())}).then((id) => {
+            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expecteDate: expectDate}).then((id) => {
                 console.log('new id : ', id);
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
@@ -45,6 +49,8 @@ export default function RevenueScreen({navigation, route} : any) {
             navigation.dispatch(popAction);
         }).catch(console.error);
     };
+
+    const now = new Date();
 
     const formValid = name.trim().length > 0 && amount.trim().length > 0;
 
@@ -68,6 +74,8 @@ export default function RevenueScreen({navigation, route} : any) {
                     keyboardType="numeric"
                 />
             </View>
+
+            <SelectDateComponent label="Due Date" date={expectDate} minimumDate={now} onChange={(newDate: Date) => setExpectDate(newDate) } />
 
             <View style={{ flexDirection: 'row'}} >
                 { revenue ? <Button style={{margin: 5, flexGrow: 1}} text="DELETE" status="danger" onPress={deleteHandler}></Button> : <></> }
