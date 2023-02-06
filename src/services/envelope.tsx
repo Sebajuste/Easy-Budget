@@ -1,10 +1,10 @@
 import { DAO } from "./dao";
 
 export enum Period {
-    MONTH = "MONTH",
+    MONTHLY = "MONTHLY",
     TRIMESTER = "TRIMESTER",
     SEMESTER = "SEMESTER",
-    YEAR = "YEAR"
+    YEARLY = "YEARLY"
 }
 
 export interface EnvelopeCategory {
@@ -26,27 +26,27 @@ export interface Envelope {
 
 export function periodToString(budgetPeriod : Period) {
     switch(budgetPeriod) {
-        case Period.MONTH: return "month";
-        case Period.TRIMESTER: return "trimester";
-        case Period.SEMESTER: return "semester";
-        case Period.YEAR: return "year";
+        case Period.MONTHLY: return "MONTHLY";
+        case Period.TRIMESTER: return "TRIMESTER";
+        case Period.SEMESTER: return "SEMESTER";
+        case Period.YEARLY: return "YEARLY";
         default: return "";
     }
 }
 
 export function periodFromString(operationTypeStr : string) {
     switch(operationTypeStr) {
-        case 'month': return Period.MONTH;
-        case 'trimester': return Period.TRIMESTER;
-        case 'semester': return Period.SEMESTER;
-        case 'year': return Period.YEAR;
-        default: return Period.MONTH;
+        case 'MONTHLY': return Period.MONTHLY;
+        case 'TRIMESTER': return Period.TRIMESTER;
+        case 'SEMESTER': return Period.SEMESTER;
+        case 'YEARLY': return Period.YEARLY;
+        default: return Period.MONTHLY;
     }
 }
 
 export function countMonth(period: Period) {
   switch(period) {
-    case Period.MONTH: {
+    case Period.MONTHLY: {
       return 1;
     }
     case Period.TRIMESTER: {
@@ -55,7 +55,7 @@ export function countMonth(period: Period) {
     case Period.SEMESTER: {
       return 6;
     }
-    case Period.YEAR: {
+    case Period.YEARLY: {
       return 12;
     }
   }
@@ -75,7 +75,7 @@ export function budgetPerYear(envelopes: Array<Envelope> ) {
   
     envelopes.forEach(envelope => {
       switch(envelope.period) {
-        case Period.MONTH: {
+        case Period.MONTHLY: {
           result += envelope.amount * 12;
           break;
         }
@@ -87,7 +87,7 @@ export function budgetPerYear(envelopes: Array<Envelope> ) {
           result += envelope.amount * 2;
           break;
         }
-        case Period.YEAR: {
+        case Period.YEARLY: {
           result += envelope.amount;
           break;
         }
@@ -102,7 +102,7 @@ export function envelopeNextDate(envelope: Envelope) : Date {
   const date = envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : new Date(envelope.dueDate.toISOString()) ) : new Date();
 
   switch(envelope.period) {
-    case Period.MONTH: {
+    case Period.MONTHLY: {
       date.setMonth(date.getMonth()+1);
       break;
     }
@@ -114,7 +114,7 @@ export function envelopeNextDate(envelope: Envelope) : Date {
       date.setMonth(date.getMonth()+6);
       break;
     }
-    case Period.YEAR: {
+    case Period.YEARLY: {
       date.setFullYear(date.getFullYear()+1);
       break;
     }

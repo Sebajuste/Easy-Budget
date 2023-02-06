@@ -1,14 +1,14 @@
 import { ASYNC_STORAGE_DAO, DB_MANAGER_ASYNC } from "./async_storage/dao-async-storage";
 import { DAO } from "./dao";
 import { DatabaseManager } from "./database-manager";
-import { SQLITE_DAO } from "./sqlite/dao-sqlite";
+import { SQLITE_DAO, DB_MANAGER_SQLite } from "./sqlite/dao-sqlite";
 
 export enum Database {
     ASYNC_STORAGE = "async_storage",
     SQLite = "sqlite"
 }
 
-export const DATABASE_TYPE = Database.ASYNC_STORAGE;
+export const DATABASE_TYPE = Database.SQLite;
 
 
 
@@ -21,8 +21,7 @@ export class DAOFactory {
         return DB_MANAGER_ASYNC;
       }
       case Database.SQLite: {
-        // return new DatabaseManagerSQLite(sqlite_client);
-        break;
+        return DB_MANAGER_SQLite;
       }
     }
 

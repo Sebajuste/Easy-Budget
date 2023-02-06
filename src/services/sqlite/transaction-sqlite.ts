@@ -17,7 +17,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         FROM t_account_transaction_ats`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -39,7 +39,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -70,7 +70,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0, transaction._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -86,7 +86,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         const SQL = `DELETE FROM t_account_transaction_ats WHERE ats_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [transaction._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -113,7 +113,7 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
         FROM t_envelopes_transaction_ets`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -126,22 +126,45 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
 
     add(transaction: EnvelopeTransaction): Promise<string | number | undefined> {
 
-        const SQL = `INSERT INTO t_envelopes_transaction_ets (
+        console.log(`Add transaction `, transaction);
+
+        const SQL_TRANSACTION = `INSERT INTO t_envelopes_transaction_ets (
             ets_name, ets_amount, ets_envelope_id, ets_account_id, ets_date
         ) VALUES (
             ?, ?, ?, ?, ?
         )`;
 
+        const SQL_ENVELOPE = `UPDATE t_envelope_evp SET evp_current_amount = evp_current_amount + ? WHERE evp_id = ?`;
+
+        const SQL_ACCOUNT = `UPDATE t_account_act SET act_envelope_balance = act_envelope_balance - ? WHERE act_id = ?`;
+
         const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString()];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
-                tx.executeSql(SQL, params, (_, { insertId }) => {
+            sqlite_client().transaction(async tx => {
+
+                await tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_) => {
+
+                }, (_, err) => {
+                    return true;
+                });
+
+                await tx.executeSql(SQL_ACCOUNT, [transaction.amount, transaction.account_id], (_) => {
+
+                }, (_, err) => {
+                    return true;
+                });
+
+                await tx.executeSql(SQL_TRANSACTION, params, (_, { insertId }) => {
                     resolve(insertId);
-                }, (tx, err) => {
+                }, (_, err) => {
                     reject(err);
                     return true;
                 });
+            }, err => {
+                reject(err);
+            }, () => {
+
             });
         });
     }
@@ -163,7 +186,7 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
         const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -180,7 +203,7 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
         const SQL = `DELETE FROM t_envelopes_transaction_ets WHERE ets_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [transaction._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

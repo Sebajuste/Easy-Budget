@@ -62,7 +62,9 @@ export function EnvelopFillScreen({navigation, route} : any) {
             transactionDao.add(transaction).then(v => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
-            });
+            }).catch(err => {
+                console.error(err);
+            })
 
         }
 

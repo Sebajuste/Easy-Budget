@@ -14,7 +14,7 @@ export function AccountScreen({navigation, route} : any) {
 
     const [name, setName] = useState( account ? account.name: '');
 
-    const [balance, setBalance] = useState( account ? `${account.balance}` : '');
+    const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
     const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
 
@@ -27,10 +27,14 @@ export function AccountScreen({navigation, route} : any) {
             envelope_balance: balanceFloat,
         } as Account;
 
+        console.log('account : ', account);
+
         accountDao.add(account).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
-        });
+        }).catch(err => {
+            console.error(err);
+        })
 
     };
 

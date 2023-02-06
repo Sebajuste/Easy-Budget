@@ -11,16 +11,9 @@ export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
         
         return new Promise((resolve, reject) => {
 
-            /*
-            const SQL = knex.select([
-                "cat_id as _id",
-                "cat_name as name",
-            ]).from("t_category_cat")//
-            .toString();
-            */
-            const SQL = `SELECT cat_id as _id, cat_name as name FROM t_category_cat`;
+            const SQL = `SELECT cat_id as _id, cat_name as name, cat_color as color FROM t_category_cat`;
 
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -42,11 +35,11 @@ export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
             .toString();
         */
 
-        const SQL = 'INSERT INTO t_category_cat (act_name) VALUES (?';
+        const SQL = `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon) VALUES (?, ?, 'none')`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
-                tx.executeSql(SQL, [category.name], (_, { insertId }) => {
+            sqlite_client().transaction(tx => {
+                tx.executeSql(SQL, [category.name, category.color], (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
                     reject(err);
@@ -66,12 +59,12 @@ export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
             .toString();
         */
 
-        const SQL = `UPDATE t_category_cat SET act_name = ? WHERE cat_id = ?`;
+        const SQL = `UPDATE t_category_cat SET cat_name = ?, cat_color = ? WHERE cat_id = ?`;
 
-        const params = [category.name, category._id];
+        const params = [category.name, category.color, category._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -92,7 +85,7 @@ export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
         const SQL = `DELETE FROM t_account_act WHERE cat_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [category._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -130,7 +123,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
                     END AS period`),
                 "evp_due_date as dueDate",
                 "evp_category_id as category_id",
-            ).from("t_envelopes_evp")//
+            ).from("t_envelope_evp")//
             .toString();
             */
 
@@ -140,18 +133,18 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
                 evp_current_amount as funds,
                 evp_target_amount as amount,
                 CASE evp_target_period
-                    WHEN 'MONTH' THEN '${Period.MONTH}'
+                    WHEN 'MONTHLY' THEN '${Period.MONTHLY}'
                     WHEN 'TRIMESTER' THEN '${Period.TRIMESTER}'
                     WHEN 'SEMESTER' THEN '${Period.SEMESTER}'
-                    WHEN 'YEAR' THEN '${Period.YEAR}'
-                    ELSE '${Period.MONTH}'
+                    WHEN 'YEARLY' THEN '${Period.YEARLY}'
+                    ELSE '${Period.MONTHLY}'
                 END AS period,
                 evp_due_date as dueDate,
                 evp_category_id as category_id
-            FROM t_envelopes_evp
+            FROM t_envelope_evp
             `;
 
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -165,7 +158,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
 
     add(envelope: Envelope): Promise<string|number|undefined> {
         /*
-        const SQL = knex('t_envelopes_evp')//
+        const SQL = knex('t_envelope_evp')//
             .insert({
                 evp_name: envelope.name,
                 evp_current_amount: envelope.funds,
@@ -176,7 +169,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
             })//
             .toString();
         */
-        const SQL = `INSERT INTO t_envelopes_evp (
+        const SQL = `INSERT INTO t_envelope_evp (
             evp_name,
             evp_current_amount,
             evp_target_amount,
@@ -190,7 +183,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
         const params = [envelope.name, envelope.funds, envelope.amount, envelope.period.toString(), envelope.dueDate.toISOString(), envelope.category_id];
         
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -203,7 +196,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
 
     update(envelope: Envelope): Promise<void> {
         /*
-        const SQL = knex('t_envelopes_evp')//
+        const SQL = knex('t_envelope_evp')//
             .update({
                 evp_name: envelope.name,
                 evp_current_amount: envelope.funds,
@@ -215,8 +208,11 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
             .where('evp_id', envelope._id)
             .toString();
         */
+
+        console.log('Update ', envelope.period.toString() );
+
         const SQL = `
-            UPDATE t_envelopes_evp
+            UPDATE t_envelope_evp
             SET evp_name = ?,
                 evp_current_amount = ?,
                 evp_target_amount = ?,
@@ -229,7 +225,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
         const params = [envelope.name, envelope.funds, envelope.amount,  envelope.period.toString(), envelope.dueDate.toISOString(), envelope.category_id, envelope._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -242,15 +238,15 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
 
     remove(envelope: Envelope): Promise<void> {
         /*
-        const SQL = knex('t_envelopes_evp')
+        const SQL = knex('t_envelope_evp')
         .where('evp_id', envelope._id)//
         .del()//
         .toString();
         */
-        const SQL = `DELETE FROM t_envelopes_evp WHERE evp_id = ?`;
+        const SQL = `DELETE FROM t_envelope_evp WHERE evp_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [envelope._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

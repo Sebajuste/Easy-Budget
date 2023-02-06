@@ -3,6 +3,10 @@ import { DatabaseManager } from "../database-manager";
 
 export class DatabaseManagerAsyncStorage extends DatabaseManager {
 
+    async open() {
+
+    }
+
     async init(): Promise<void> {
         // throw new Error("Method not implemented.");
         

@@ -6,7 +6,6 @@ export class RevenueDaoSQLite extends RevenueDao {
 
     load(): Promise<Revenue[]> {
 
-        console.log('RevenueDaoSQLite::load')
 
         const SQL = `
         SELECT rev_id as _id,
@@ -16,7 +15,7 @@ export class RevenueDaoSQLite extends RevenueDao {
         `;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -34,7 +33,7 @@ export class RevenueDaoSQLite extends RevenueDao {
         const params = [revenue.name, revenue.amount];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -59,7 +58,7 @@ export class RevenueDaoSQLite extends RevenueDao {
         const params = [revenue.name, revenue.amount, revenue._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -75,7 +74,7 @@ export class RevenueDaoSQLite extends RevenueDao {
         const SQL = 'DELETE FROM t_revenue_rev WHERE rev_id = ?';
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [revenue._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

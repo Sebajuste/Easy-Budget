@@ -11,7 +11,7 @@ export class SettingsDaoSQLite extends SettingsDao {
         const SQL = `SELECT set_name as name, set_value as value FROM t_settings_set`;
 
         return new Promise<any[]>((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {

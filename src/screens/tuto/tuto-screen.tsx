@@ -13,6 +13,9 @@ import { Account, AccountDao } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE, getDao } from "../../services/dao-manager";
 import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { SettingsDao } from "../../services/settings";
+import RevenueScreen from "../revenues/revenue-screen";
+import { Revenue } from "../../services/revenue";
+import RevenueListScreen from "../revenues/revenue-list-screen";
 
 
 
@@ -64,7 +67,8 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
             const month_budget = budgetPerMonth(envelope.amount, envelope.period);
             const dueDate = typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate;
             const count_month = countMonth(envelope.period);
-            const delta_month = Math.min(1, ( (dueDate.getFullYear() - now.getFullYear()) * 12 + (dueDate.getMonth() - now.getMonth())) % 3);
+            const delta_year = dueDate.getFullYear() - now.getFullYear();
+            const delta_month = Math.min(count_month, delta_year*12 + (dueDate.getMonth() - now.getMonth()) );
             console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
             const month_to_be_filled = count_month - delta_month;
             console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
@@ -124,10 +128,8 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
                     console.error(`Oups cannot create transaction`);
                     throw new Error(`No account found to fill amount [${fill_required}]`);
                 });
-
-            }).then( (transactions) => {
-                return transactionDao.addAll(transactions);
-            } )//
+            }).then(transactions => _.filter(transactions, tx => tx.amount != 0) )//
+            .then( transactionDao.addAll )//
             .then(result => {
                 nextHandler();
             })//
@@ -153,7 +155,15 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
                 { nothingToFill ? <Text>Nothing to be filled</Text> : null }
 
-                { canBeAutoFilled ? <Icon style={{fontSize: 50, color: 'green'}} name="check" /> : <Icon style={{fontSize: 50, color: 'red'}} name="remove" /> }
+                { canBeAutoFilled ? (
+                    <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 20}}>
+                        <Icon style={{fontSize: 50, color: 'green'}} name="check" />
+                    </View>
+                ) : (
+                    <View style={{borderWidth: 1, borderColor: 'red', borderRadius: 100, padding: 20}}>
+                        <Icon style={{fontSize: 50, color: 'red'}} name="remove" />
+                    </View>
+                ) }
                 
                 <View style={{marginTop: 30}}>
                      { nothingToFill ?
@@ -247,8 +257,34 @@ export function TutoInfoEnvelopeScreen({navigation} : any) {
 
 }
 
-
 export function TutoRevenueScreen({navigation} : any) {
+
+    const [countRevenues, setcountRevenues] = useState(0);
+
+    const changeHandler = (revenues: Revenue[]) => {
+        setcountRevenues(revenues.length);
+    };
+
+    const nextHandler = () => {
+        navigation.navigate({name: 'TutoInfoEnvelopeScreen'});
+    };
+
+    return (
+        <>
+            <RevenueListScreen navigation={navigation} onChange={changeHandler} />
+            { countRevenues > 0 ? (
+                <View style={{margin: 10}}>
+                    <Button text="NEXT" onPress={nextHandler}></Button>
+                </View>
+            ) : null }
+        </>
+    );
+}
+
+/**
+ * @deprecated The method should not be used
+ */
+export function TutoRevenueScreenOld({navigation} : any) {
 
     const [revenue, setRevenue] = useState('0.00');
 

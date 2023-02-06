@@ -10,10 +10,10 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 
 const operation_type_picker_items = [
-    { label: 'month', value : "month" },
-    { label: 'trimester', value : "trimester" },
-    { label: 'semester', value : 'semester' },
-    { label: 'year', value : 'year' },
+    { label: 'Month', value : "MONTHLY" },
+    { label: 'Trimester', value : "TRIMESTER" },
+    { label: 'Semester', value : 'SEMESTER' },
+    { label: 'Year', value : 'YEARLY' },
 ];
 
 
@@ -27,7 +27,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         name: '',
         amount: 0,
         funds: 0,
-        period: Period.MONTH,
+        period: Period.MONTHLY,
         dueDate: new Date(),
         category_id: envelopeCategory._id
     } as Envelope;
@@ -38,11 +38,11 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const [amount, setAmount] = useState( envelope ? `${envelope.amount}` : '');
 
-    const [period, setPeriod] = useState(  envelope ? envelope.period : Period.MONTH );
+    const [period, setPeriod] = useState(  envelope ? envelope.period : Period.MONTHLY );
 
     const [dueDate, setDueDate] = useState( envelope && envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate) : new Date() );
 
-    const showDueDate = period != Period.MONTH;
+    const showDueDate = period != Period.MONTHLY;
 
     const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
 
@@ -80,7 +80,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         envelopeDao.update(envelopeUpdate).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
-        });
+        }).catch(console.error);
 
     }
 

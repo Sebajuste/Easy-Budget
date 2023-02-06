@@ -22,16 +22,18 @@ export default function RevenueScreen({navigation, route} : any) {
         
         setError(null);
         if( revenue) {
+            revenue.name = name;
+            revenue.amount = parseFloat(amount.trim());
             revenueDao.update(revenue).then(() => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
-            }).catch(setError);
+            }).catch(console.error);
         } else {
             revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim())}).then((id) => {
                 console.log('new id : ', id);
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
-            }).catch(setError);
+            }).catch(console.error);
         }
 
     };
@@ -41,13 +43,14 @@ export default function RevenueScreen({navigation, route} : any) {
         revenueDao.remove(revenue).then(() => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
-        }).catch(setError);
+        }).catch(console.error);
     };
 
     const formValid = name.trim().length > 0 && amount.trim().length > 0;
 
     return (
         <Layout style={{margin: 10}}>
+
             <View style={{margin: 2}}>
                 <Text style={{ fontSize: 12 }}>Revenue name</Text>
                 <TextInput

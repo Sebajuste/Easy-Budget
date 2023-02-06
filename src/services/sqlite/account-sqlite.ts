@@ -31,7 +31,7 @@ export class AccountDaoSQLite extends AccountDao {
         `;
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -63,17 +63,15 @@ export class AccountDaoSQLite extends AccountDao {
         */
 
         const SQL = `INSERT INTO t_account_act (
-            act_id,
             act_name,
             act_balance,
-            act_envelope_balance,
-            act_created_at
-        ) VALUES (?, ?, ?, ?, ?)`;
+            act_envelope_balance
+        ) VALUES (?, ?, ?)`;
 
-        const params = [account._id, account.name, account.balance, account.envelope_balance, account.created_at.toISOString()];
+        const params = [account.name, account.balance, account.envelope_balance];
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -107,7 +105,7 @@ export class AccountDaoSQLite extends AccountDao {
         const params = [account.name, account.balance, account.envelope_balance, account.created_at.toISOString()];
         
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -131,7 +129,7 @@ export class AccountDaoSQLite extends AccountDao {
         const SQL = 'DELETE FROM t_account_act WHERE act_id = ?';
 
         return new Promise((resolve, reject) => {
-            sqlite_client.transaction(tx => {
+            sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [account._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

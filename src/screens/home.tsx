@@ -43,9 +43,13 @@ export default function HomeScreen({navigation} : any) {
 
     const clearDatabaseHandler = () => {
 
-      dbManager.delete().then(dbManager.init);
-
-        // dbManager.delete();
+      dbManager.delete().then(() => {
+        return dbManager.init();
+      }).then(() => {
+        console.log('Database ready');
+      }).catch(err => {
+        console.error(err);
+      });
     };
 
     const paymentHandler = (envelope : Envelope) => {

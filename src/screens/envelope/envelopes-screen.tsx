@@ -125,14 +125,13 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     useEffect(() => {
 
-      console.log('EnvelopesScreen::useEffect')
-      
-
       Promise.all([categoriesDao.load(), envelopeDao.load(), revenueDao.load()]).then( ([categories, envelopes, revenues]) => {
         setCategories(categories);
         setEnvelopes(envelopes);
         setRevenue( _.sum( _.map(revenues, revenue => revenue.amount) ) );
         if( onChange ) onChange(categories);
+      }).catch(err => {
+        console.error(err);
       });
 
     }, [isFocused])

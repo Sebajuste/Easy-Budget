@@ -7,8 +7,7 @@ import { EnvelopeCategorySQLiteDao, EnvelopeSQLiteDao } from './envelope-sqlite'
 import { RevenueDaoSQLite } from "./revenue-sqlite";
 import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './transaction-sqlite';
 
-
-
+export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 
 export const SQLITE_DAO : {[key: string] : any } = {
 

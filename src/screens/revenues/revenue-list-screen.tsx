@@ -32,7 +32,7 @@ function RevenueView({ onSelect, revenue } : { onSelect?: (revenue: Revenue) => 
 }
 
 
-export default function RevenueListScreen({navigation} : {navigation: any}) {
+export default function RevenueListScreen({navigation, onChange} : {navigation: any, onChange?: (revenues: Revenue[]) => void }) {
 
     const [revenues, setRevenues] = useState<Revenue[]>([]);
 
@@ -49,9 +49,9 @@ export default function RevenueListScreen({navigation} : {navigation: any}) {
     };
 
     useEffect(() => {
-        revenueDao.load().then(r => {
-            console.log('> r : ', r)
-            setRevenues(r);
+        revenueDao.load().then(revenues => {
+            setRevenues(revenues);
+            if( onChange ) onChange(revenues);
         });
     }, [isFocused]);
 
