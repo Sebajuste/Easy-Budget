@@ -2,27 +2,23 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
 import { SelectDateComponent } from "../../components/select-date";
-import { Transaction, TransactionType } from "../../services/transaction";
-import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
-import { Envelope } from "../../services/envelope";
+import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { StackActions, useIsFocused } from "@react-navigation/native";
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Account } from "../../services/account";
+import { Account, AccountDao } from "../../services/account";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 
 
-export function TransactionScreen({navigation, route} : any) {
+export function AccountTransactionScreen({navigation, route} : any) {
 
-    const transaction : Transaction = route.params?.transaction;
+    const transaction : AccountTransaction = route.params?.transaction;
 
     const [name, setName] = useState( transaction ? transaction.name: '');
 
     const [amount, setAmount] = useState( transaction ? `${transaction.amount}` : '');
 
     const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
-
-    // const [accountID, setAccountID] = useState( transaction ? transaction.account_id : '' );
 
     const [date, setDate] = useState( transaction ? ( typeof transaction.date === 'string' ? new Date(transaction.date) : transaction.date ) : new Date());
 
@@ -36,23 +32,25 @@ export function TransactionScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
+    const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+
     const payHandler = () => {
 
         if( account ) {
-        const transactionDao = new TransactionDaoStorage();
-        transaction.name = name;
-        transaction.transactionType = TransactionType.PAIMENT;
-        transaction.amount = parseFloat(amount);
-        transaction.envelope_id = envelopID;
-        transaction.account_id = account._id;
-        transaction.date = date;
-        transaction.reconciled = false;
-        
-        transactionDao.add(transaction).then(result => {
-            console.log(`Result : ${result ? 'true' : 'false' }`)
-            const popAction = StackActions.pop(1);
-            navigation.dispatch(popAction);
-        }).catch(console.error);
+            transaction.name = name;
+            transaction.amount = parseFloat(amount);
+            transaction.envelope_id = envelopID;
+            transaction.account_id = account._id;
+            transaction.date = date;
+            transaction.reconciled = false;
+            
+            transactionDao.add(transaction).then(result => {
+                console.log(`Result : ${result ? 'true' : 'false' }`)
+                const popAction = StackActions.pop(1);
+                navigation.dispatch(popAction);
+            }).catch(console.error);
         }
     };
 
@@ -62,20 +60,8 @@ export function TransactionScreen({navigation, route} : any) {
 
     };
 
-    /*
-    const selectAccountHandler = (id: string) => {
-        setAccountID(id);
-        const accountDao = new AccountDaoStorage();
-        accountDao.load().then(accounts => _.find(accounts, item => item._id == accountID) )//
-            .then(setAccount);
-    };
-    */
-
-    
-
     useEffect(() => {
-        const accountDao = new AccountDaoStorage();
-        const envelopeDao = new EnvelopeDaoStorage();
+        
 
         envelopeDao.load().then(envelopes => {
 
@@ -127,6 +113,7 @@ export function TransactionScreen({navigation, route} : any) {
                             placeholder="0.00"
                             value={amount}
                             onChangeText={(val) => setAmount(val)}
+                            keyboardType="numeric"
                         />
                     </View>
                 </View>

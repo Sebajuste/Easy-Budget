@@ -7,8 +7,7 @@ import { scroll_styles } from "../../styles";
 import _ from 'lodash';
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
-import { DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 export function AccountView() {
 
@@ -22,6 +21,8 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
 
     const isFocused = useIsFocused();
 
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
+
     const selectHandler = (account: Account) => {
         navigation.navigate({name: 'AccountTransaction', params: {account: account} });
     };
@@ -31,16 +32,11 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
     };
 
     useEffect(() => {
-        
-        // const accountDao = new AccountDaoStorage();
-        const accountDao = getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-        accountDao?.load().then(result => {
+        accountDao.load().then(result => {
             setAccounts(result);
             if( onChange ) onChange(result);
         });
     }, [isFocused])
-
-    
 
     const total = _.sum( _.map(accounts, account => account.balance) );
 

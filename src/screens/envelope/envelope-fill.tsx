@@ -1,21 +1,16 @@
 import { Slider } from "@miblanchard/react-native-slider";
 import { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Button, Layout, Picker, Text, TextInput, ThemeContext } from "react-native-rapi-ui";
-import { Account } from "../../services/account";
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
+import { Button, Layout, Picker, Text } from "react-native-rapi-ui";
+import { Account, AccountDao } from "../../services/account";
 import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
 import { StackActions } from "@react-navigation/native";
-import { Transaction, TransactionType } from "../../services/transaction";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
-import TransactionView from "../transactions/transaction-view";
-
-
-
-
+import EnvelopeTransactionView from "../transactions/transaction-view";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -32,9 +27,12 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const [accounts, setAccounts] = useState<Account[]>([]);
 
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<EnvelopeTransaction[]>([]);
 
     const amount = solde - funds;
+
+    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);
@@ -49,49 +47,46 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const saveHandler = () => {
 
-        const transactionDao = new TransactionDaoStorage();
-
         const account = _.find(accounts, account => account._id == accountID );
         if( account ) {
-            const transaction : Transaction = {
+            const transaction : EnvelopeTransaction = {
                 _id: uuid.v4(),
                 name: `Fill Envelope ${envelope.name}`,
-                transactionType: TransactionType.FILL,
                 amount: amount,
                 envelope_id: envelope._id,
                 account_id: account?._id,
                 date: new Date(),
                 reconciled: true
-            } as Transaction;
+            } as EnvelopeTransaction;
 
             transactionDao.add(transaction).then(v => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
-            });
+            }).catch(err => {
+                console.error(err);
+            })
 
         }
 
     };
 
     useEffect(() => {
-        const accountDao = new AccountDaoStorage();
-        const transactionDao = new TransactionDaoStorage();
+        console.log('EnvelopFillScreen use effect');
         accountDao.load().then(setAccounts);
         
         transactionDao.load()//
             .then(items => _.filter(items, item => item.envelope_id == envelope._id)  )//
             .then(items => _.orderBy(items, ['date'], ['desc'] ) )//
             .then(setTransactions);
+        
     }, []);
 
     if( !envelope ) {
-
         return (
             <Layout style={{margin: 10}}>
                 <Text>No Envelope</Text>
             </Layout>
         );
-
     }
 
     const account = _.find(accounts, account => account._id == accountID );
@@ -101,7 +96,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
     const accountItems = accounts.map(account => {
         return {
             label: `${account.name} [${account.envelope_balance}]`,
-            value: account._id
+            value: account._id as string
         };
     });
 
@@ -110,7 +105,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
         navigation.dispatch(action);
     };
 
-    const transactions_items = transactions?.map((transaction, index) => <TransactionView transaction={transaction} key={index} />);
+    const transactions_items = transactions?.map((transaction, index) => <EnvelopeTransactionView transaction={transaction} key={index} />);
 
     return (
         <Layout style={{margin: 10}}>
@@ -121,7 +116,6 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 null
             }
             
-
             <View style={{ margin: 2, flexDirection: 'row' }}>
                 <View style={{flex: 1, margin: 2}}>
                     <Text style={{ fontSize: 12 }}>Account</Text>

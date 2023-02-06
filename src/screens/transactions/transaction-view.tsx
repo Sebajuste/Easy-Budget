@@ -1,10 +1,10 @@
 import { View } from "react-native";
 import { CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
-import { Transaction } from "../../services/transaction";
+import { EnvelopeTransaction } from "../../services/transaction";
 
 
 
-export default function TransactionView({transaction} : {transaction: Transaction}) {
+export default function EnvelopeTransactionView({transaction} : {transaction: EnvelopeTransaction}) {
 
     return (
         <Section style={{marginTop: 10}}>
@@ -13,9 +13,6 @@ export default function TransactionView({transaction} : {transaction: Transactio
                     <Text>{transaction.name}</Text>
                     <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toDateString() : transaction.date.toDateString()}</Text>
                     <Text>{transaction.amount.toFixed(2)} €</Text>
-                </View>
-                <View>
-                    <CheckBox value={transaction.reconciled} disabled={true} />
                 </View>
             </SectionContent>
         </Section>

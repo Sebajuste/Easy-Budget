@@ -3,9 +3,11 @@ import { AsyncStorage } from "react-native";
 import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../envelope";
 import uuid from 'react-native-uuid';
 
-
-
 export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
+    
+    addAll(entry: EnvelopeCategory[]): Promise<(string | number | undefined)[]> {
+        throw new Error("Method not implemented.");
+    }
 
     async load() : Promise<EnvelopeCategory[]> {
         const json = await AsyncStorage.getItem('envelope_categories');
@@ -16,14 +18,26 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
     }
 
     async save(envelopeCategories: EnvelopeCategory[]) : Promise<void> {
-        return await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
+        await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
     }
 
-    async add(envelopeCategorie : EnvelopeCategory) : Promise<void> {
+    async add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined> {
         envelopeCategorie._id = uuid.v4() as string;
         return this.load().then(categories => {
             categories.push(envelopeCategorie);
             return this.save(categories);
+        }).then(r => (envelopeCategorie._id));
+    }
+
+    async update(category : EnvelopeCategory) : Promise<void> {
+        return this.load().then(categories => {
+            const result = _.find(categories, item => item._id == category._id );
+            if( result ) {
+                result.name = category.name;
+                result.color = category.color;
+                return this.save(categories);
+            }
+            throw new Error('Cannot find item');
         });
     }
 
@@ -37,6 +51,9 @@ export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
 }
 
 export class EnvelopeDaoStorage extends EnvelopeDao {
+    addAll(entry: Envelope[]): Promise<(string | number | undefined)[]> {
+        throw new Error("Method not implemented.");
+    }
 
     async load() : Promise<Envelope[]> {
         const json = await AsyncStorage.getItem('envelopes');
@@ -50,11 +67,27 @@ export class EnvelopeDaoStorage extends EnvelopeDao {
         return await AsyncStorage.setItem('envelopes', JSON.stringify(envelopes) );
     }
 
-    async add(envelope : Envelope) : Promise<void> {
-        // envelope._id = uuid.v4();
-        await this.load().then(envelopes => {
+    async add(envelope : Envelope) : Promise<string|number|undefined> {
+        envelope._id = uuid.v4() as string;
+        return await this.load().then(envelopes => {
             envelopes.push(envelope);
-            return this.save(envelopes);
+            return this.save(envelopes).then(v => envelope._id as string|number|undefined);
+        });
+    }
+
+    async update(envelope : Envelope) : Promise<void> {
+        return this.load().then(envelopes => {
+            const result = _.find(envelopes, item => item._id == envelope._id);
+            if( result ) {
+                result.name = envelope.name;
+                result.amount = envelope.amount;
+                result.category_id = envelope.category_id;
+                result.dueDate = envelope.dueDate;
+                result.funds = envelope.funds;
+                result.period = envelope.period;
+                return this.save(envelopes);
+            }
+            throw new Error('Cannot find item');
         });
     }
 

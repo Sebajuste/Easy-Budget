@@ -4,17 +4,18 @@ import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { AccountDaoStorage } from "../../services/async_storage/account_async_storage";
-import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
-import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory } from "../../services/envelope";
-import { Transaction, TransactionType } from "../../services/transaction";
+import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory, EnvelopeDao } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
-import uuid from 'react-native-uuid';
-import { TransactionDaoStorage } from "../../services/async_storage/transaction_async_storage";
-import { Account } from "../../services/account";
+import { Account, AccountDao } from "../../services/account";
+import { DAOFactory, DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { SettingsDao } from "../../services/settings";
+import RevenueScreen from "../revenues/revenue-screen";
+import { Revenue } from "../../services/revenue";
+import RevenueListScreen from "../revenues/revenue-list-screen";
 
 
 
@@ -51,6 +52,10 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
+    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
+
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
         const now = new Date();
@@ -62,7 +67,8 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
             const month_budget = budgetPerMonth(envelope.amount, envelope.period);
             const dueDate = typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate;
             const count_month = countMonth(envelope.period);
-            const delta_month = Math.min(1, ( (dueDate.getFullYear() - now.getFullYear()) * 12 + (dueDate.getMonth() - now.getMonth())) % 3);
+            const delta_year = dueDate.getFullYear() - now.getFullYear();
+            const delta_month = Math.min(count_month, delta_year*12 + (dueDate.getMonth() - now.getMonth()) );
             console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
             const month_to_be_filled = count_month - delta_month;
             console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
@@ -75,10 +81,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const fillCalculation = () => {
 
-        const envelopeDao = new EnvelopeDaoStorage();
-        const accountDao = new AccountDaoStorage();
-
-        Promise.all([envelopeDao.load(), accountDao.load()]).then(([envelopes, accounts]) => {
+        Promise.all([envelopeDao?.load(), accountDao?.load()]).then(([envelopes, accounts]) => {
 
             const fill_required_envelopes = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => (fill_required) );
             const fill_required = _.sum(fill_required_envelopes);
@@ -100,10 +103,6 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const fillAutoHandler = () => {
 
-        const envelopeDao = new EnvelopeDaoStorage();
-        const transactionDao = new TransactionDaoStorage();
-        const accountDao = new AccountDaoStorage();
-
         const now = new Date();
 
         Promise.all([envelopeDao.load(), accountDao.load()])//
@@ -116,26 +115,21 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
                     if( temp_account ) {
                         temp_account.temp_balance -= fill_required;
-                        const transaction : Transaction = {
-                            _id: uuid.v4() as string,
+                        const transaction : EnvelopeTransaction = {
                             name: `Auto fill ${envelope.name as string}`,
-                            transactionType: TransactionType.FILL,
                             amount: fill_required as number,
                             envelope_id: envelope._id,
                             account_id: temp_account.account._id,
                             date: now,
-                            reconciled: false
-                        } as Transaction;
+                        } as EnvelopeTransaction;
 
                         return transaction;
                     }
                     console.error(`Oups cannot create transaction`);
                     throw new Error(`No account found to fill amount [${fill_required}]`);
                 });
-
-            }).then( (transactions) => {
-                return transactionDao.addAll(transactions);
-            } )//
+            }).then(transactions => _.filter(transactions, tx => tx.amount != 0) )//
+            .then( transactions => transactionDao.addAll(transactions) )//
             .then(result => {
                 nextHandler();
             })//
@@ -161,7 +155,15 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
                 { nothingToFill ? <Text>Nothing to be filled</Text> : null }
 
-                { canBeAutoFilled ? <Icon style={{fontSize: 50, color: 'green'}} name="check" /> : <Icon style={{fontSize: 50, color: 'red'}} name="remove" /> }
+                { canBeAutoFilled ? (
+                    <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 20}}>
+                        <Icon style={{fontSize: 50, color: 'green'}} name="check" />
+                    </View>
+                ) : (
+                    <View style={{borderWidth: 1, borderColor: 'red', borderRadius: 100, padding: 20}}>
+                        <Icon style={{fontSize: 50, color: 'red'}} name="remove" />
+                    </View>
+                ) }
                 
                 <View style={{marginTop: 30}}>
                      { nothingToFill ?
@@ -255,16 +257,41 @@ export function TutoInfoEnvelopeScreen({navigation} : any) {
 
 }
 
-
 export function TutoRevenueScreen({navigation} : any) {
+
+    const [countRevenues, setcountRevenues] = useState(0);
+
+    const changeHandler = (revenues: Revenue[]) => {
+        setcountRevenues(revenues.length);
+    };
+
+    const nextHandler = () => {
+        navigation.navigate({name: 'TutoInfoEnvelopeScreen'});
+    };
+
+    return (
+        <>
+            <RevenueListScreen navigation={navigation} onChange={changeHandler} />
+            { countRevenues > 0 ? (
+                <View style={{margin: 10}}>
+                    <Button text="NEXT" onPress={nextHandler}></Button>
+                </View>
+            ) : null }
+        </>
+    );
+}
+
+/**
+ * @deprecated The method should not be used
+ */
+export function TutoRevenueScreenOld({navigation} : any) {
 
     const [revenue, setRevenue] = useState('0.00');
 
-    const settingsDao = new SettingsDaoStorage();
+    const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE ); // new SettingsDaoStorage();
 
     const nextHandler = () => {
 
-        
         settingsDao.load().then(settings => {
             settings.revenue = parseFloat(revenue);
             return settings;
@@ -290,7 +317,7 @@ export function TutoRevenueScreen({navigation} : any) {
                 <Text style={{margin: 10, fontSize: 24}}>Enter your average global revenue per month</Text>
 
                 <View style={{ margin: 20, width: 200}}>
-                    <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} />
+                    <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} keyboardType="numeric" />
                 </View>
 
             </View>

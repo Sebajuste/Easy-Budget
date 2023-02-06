@@ -3,17 +3,17 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { SelectDateComponent } from "../../components/select-date";
-import { EnvelopeDaoStorage } from "../../services/async_storage/envelope-async-storage";
-import { budgetPerMonth, Envelope, EnvelopeCategory, Period, periodFromString, periodToString } from "../../services/envelope";
+import { budgetPerMonth, Envelope, EnvelopeCategory, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 
 const operation_type_picker_items = [
-    { label: 'month', value : "month" },
-    { label: 'trimester', value : "trimester" },
-    { label: 'semester', value : 'semester' },
-    { label: 'year', value : 'year' },
+    { label: 'Month', value : "MONTHLY" },
+    { label: 'Trimester', value : "TRIMESTER" },
+    { label: 'Semester', value : 'SEMESTER' },
+    { label: 'Year', value : 'YEARLY' },
 ];
 
 
@@ -27,7 +27,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         name: '',
         amount: 0,
         funds: 0,
-        period: Period.MONTH,
+        period: Period.MONTHLY,
         dueDate: new Date(),
         category_id: envelopeCategory._id
     } as Envelope;
@@ -38,15 +38,19 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const [amount, setAmount] = useState( envelope ? `${envelope.amount}` : '');
 
-    const [period, setPeriod] = useState(  envelope ? envelope.period : Period.MONTH );
+    const [period, setPeriod] = useState(  envelope ? envelope.period : Period.MONTHLY );
 
     const [dueDate, setDueDate] = useState( envelope && envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate) : new Date() );
 
-    const showDueDate = period != Period.MONTH;
+    const showDueDate = period != Period.MONTHLY;
 
-    const envelopeDao = new EnvelopeDaoStorage();
+    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
 
     const addHandler = () => {
+
+        if( period == Period.MONTHLY ) {
+            dueDate.setDate(1)
+        }
 
         const envelope : Envelope = {
             _id: uuid.v4(),
@@ -66,23 +70,26 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
     };
 
     const updateHandler = () => {
-        envelopeDao.load().then(envelopes => {
-            const env = _.find(envelopes, item => item._id == envelope._id);
-            if( env ) {
-                env.name = name;
-                env.amount = parseFloat(amount);
-                env.period = period;
-                env.dueDate = dueDate;
-                return envelopeDao.save(envelopes).then(v => {
-                    const popAction = StackActions.pop(1);
-                    navigation.dispatch(popAction);
-                });
-            }
-        });
+
+        const envelopeUpdate = {
+            _id: envelope._id,
+            name : name,
+            amount : parseFloat(amount),
+            period :  period,
+            dueDate : dueDate,
+            funds : envelope.funds,
+            category_id : envelope.category_id
+        } as Envelope;
+
+        envelopeDao.update(envelopeUpdate).then(v => {
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+        }).catch(console.error);
+
     }
 
     const deleteHandler = () => {
-        envelopeDao.remove(envelope).then(v => {
+        envelopeDao?.remove(envelope).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
         });
@@ -114,6 +121,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                             placeholder="0.00"
                             value={amount}
                             onChangeText={(val) => setAmount(val)}
+                            keyboardType="numeric"
                         />
                     </View>
 
