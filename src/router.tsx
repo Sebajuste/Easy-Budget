@@ -1,11 +1,14 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { DrawerActions, NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigationOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+// import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Text, ThemeProvider } from "react-native-rapi-ui";
-import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Image, StyleSheet, TouchableOpacity, useWindowDimensions, Pressable, View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/FontAwesome';
+// import { Icon } from "react-native-elements";
+
 
 import HomeScreen from "./screens/home";
 
@@ -26,6 +29,9 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import { useEffect, useRef } from "react";
 import { fontSize } from "react-native-rapi-ui/constants/typography";
 
+import { CategoryListScreen } from "./screens/envelope/category-list-screen";
+import { DatabaseScreen } from "./screens/database/database-screen";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 // const Tab = createMaterialBottomTabNavigator();
@@ -38,9 +44,9 @@ const navTo = (navigation: any, pageName : string) => {
 
 const TABS_LIST = [
     {label: 'Home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
-    {label: 'Envelopes', route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: '+', route: 'CreateCategory'} },
+    {label: 'Envelopes', route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
     {label: 'Revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro' },
-    {label: 'Accounts', route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: '+', route: 'CreateAccount'} },
+    {label: 'Accounts', route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
 ]
 
 
@@ -67,7 +73,7 @@ const TabButton = ({item, onPress, accessibilityState} : any) => {
     );
 }
 
-function BudgetStackScreen() {
+function BudgetStackScreen({navigation} : any) {
 
     /*
     const screenOptionsHandler = ({route} : any) => {(
@@ -114,6 +120,12 @@ function BudgetStackScreen() {
             <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />        
     */
 
+    const menuHandler = () => {
+        // navigation.openDrawer();
+        navigation.dispatch(DrawerActions.openDrawer());
+        // navigation.navigate('Categories');
+    };
+
     const screens = TABS_LIST.map((item, index) => {
         const optionsHandler = ({navigation} : any) => {
             return {
@@ -121,7 +133,7 @@ function BudgetStackScreen() {
                 tabBarLabel: item.label,
                 tabBarIcon: ({color, focused}) => (<Icon name={item.activeIcon} size={25} color={color} />),
                 tabBarButton: (props) => (<TabButton {...props} item={item} />),
-                headerRight: () => (item.headerRight ? (<Button title={item.headerRight.icon} onPress={() => navTo(navigation, item.headerRight.route)}></Button>) : null)
+                headerRight: () => ( item.headerRight ? (<Pressable style={{padding: 15}} onPress={() => navTo(navigation, item.headerRight.route)} ><Icon name={item.headerRight.icon} style={{fontSize: 17}} /></Pressable>) : null )
             } as BottomTabNavigationOptions;
         }
         return (<Tab.Screen key={index} name={item.route} component={item.component} options={optionsHandler} style={styles.screen} ></Tab.Screen>);
@@ -132,8 +144,12 @@ function BudgetStackScreen() {
             headerShown: true,
             tabBarStyle: {
                 height: 60,
-                
-            }
+            },
+            headerLeft: () => (
+                <Pressable style={{padding: 15}} onPress={menuHandler}>
+                    <Icon name="navicon" style={{fontSize: 17}} />
+                </Pressable>
+            )
         }} >
             {screens}
         </Tab.Navigator>
@@ -183,7 +199,7 @@ function MainStackScreen({navigation} : any) {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Main" component={BudgetStackScreen} options={{title: '', headerShown: false}}/>
+            <Stack.Screen name="Drawer" component={AppDrawer} options={{ headerShown: false }}/>
             
             <Stack.Screen name="CreateRevenue" component={ RevenueScreen } options={{title: 'Add'}}/>
             <Stack.Screen name="EditRevenue" component={ RevenueScreen } options={{title: 'Edit'}}/>
@@ -201,7 +217,7 @@ function MainStackScreen({navigation} : any) {
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: 'Create Account'}}/>
 
-            <Stack.Screen name="TutoScreen" component={ TutoScreen } options={{title: 'Create Account'}} />
+            
             <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: 'Create Account', headerRight: () => (<Button title="+" onPress={() => navigation.navigate({name: 'CreateAccount'})}></Button>) })}/>
             <Stack.Screen name="TutoRevenueScreen" component={ TutoRevenueScreen } options={{title: 'Revenue'}} />
             <Stack.Screen name="TutoInfoEnvelopeScreen" component={TutoInfoEnvelopeScreen} options={{title: 'Create Envelopes'}} />
@@ -210,12 +226,51 @@ function MainStackScreen({navigation} : any) {
             <Stack.Screen name="TutoFirstFillEnvelopeScreen" component={TutoFirstFillEnvelopeScreen} options={{title: 'Fill Envelopes'}} />
             <Stack.Screen name="TutoFinalScreen" component={TutoFinalScreen} options={{title: 'Ready'}} />
 
-            
         </Stack.Navigator>
     );
 
 }
 
+
+
+const Drawer = createDrawerNavigator();
+
+function DrawerContent(props: any) {
+
+    const dimension = useWindowDimensions();
+
+    return (
+        <View style={{flex: 1}}>
+            <View style={{height: 200, alignItems: "center"}} >
+                <Image source={ require('../assets/icon.png') } style={{flex: 1, height: 200, width: 200, resizeMode: 'cover'}} />
+            </View>
+            <DrawerContentScrollView>
+                <DrawerItemList {...props} />
+            </DrawerContentScrollView>
+        </View>
+    );
+}
+
+function AppDrawer() {
+
+    const dimension = useWindowDimensions();
+    const drawerType = dimension.width >= 700 ? 'permanent' : 'front';
+
+    return (
+        <Drawer.Navigator
+            initialRouteName="Main"
+            drawerType={drawerType}
+            edgeWith={300}
+            drawerContent={(props) => <DrawerContent {...props} /> }
+        >
+            <Drawer.Screen name="Main" component={BudgetStackScreen} options={{headerShown: false}} />
+            <Drawer.Screen name="Categories" component={CategoryListScreen} />
+            <Drawer.Screen name="TutoScreen" component={TutoScreen} options={{title: 'Tutorial'}} />
+            <Drawer.Screen name="Database" component={DatabaseScreen} />
+        </Drawer.Navigator>
+    );
+
+}
 
 
 export default function Router() {

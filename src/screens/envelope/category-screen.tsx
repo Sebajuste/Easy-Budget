@@ -18,7 +18,7 @@ const icon_picker_items = [
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
 
-    const envelopeCategory : EnvelopeCategory = route.params?.envelopeCategory;
+    const envelopeCategory : EnvelopeCategory = route.params?.category || route.params?.envelopeCategory;
 
     const [name, setName] = useState( envelopeCategory ? envelopeCategory.name : '');
 
@@ -71,7 +71,7 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
         categoryDao?.remove(envelopeCategory).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
-        });
+        }).catch(console.error);
 
     };
 

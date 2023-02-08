@@ -20,7 +20,7 @@ const operation_type_picker_items = [
 
 export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, route : any}) {
 
-    const category : EnvelopeCategory = route.params?.category || route.params?.envelopeCategory;
+    const category : EnvelopeCategory | null = route.params?.category;
 
     const envelope : Envelope = route.params?.envelope || {
         _id: uuid.v4(),
@@ -29,10 +29,10 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         funds: 0,
         period: Period.MONTHLY,
         dueDate: new Date(),
-        category_id: category._id
+        category_id: category?._id || '' // 
     } as Envelope;
 
-    const updateForm = route.params.envelope ? true : false;
+    const updateForm = route.params?.envelope || false ? true : false;
 
     const [loading, setLoading] = useState(false);
 

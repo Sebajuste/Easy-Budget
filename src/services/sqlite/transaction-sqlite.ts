@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao } from "../transaction";
+import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao, TransactionType } from "../transaction";
 import { sqlite_client } from "./database-manager-sqlite";
 
 
@@ -13,9 +13,23 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             ats_amount as amount,
             ats_envelope_id as envelope_id,
             ats_account_id as account_id,
+            CASE ats_type
+                    WHEN 'INCOME' THEN '${TransactionType.INCOME}'
+                    WHEN 'OUTCOME' THEN '${TransactionType.OUTCOME}'
+                    ELSE '${TransactionType.OUTCOME}'
+                END AS type,
             ats_date as date,
-            ats_reconciled as reconciled
-        FROM t_account_transaction_ats`;
+            ats_reconciled as reconciled,
+            evp_name as envelope_name,
+            cat_name as category_name,
+            cat_color as color,
+            cat_icon as icon
+        FROM t_account_transaction_ats
+            LEFT OUTER JOIN t_envelope_evp
+                ON evp_id = ats_envelope_id
+            LEFT OUTER JOIN t_category_cat
+                ON cat_id = evp_category_id
+        ORDER BY ats_date DESC`;
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
@@ -32,53 +46,49 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
     add(transaction: AccountTransaction): Promise<string | number | undefined> {
 
         const SQL_TRANSACTION = `INSERT INTO t_account_transaction_ats (
-            ats_name, ats_amount, ats_envelope_id, ats_account_id, ats_date, ats_reconciled
+            ats_name, ats_type, ats_amount, ats_envelope_id, ats_account_id, ats_date, ats_reconciled
         ) VALUES (
-            ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?
         )`;
 
-        /*
-        const SQL_ENVELOPE = `UPDATE t_envelope_evp SET evp_current_amount = evp_current_amount - ?, evp_due_date = DATE(evp_due_date, 
-                CASE evp_target_period
-                    WHEN 'MONTHLY' THEN '1 month'
-                    WHEN 'TRIMESTER' THEN '3 month'
-                    WHEN 'SEMESTER' THEN '6 month'
-                    WHEN 'YEARLY' THEN '12 month'
-                    ELSE '1 month'
-                END
-            ) WHERE evp_id = ?`;
-        */
         const SQL_ENVELOPE = `UPDATE t_envelope_evp SET evp_current_amount = evp_current_amount - ? WHERE evp_id = ?`;
 
         const SQL_ACCOUNT = `UPDATE t_account_act SET act_balance = act_balance - ? WHERE act_id = ?`;
 
-        const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0];
+        const params = [transaction.name, transaction.type.toString(), transaction.amount, transaction.envelope_id == '' ? null : transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0];
 
         return new Promise((resolve, reject) => {
+
+            let insertId = 0;
+
             sqlite_client().transaction(async tx => {
 
-                // envelope.dueDate.toISOString()
+                if( transaction.type == TransactionType.OUTCOME ) {
+                    await tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_, { insertId }) => {
+                    }, (tx, err) => {
+                        console.error('Error update envelope', err);
+                        console.error(err);
+                        return true;
+                    });
+                }
 
-                await tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_, { insertId }) => {
-                    // resolve(insertId);
+                await tx.executeSql(SQL_ACCOUNT, [ transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount, transaction.account_id], (_, { insertId }) => {
                 }, (tx, err) => {
-                    // reject(err);
+                    console.error('Error update account', err);
+                    console.error(err);
                     return true;
                 });
 
-                await tx.executeSql(SQL_ACCOUNT, [transaction.amount, transaction.account_id], (_, { insertId }) => {
-                    // resolve(insertId);
+                await tx.executeSql(SQL_TRANSACTION, params, (_, { result } : any) => {
+                    insertId = result;
                 }, (tx, err) => {
-                    // reject(err);
+                    console.error('Error insert transaction', err);
                     return true;
                 });
-
-                await tx.executeSql(SQL_TRANSACTION, params, (_, { insertId }) => {
-                    resolve(insertId);
-                }, (tx, err) => {
-                    reject(err);
-                    return true;
-                });
+            }, err => {
+                reject(err);
+            }, () => {
+                resolve(insertId);
             });
         });
     }
@@ -93,6 +103,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
         const SQL = `UPDATE t_account_transaction_ats
         SET ats_name = ?,
+            ats_type = ?,
             ats_amount = ?,
             ats_envelope_id = ?,
             ats_account_id = ?,
@@ -100,7 +111,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             ats_reconciled = ?
         WHERE ats_id = ?`;
 
-        const params = [transaction.name, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0, transaction._id];
+        const params = [transaction.name, transaction.type, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0, transaction._id];
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
