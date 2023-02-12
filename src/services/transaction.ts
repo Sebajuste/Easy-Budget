@@ -22,14 +22,21 @@ export abstract class EnvelopeTransactionDao extends DAO<EnvelopeTransaction> {
 }
 
 
+export enum TransactionType {
+    INCOME = 'INCOME',
+    OUTCOME = 'OUTCOME'
+}
+
 export interface AccountTransaction {
     _id: string | number;
     name: string;
     amount: number;
     envelope_id: string;
     account_id: string | number;
+    type: TransactionType;
     date: Date;
     reconciled: boolean;
+    color?: string;
 }
 
 export abstract class AccountTransactionDao extends DAO<AccountTransaction> {

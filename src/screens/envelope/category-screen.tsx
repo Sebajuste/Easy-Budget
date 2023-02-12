@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
-import uuid from 'react-native-uuid';
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
-import { Icon } from "react-native-vector-icons/Icon";
 
 
 const icon_picker_items = [
@@ -20,7 +18,7 @@ const icon_picker_items = [
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
 
-    const envelopeCategory : EnvelopeCategory = route.params?.envelopeCategory;
+    const envelopeCategory : EnvelopeCategory = route.params?.category || route.params?.envelopeCategory;
 
     const [name, setName] = useState( envelopeCategory ? envelopeCategory.name : '');
 
@@ -73,7 +71,7 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
         categoryDao?.remove(envelopeCategory).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
-        });
+        }).catch(console.error);
 
     };
 

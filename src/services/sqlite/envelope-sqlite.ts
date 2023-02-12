@@ -82,7 +82,7 @@ export class EnvelopeCategorySQLiteDao extends EnvelopeCategoryDao {
         .del()//
         .toString();
         */
-        const SQL = `DELETE FROM t_account_act WHERE cat_id = ?`;
+        const SQL = `DELETE FROM t_category_cat WHERE cat_id = ?`;
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {

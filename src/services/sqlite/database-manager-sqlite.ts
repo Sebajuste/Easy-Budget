@@ -61,7 +61,7 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 // Envelopes
                 { sql: `CREATE TABLE IF NOT EXISTS t_category_cat (
                     cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    cat_name TEXT NOT NULL,
+                    cat_name TEXT NOT NULL UNIQUE,
                     cat_color TEXT NOT NULL,
                     cat_icon TEXT NOT NULL
                 )`, args: [] },
@@ -82,7 +82,9 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                     BEGIN
                         SELECT
                             CASE
-                                WHEN (SELECT SUM(evp_current_amount) FROM t_envelope_evp) > (SELECT SUM(act_balance) FROM t_account_act) THEN
+                                WHEN (SELECT SUM(evp_current_amount) FROM t_envelope_evp) > (SELECT SUM(act_balance) FROM t_account_act) 
+                                    OR NEW.evp_current_amount < 0
+                                THEN
                                     RAISE (ABORT, 'Total evp_current_amount must be less than total act_balance')
                             END;
                     END;`, args: []
@@ -94,7 +96,9 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                     BEGIN
                         SELECT
                             CASE
-                                WHEN (SELECT SUM(evp_current_amount) FROM t_envelope_evp) > (SELECT SUM(act_balance) FROM t_account_act) THEN
+                                WHEN (SELECT SUM(evp_current_amount) FROM t_envelope_evp) > (SELECT SUM(act_balance) FROM t_account_act)
+                                    OR NEW.evp_current_amount < 0
+                                THEN
                                     RAISE (ABORT, 'Total evp_current_amount must be less than total act_balance')
                             END;
                     END;`, args: []
@@ -177,12 +181,36 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 { sql: `CREATE TABLE IF NOT EXISTS t_account_transaction_ats (
                     ats_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ats_name TEXT NOT NULL,
+                    ats_type TEXT NOT NULL,
                     ats_amount DECIMAL(10,2) NOT NULL,
                     ats_date DATETIME DEFAULT (datetime('now')),
                     ats_reconciled BOOLEAN DEFAULT FALSE,
-                    ats_envelope_id INTEGER REFERENCES t_envelope_evp(evp_id),
+                    ats_envelope_id INTEGER REFERENCES t_envelope_evp(evp_id) DEFAULT NULL,
                     ats_account_id INTEGER NOT NULL REFERENCES t_account_act(act_id)
                 )`, args: []},
+                { sql: `CREATE TRIGGER IF NOT EXISTS check_ats_type_insert
+                    BEFORE INSERT
+                    ON t_account_transaction_ats
+                    FOR EACH ROW
+                    BEGIN
+                        SELECT 
+                            CASE
+                                WHEN NEW.ats_type NOT IN ('INCOME', 'OUTCOME') THEN
+                                    RAISE (ABORT, 'ats_type must be INCOME or OUTCOME')
+                            END;
+                    END;
+                `, args: []},
+                { sql: `CREATE TRIGGER IF NOT EXISTS check_ats_type_update
+                BEFORE UPDATE
+                ON t_account_transaction_ats
+                FOR EACH ROW
+                BEGIN
+                    SELECT 
+                        CASE
+                            WHEN NEW.ats_type NOT IN ('INCOME', 'OUTCOME') THEN
+                                RAISE (ABORT, 'ats_type must be INCOME or OUTCOME')
+                        END;
+                END;`, args: []},
                 
                 { sql: `CREATE TABLE IF NOT EXISTS t_envelopes_transaction_ets (
                     ets_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -200,7 +228,49 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                     set_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     set_name TEXT NOT NULL UNIQUE,
                     set_value TEXT NOT NULL
-                )`,args: []}
+                )`,args: []},
+
+                // Default categories
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Habitation' as cat_name, 'purple' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Habitation')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Alimentation' as cat_name, 'yellow' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Alimentation')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Loisirs' as cat_name, 'cyan' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Loisirs')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Banque' as cat_name, 'orange' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Banque')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Achats & Shopping' as cat_name, 'red' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Achats & Shopping')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Transport' as cat_name, 'blue' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Transport')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Santé' as cat_name, 'green' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Santé')
+                `,
+                args: []},
+                {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
+                    SELECT 'Autres' as cat_name, 'grey' as cat_color, 'home' as cat_icon
+                    WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Autres')
+                `,
+                args: []}
                 
             ], false, (err : any, resultSet) => {
 
