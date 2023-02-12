@@ -27,10 +27,10 @@ import RevenueScreen from "./screens/revenues/revenue-screen";
 import RevenueListScreen from "./screens/revenues/revenue-list-screen";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { useEffect, useRef } from "react";
-import { fontSize } from "react-native-rapi-ui/constants/typography";
 
 import { CategoryListScreen } from "./screens/envelope/category-list-screen";
 import { DatabaseScreen } from "./screens/database/database-screen";
+import { t } from "./services/i18n";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,10 +43,10 @@ const navTo = (navigation: any, pageName : string) => {
 
 
 const TABS_LIST = [
-    {label: 'Home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
-    {label: 'Envelopes', route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
-    {label: 'Revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro' },
-    {label: 'Accounts', route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
+    {label: t('common:home'), route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
+    {label: t('common:envelopes'), route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
+    {label: t('common:revenues'), route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro' },
+    {label: t('common:accounts'), route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
 ]
 
 
@@ -263,10 +263,10 @@ function AppDrawer() {
             edgeWith={300}
             drawerContent={(props) => <DrawerContent {...props} /> }
         >
-            <Drawer.Screen name="Main" component={BudgetStackScreen} options={{headerShown: false}} />
-            <Drawer.Screen name="Categories" component={CategoryListScreen} />
-            <Drawer.Screen name="TutoScreen" component={TutoScreen} options={{title: 'Tutorial'}} />
-            <Drawer.Screen name="Database" component={DatabaseScreen} />
+            <Drawer.Screen name="Main" component={BudgetStackScreen} options={{headerShown: false, title: t('menus:home') }} />
+            <Drawer.Screen name="Categories" component={CategoryListScreen} options={{title: t('menus:categories') }} />
+            <Drawer.Screen name="TutoScreen" component={TutoScreen} options={{title: t('menus:tutorial') }} />
+            <Drawer.Screen name="Database" component={DatabaseScreen} options={{title: t('menus:database') }} />
         </Drawer.Navigator>
     );
 

@@ -11,7 +11,7 @@ export default function EnvelopeTransactionView({transaction} : {transaction: En
             <SectionContent style={{flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
                     <Text>{transaction.name}</Text>
-                    <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toDateString() : transaction.date.toDateString()}</Text>
+                    <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toLocaleDateString() : transaction.date.toLocaleDateString()}</Text>
                     <Text>{transaction.amount.toFixed(2)} €</Text>
                 </View>
             </SectionContent>

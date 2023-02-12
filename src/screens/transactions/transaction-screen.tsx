@@ -1,22 +1,19 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { StackActions, useIsFocused } from "@react-navigation/native";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
+
 import { SelectDateComponent } from "../../components/select-date";
 import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { StackActions, useIsFocused } from "@react-navigation/native";
 import { Account, AccountDao } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
 
+import { t } from "../../services/i18n";
 
-const incomeOutcomeItems = [{
-    label: 'Outcome',
-    value: TransactionType.OUTCOME.toString(),
-}, {
-    label: 'Income',
-    value: TransactionType.INCOME.toString(),
-}];
+
+
 
 
 export function AccountTransactionScreen({navigation, route} : any) {
@@ -90,9 +87,16 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     };
 
+    const incomeOutcomeItems = [{
+        label: t('common:outcome'),
+        value: TransactionType.OUTCOME.toString(),
+    }, {
+        label: t('common:income'),
+        value: TransactionType.INCOME.toString(),
+    }];
+
     useEffect(() => {
         
-
         envelopeDao.load().then(envelopes => {
 
             setEnvelope( _.find(envelopes, env => env._id == envelopID) );
@@ -106,13 +110,9 @@ export function AccountTransactionScreen({navigation, route} : any) {
         }).then(setEnvelopItems);
 
         accountDao.load().then(accounts => {
-
-            // setAccount( _.find(accounts, item => item._id == accountID) );
-
             return accounts.map(account => {
                 return {
                     label: `${account.name} [${account.balance}]`,
-                    // value: account._id
                     value: account
                 };
             });
@@ -123,11 +123,10 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     return (
         <Layout style={{margin: 10}}>
-            
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Transation name</Text>
+                        <Text style={{ fontSize: 12 }}>{t('common:transaction_name')}</Text>
                         <TextInput
                             placeholder="Enter the transaction name"
                             value={name}
@@ -139,12 +138,12 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
 
                     <View>
-                        <Text style={{ fontSize: 12 }}>Type</Text>
-                        <Picker placeholder="Type" items={incomeOutcomeItems} value={type.toString()} onValueChange={(value:string) => setType(TransactionType[value]) } />
+                        <Text style={{ fontSize: 12 }}>{t('common:type')}</Text>
+                        <Picker placeholder={t('type')} items={incomeOutcomeItems} value={type.toString()} onValueChange={(value:string) => setType(TransactionType[value]) } />
                     </View>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Amount</Text>
+                        <Text style={{ fontSize: 12 }}>{t('common:amount')}</Text>
                         <TextInput
                             placeholder="0.00"
                             value={amount}
@@ -158,7 +157,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
                     { envelope ? (
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
-                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>Envelope : { envelope?.name } </Text>
+                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.name } </Text>
                         { envelope && parseFloat(amount) > envelope.funds ?
                             <Button text="FILL" onPress={fillHandler} ></Button>
                         :
@@ -167,7 +166,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                         </View>
                     ) : (
                         <View>
-                            <Text style={{ fontSize: 12 }}>Envelope </Text>
+                            <Text style={{ fontSize: 12 }}>{t('common:envelope')}</Text>
                             <Picker placeholder="Envelope" items={envelopItems} value={ envelopID } onValueChange={setEnvelopeID} ></Picker>
                         </View>
                     ) }
@@ -177,25 +176,23 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Account</Text>
-                        <Picker placeholder="Account" items={accountItems} value={ account } onValueChange={setAccount} ></Picker>
+                        <Text style={{ fontSize: 12 }}>{t('common:account')}</Text>
+                        <Picker placeholder={t('common:account')} items={accountItems} value={ account } onValueChange={setAccount} ></Picker>
                     </View>
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <SelectDateComponent label="Date" date={date} onChange={(newDate: Date) => setDate(newDate) } />
+                        <SelectDateComponent label={t('common:date')} date={date} onChange={(newDate: Date) => setDate(newDate) } />
                     </View>
                 </View>
 
                 { type == 'outcome' ? (
-                    <Button text="PAY" disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
+                    <Button text={t('buttons:pay')} disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
                 ) : (
-                    <Button text="ADD" disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />
+                    <Button text={t('buttons:add')} disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />
                 ) }
 
-                
-            
         </Layout>
     );
 

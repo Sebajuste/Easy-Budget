@@ -1,0 +1,55 @@
+{
+    "buttons": {
+        "add": "Add",
+        "add_first_account": "Add your first account",
+        "start_tutorial": "Start tutorial",
+        "pay": "Pay"
+    },
+    "common": {
+        "account": "Account",
+        "accounts": "Accounts",
+        "account_name": "Account name",
+        "all_accounts": "All accounts",
+        "all_revenues": "All revenues",
+        "amount": "Amount",
+        "close": "Close",
+        "date": "Date",
+        "delete": "Delete",
+        "envelope": "Envelope",
+        "envelopes": "Envelopes",
+        "fill_auto": "Fill automatic",
+        "home": "Home",
+        "next_paiements": "Next paiements",
+        "next": "Next",
+        "new": "New",
+        "paiement": "Paiement",
+        "revenues": "Revenues",
+        "save": "Save",
+        "transaction_name": "Transaction name",
+        "type": "Type",
+        "outcome": "Outcome",
+        "income": "Income"
+    },
+    "forms": {
+        "revenues_name": "Revenue name",
+        "revenues_enter_name": "Enter the account name",
+        "revenues_enter_amount": "Enter the amount",
+        "revenues_due_date": "Due date"
+    },
+    "infos": {},
+    "menus": {
+        "home": "Home",
+        "categories": "Categories",
+        "tutorial": "Tutorial",
+        "database": "Database"
+    },
+    "tutorial": {
+        "start": "Start to create your accounts, and initialize them with the current balance.",
+        "enter_revenues": "Enter your average global revenue per month",
+        "create_categories_and_envelopes": "Create your categories, and the envelopes then configure them.",
+        "fill_envelopes": "Start to fill your envelopes. After that, each month, you must to fill the envelopes with the revenue splited.",
+        "nothing_tobe_fill": "Nothing to be filled",
+        "fill_info": "You have the balance to fill automatically your envelopes.",
+        "cannot_fill_info": "You don't have the balance to fill automatically your envelopes. Tou must fill them manually."
+    }
+}

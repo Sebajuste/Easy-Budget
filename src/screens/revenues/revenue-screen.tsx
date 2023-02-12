@@ -4,6 +4,7 @@ import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import { SelectDateComponent } from "../../components/select-date";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { t } from "../../services/i18n";
 import { Revenue, RevenueDao } from "../../services/revenue";
 
 
@@ -58,28 +59,28 @@ export default function RevenueScreen({navigation, route} : any) {
         <Layout style={{margin: 10}}>
 
             <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>Revenue name</Text>
+                <Text style={{ fontSize: 12 }}>{t('forms:revenues_name')}</Text>
                 <TextInput
-                    placeholder="Enter the account name"
+                    placeholder={t('forms:revenues_enter_name')}
                     value={name}
                     onChangeText={setName}
                 />
             </View>
             <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>Revenue name</Text>
+                <Text style={{ fontSize: 12 }}>{t('common:amount')}</Text>
                 <TextInput
-                    placeholder="Enter the amount"
+                    placeholder={t('forms:revenues_enter_amount')}
                     value={amount}
                     onChangeText={setAmount}
                     keyboardType="numeric"
                 />
             </View>
 
-            <SelectDateComponent label="Due Date" date={expectDate} minimumDate={now} onChange={(newDate: Date) => setExpectDate(newDate) } />
+            <SelectDateComponent label={t('forms:revenues_due_date')} date={expectDate} minimumDate={now} onChange={(newDate: Date) => setExpectDate(newDate) } />
 
             <View style={{ flexDirection: 'row'}} >
-                { revenue ? <Button style={{margin: 5, flexGrow: 1}} text="DELETE" status="danger" onPress={deleteHandler}></Button> : <></> }
-                <Button style={{margin: 5, flexGrow: 1}} text="SAVE" status="primary" disabled={!formValid} onPress={saveHandler}></Button>
+                { revenue ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={deleteHandler}></Button> : <></> }
+                <Button style={{margin: 5, flexGrow: 1}} text={t('common:save')} status="primary" disabled={!formValid} onPress={saveHandler}></Button>
             </View>
             
         </Layout>

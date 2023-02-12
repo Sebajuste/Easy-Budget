@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { t } from "../../services/i18n";
 
 export function AccountView() {
 
@@ -61,12 +62,12 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
         <SafeAreaView style={scroll_styles.container}>
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
-                    <Text style={{textAlign: 'right', margin: 10}}>All accounts : {total} €</Text>
+                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total} €</Text>
                     {accounts_items}
                 </ScrollView>
             ) : (
                 <View style={{flex: 1, margin: 20, justifyContent: 'center', alignItems: 'center'}}>
-                    <Button text="Add your first account" onPress={addAccountHandler} />
+                    <Button text={ t('buttons:add_first_account')} onPress={addAccountHandler} />
                 </View>
             )}
         </SafeAreaView>

@@ -1,0 +1,54 @@
+{
+    "buttons": {
+        "add": "Ajouter",
+        "add_first_account": "Ajouter votre premier compte",
+        "pay": "Payé",
+        "start_tutorial": "Démarrer le tutoriel"
+    },
+    "common": {
+        "account": "Compte",
+        "accounts": "Comptes",
+        "account_name": "Nom du compte",
+        "all_accounts": "Tous les comptes",
+        "all_revenues": "Tous les revenus",
+        "amount": "Quantité",
+        "close": "Fermer",
+        "date": "Date",
+        "delete": "Supprimer",
+        "envelope": "Enveloppe",
+        "envelopes": "Enveloppes",
+        "fill_auto": "Remplissage automatique",
+        "home": "Principal",
+        "next_paiements": "Prochains paiements",
+        "next": "Suivant",
+        "new": "Nouveau",
+        "paiement": "Paiment",
+        "revenues": "Revenus",
+        "save": "Sauvegarder",
+        "transaction_name": "Nom de la transaction",
+        "type": "Type",
+        "outcome": "Sortie",
+        "income": "Entrée"
+    },
+    "forms": {
+        "revenues_name": "Nom du revenu",
+        "revenues_enter_name": "Entrez le nom de ce revenu",
+        "revenues_enter_amount": "Entrez la quantité",
+        "revenues_due_date": "Date de réception"
+    },
+    "menus": {
+        "home": "Principal",
+        "categories": "Categories",
+        "tutorial": "Tutorial",
+        "database": "Base de données"
+    },
+    "tutorial": {
+        "start": "Commencez par créer vos comptes, et initialiser les avec leurs soldes actuels.",
+        "enter_revenues": "Entrez vos revenus mensuels",
+        "create_categories_and_envelopes": "Créez vos envelopes, et configurez les.",
+        "fill_envelopes": "Commencez à remplir vos envelopes. Après cela, chaque mois, vous devrez les remplir avec vos revenus.",
+        "nothing_tobe_fill": "Rien à remplir",
+        "fill_info": "Vous avez le solde nécéssaire pour remplir automatiquement vos envelopes",
+        "cannot_fill_info": "Vous n'avez pas le solde nécéssaire pour remplir vos envelopes. Vous devrez les configurer manuelement."
+    }
+}

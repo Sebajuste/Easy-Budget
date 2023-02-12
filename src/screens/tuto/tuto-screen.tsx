@@ -16,6 +16,7 @@ import { SettingsDao } from "../../services/settings";
 import RevenueScreen from "../revenues/revenue-screen";
 import { Revenue } from "../../services/revenue";
 import RevenueListScreen from "../revenues/revenue-list-screen";
+import { t } from "../../services/i18n";
 
 
 
@@ -33,7 +34,7 @@ export function TutoFinalScreen({navigation} : any) {
             </View>
 
             <View style={{margin: 10}}>
-                <Button text="CLOSE" onPress={closeHandler}></Button>
+                <Button text={t('common:close')} onPress={closeHandler}></Button>
             </View>
 
         </SafeAreaView>
@@ -148,12 +149,18 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{margin: 10, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{margin: 10, fontSize: 24}}>You have the balance to fill automatically your envelopes.</Text>
+                <Text style={{margin: 10, fontSize: 24}}></Text>
             </View>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
-                { nothingToFill ? <Text>Nothing to be filled</Text> : null }
+                <View style={{ margin: 10 }}>
+                { nothingToFill ?
+                    <Text>{t('tutorial:nothing_tobe_fill')}</Text>
+                : (
+                    canBeAutoFilled ? (<Text>{t('tutorial:fill_info')}</Text>) : (<Text>{t('tutorial:cannot_fill_info')}</Text>)
+                ) }
+                </View>
 
                 { canBeAutoFilled ? (
                     <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 20}}>
@@ -167,9 +174,9 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
                 
                 <View style={{marginTop: 30}}>
                      { nothingToFill ?
-                        <Button text="NEXT" onPress={nextHandler} />
+                        <Button text={t('common:next')} onPress={nextHandler} />
                      :
-                        <Button disabled={!canBeAutoFilled}  text="FILL AUTO" onPress={fillAutoHandler} />
+                        <Button disabled={!canBeAutoFilled} text={t('common:fill_auto')} onPress={fillAutoHandler} />
                      }
                     
                 </View>
@@ -193,11 +200,11 @@ export function TutoInfoFillEnvelopeScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Start to fill your envelopes. After that, each month, you must to fill the envelopes with the revenue splited.</Text>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:fill_envelopes')}</Text>
             </View>
 
             <View style={{margin: 10}}>
-                <Button text="NEXT" onPress={nextHandler}></Button>
+                <Button text={t('common:next')} onPress={nextHandler}></Button>
             </View>
 
         </SafeAreaView>
@@ -224,7 +231,7 @@ export function TutoEnvelopeScreen({navigation} : any) {
             <EnvelopesScreen navigation={navigation} onChange={changeHandler} />
             { countCategories > 0 ? (
                 <View style={{margin: 10}}>
-                    <Button text="NEXT" onPress={nextHandler}></Button>
+                    <Button text={t('common:next')} onPress={nextHandler}></Button>
                 </View>
             ) : null }
             
@@ -245,11 +252,11 @@ export function TutoInfoEnvelopeScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Create your categories, and the envelopes then configure them.</Text>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:create_categories_and_envelopes')}</Text>
             </View>
 
             <View style={{margin: 10}}>
-                <Button text="NEXT" onPress={nextHandler}></Button>
+                <Button text={t('common:next')} onPress={nextHandler}></Button>
             </View>
 
         </SafeAreaView>
@@ -274,7 +281,7 @@ export function TutoRevenueScreen({navigation} : any) {
             <RevenueListScreen navigation={navigation} onChange={changeHandler} />
             { countRevenues > 0 ? (
                 <View style={{margin: 10}}>
-                    <Button text="NEXT" onPress={nextHandler}></Button>
+                    <Button text={t('common:next')} onPress={nextHandler}></Button>
                 </View>
             ) : null }
         </>
@@ -314,7 +321,7 @@ export function TutoRevenueScreenOld({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Enter your average global revenue per month</Text>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:enter_revenues')}</Text>
 
                 <View style={{ margin: 20, width: 200}}>
                     <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} keyboardType="numeric" />
@@ -323,7 +330,7 @@ export function TutoRevenueScreenOld({navigation} : any) {
             </View>
 
             <View style={{margin: 10}}>
-                <Button text="NEXT" disabled={!revenueValid} onPress={nextHandler}></Button>
+                <Button text={t('common:next')} disabled={!revenueValid} onPress={nextHandler}></Button>
             </View>
 
         </SafeAreaView>
@@ -350,7 +357,7 @@ export function TutoAccountScreen({navigation} : any) {
 
             { countAccount > 0 ? (
                 <View style={{margin: 10}}>
-                    <Button text="NEXT" onPress={nextHandler}></Button>
+                    <Button text={t('common:next')} onPress={nextHandler}></Button>
                 </View>
             ) : null }
             
@@ -373,11 +380,11 @@ export function TutoScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Start to create your accounts, and initialize them with the current balance.</Text>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:start')}</Text>
             </View>
 
             <View style={{margin: 10}}>
-                <Button text="NEXT" onPress={nextHandler}></Button>
+                <Button text={t('common:next')} onPress={nextHandler}></Button>
             </View>
 
         </SafeAreaView>

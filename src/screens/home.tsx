@@ -7,7 +7,7 @@ import { scroll_styles } from "../styles";
 import { AccountTransaction } from "../services/transaction";
 import NextPaymentListView from "./payment/payment-list-view";
 
-
+import { t } from '../services/i18n';
 
 export default function HomeScreen({navigation} : any) {
 
@@ -31,11 +31,10 @@ export default function HomeScreen({navigation} : any) {
     return (
       <SafeAreaView style={scroll_styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          
-          <Button text="Start tuto" onPress={startTuto}></Button>
+          <Button text={ t('buttons:start_tutorial') } onPress={startTuto}></Button>
         </View>
         <View style={{ flex: 1, margin: 10 }}>
-          <Text>Next paiements : </Text>
+          <Text>{ t('common:next_paiements') } : </Text>
           <ScrollView style={scroll_styles.scrollView}>
             <NextPaymentListView onPayment={paymentHandler} />
           </ScrollView>
