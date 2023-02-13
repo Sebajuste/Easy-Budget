@@ -1,6 +1,5 @@
 import { Dimensions, FlatList, ScrollView, SectionList, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
-import CircularProgress from 'react-native-circular-progress-indicator';
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -31,15 +30,10 @@ function EnvelopeListItem(props : any) {
     <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
       <View style={{...styles.image, backgroundColor: 'silver', padding: 10}}>
         
-        <CircularProgress
-          value={envelope.funds.toFixed(2)}
-          maxValue={envelope.funds > envelope.amount ? envelope.funds : envelope.amount}
-          progressValueColor={ category.color }
-          titleColor={ category.color }
-          activeStrokeColor={ category.color }
-          valueSuffix={'€'}
-        />
-        
+        <View style={{flex: 1, flexDirection: 'column'}}>
+          <Text style={{alignItems: 'center', color: category.color, fontSize: 30, textAlign: 'center'}}> {envelope.funds.toFixed(2)}€</Text>
+          <Text style={{textAlign: 'center'}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+        </View>
         <Text style={{fontSize: 12}}>{dueDate}</Text>
       </View>
       <View style={styles.detailsContainer}>
