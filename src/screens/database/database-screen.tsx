@@ -2,7 +2,9 @@ import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native-animatable";
+import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AccountDao } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { EnvelopeDao } from "../../services/envelope";
@@ -41,6 +43,8 @@ export function DatabaseScreen() {
 
     const [databaseCheck, setDatabaseCheck] = useState(false);
 
+    const [databaseResult, setDatabaseResult] = useState([]);
+
     const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
 
     const isFocused = useIsFocused();
@@ -58,6 +62,9 @@ export function DatabaseScreen() {
     useEffect(() => {
       setLoading(true);
       checkDatabase().then(setDatabaseCheck).catch(console.error).finally(() => setLoading(false));
+
+      setDatabaseResult( dbManager.getLastError() )
+
     }, [isFocused]);
 
     if( loading ) {
@@ -68,13 +75,26 @@ export function DatabaseScreen() {
       );
     }
 
+    const errorItems = _.filter(databaseResult, (item: any) =>  item.hasOwnProperty('error') ).map( (item: any, index: number) => {
+      console.log(item.error);
+      return (
+        <Text key={index}>{item.error.toString()}</Text>
+      );
+    });
+
     return (
-        <View style={{margin: 5}}>
-            <View style={{margin: 20}}>
-                <Text>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
-            </View>
+        <SafeAreaView style={{flex: 1, margin: 5}}>
+          <View style={{flex: 1, margin: 20}}>
+            <ScrollView>
+              {errorItems}
+            </ScrollView>
+            
+          </View>
+          <View style={{margin: 20}}>
+            <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
             <Button text="DELETE Database" onPress={clearDatabaseHandler}></Button>
-        </View>
+          </View>
+        </SafeAreaView>
     );
 
 }

@@ -132,9 +132,6 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const formValid = name.trim().length > 0 && amount.trim().length > 0 && parseFloat(amount) != 0;
 
-    console.log('categoryID    : ', categoryID)
-    console.log('categoryItems : ', categoryItems)
-
     return (
         <Layout style={{margin: 10}}>
         

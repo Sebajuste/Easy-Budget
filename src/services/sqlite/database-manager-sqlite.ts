@@ -5,24 +5,16 @@ const SQLITE_VERSION = "1.0";
 const DATABASE_NAME = "easy_budget.db";
 
 
-// export let sqlite_client : SQLite.WebSQLDatabase;
-/*
-function OpenSQLite() {
-    sqlite_client = SQLite.openDatabase('easy_budget.db', SQLITE_VERSION, "", 1, (db) => {
-        new DatabaseManagerSQLite().init();
-    });
-}
-
-OpenSQLite();
-*/
-
 
 export class DatabaseManagerSQLite extends DatabaseManager {
 
     private db: any;
 
-    constructor(/*sqlite: SQLite.WebSQLDatabase | null*/) {
+    private error: any;
+
+    constructor() {
         super();
+        this.error = null;
         this.open().then(db => {
             console.log('DB opened');
             this.init();
@@ -54,6 +46,8 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     public init(): Promise<void> {
         return new Promise((resolve, reject) => {
+
+            this.error = null;
 
             this.client.exec([
                 { sql: 'PRAGMA foreign_keys = ON;', args: [] },
@@ -274,10 +268,11 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 
             ], false, (err : any, resultSet) => {
 
-                console.log(resultSet);
+                // console.log(resultSet);
+                this.error = resultSet;
     
                 if( err ) {
-                    console.error('Database Init error', err);
+                    console.error('Database Init error', err); 
                     reject(err);
                 } else {
 
@@ -291,8 +286,6 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                             }
                         }
                     }
-
-
                     console.log('Database Init done');
                     resolve();
                 }
@@ -310,6 +303,10 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         });
 
     }
+
+    public getLastError() {
+        return this.error;
+    }    
 }
 
 export const DB_MANAGER_SQLite = new DatabaseManagerSQLite();
