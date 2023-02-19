@@ -41,6 +41,8 @@ export function DatabaseScreen() {
 
     const [loading, setLoading] = useState(false);
 
+    const [message, setMessage] = useState<string|null>(null)
+
     const [databaseCheck, setDatabaseCheck] = useState(false);
 
     const [databaseResult, setDatabaseResult] = useState([]);
@@ -50,12 +52,15 @@ export function DatabaseScreen() {
     const isFocused = useIsFocused();
 
     const clearDatabaseHandler = () => {
+        setMessage(null);
         dbManager.delete().then(() => {
           return dbManager.init();
         }).then(() => {
           console.log('Database ready');
+          setMessage('Database ready');
         }).catch(err => {
           console.error(err);
+          setMessage(err.message);
         });
     };
 
@@ -88,10 +93,10 @@ export function DatabaseScreen() {
             <ScrollView>
               {errorItems}
             </ScrollView>
-            
           </View>
           <View style={{margin: 20}}>
             <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
+            { message ? <Text style={{marginBottom: 20}}>{message}</Text> : null }
             <Button text="DELETE Database" onPress={clearDatabaseHandler}></Button>
           </View>
         </SafeAreaView>

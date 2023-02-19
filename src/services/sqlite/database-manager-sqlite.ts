@@ -1,4 +1,6 @@
 import * as SQLite from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system';
+
 import { DatabaseManager } from "../database-manager";
 
 const SQLITE_VERSION = "1.0";
@@ -25,7 +27,19 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         return this.db;
     }
 
-    public open() : Promise<void> {
+    public async open() : Promise<void> {
+
+        if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
+            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
+        }
+        /*
+        // To download from external file
+        await FileSystem.downloadAsync(
+            Asset.fromModule(require(pathToDatabaseFile)).uri,
+            FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`
+        );
+        */
+
         return new Promise((resolve, reject) => {
             SQLite.openDatabase(DATABASE_NAME, SQLITE_VERSION, "", 1, (db) => {
                 this.db = db;
@@ -297,7 +311,10 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     public delete(): Promise<void> {
 
-        return this.close().then( () => this.db.deleteAsync()).then(() => {
+        return this.close()//
+        .then( () => this.db.deleteAsync())//
+        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) )//
+        .then( () => {
             console.log('Database removed');
             return this.open();
         });
