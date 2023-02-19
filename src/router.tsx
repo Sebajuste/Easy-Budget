@@ -15,7 +15,7 @@ import HomeScreen from "./screens/home";
 import EnvelopesScreen from "./screens/envelope/envelopes-screen";
 import { AccountsScreen } from "./screens/account/accounts-screen";
 
-import CategoryScreen from "./screens/envelope/category-screen";
+import CategoryScreen from "./screens/category/category-screen";
 
 import { AccountTransactionListScreen } from "./screens/transactions/transaction-list-screen";
 import { AccountTransactionScreen } from "./screens/transactions/transaction-screen";
@@ -29,7 +29,7 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import { useEffect, useRef } from "react";
 import { fontSize } from "react-native-rapi-ui/constants/typography";
 
-import { CategoryListScreen } from "./screens/envelope/category-list-screen";
+import { CategoryListScreen } from "./screens/category/category-list-screen";
 import { DatabaseScreen } from "./screens/database/database-screen";
 
 const Stack = createNativeStackNavigator();
@@ -51,7 +51,7 @@ const TABS_LIST = [
 
 
 const TabButton = ({item, onPress, accessibilityState} : any) => {
-    const viewRef = useRef();
+    const viewRef = useRef<any>();
     const focused = accessibilityState.selected;
 
     useEffect( () => {
@@ -247,6 +247,9 @@ function DrawerContent(props: any) {
             <DrawerContentScrollView>
                 <DrawerItemList {...props} />
             </DrawerContentScrollView>
+            <View>
+                <Text style={{textAlign: "center", padding: 10, fontSize: 12}}>v1.0.0</Text>
+            </View>
         </View>
     );
 }

@@ -1,8 +1,6 @@
-import { uniqueId } from "lodash";
 import { useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { parse } from "uuid";
 import { Account, AccountDao } from "../../services/account";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";

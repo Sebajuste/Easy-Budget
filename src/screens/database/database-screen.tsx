@@ -12,7 +12,7 @@ import { EnvelopeTransactionDao } from "../../services/transaction";
 
 
 async function checkDatabase() {
-    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE); // new TransactionDaoStorage();
+    // const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE); // new TransactionDaoStorage();
     const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
     const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
   

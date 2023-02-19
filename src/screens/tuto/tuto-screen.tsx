@@ -5,7 +5,7 @@ import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
-import { budgetPerMonth, countMonth, Envelope, EnvelopeCategory, EnvelopeDao } from "../../services/envelope";
+import { budgetPerMonth, countMonth, Envelope, Category, EnvelopeDao } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
 import { AccountsScreen } from "../account/accounts-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
@@ -210,7 +210,7 @@ export function TutoEnvelopeScreen({navigation} : any) {
 
     const [countCategories, setCountCategories] = useState(0);
 
-    const changeHandler = (categories: EnvelopeCategory[]) => {
+    const changeHandler = (categories: Category[]) => {
         setCountCategories(categories.length);
     };
 

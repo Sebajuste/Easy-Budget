@@ -1,9 +1,11 @@
 import { AccountDao } from '../account';
-import { EnvelopeCategoryDao, EnvelopeDao } from '../envelope';
+import { EnvelopeDao } from '../envelope';
+import { CategoryDao } from '../category';
 import { RevenueDao } from "../revenue";
 import { AccountTransactionDao, EnvelopeTransactionDao } from '../transaction';
 import { AccountDaoSQLite } from './account-sqlite';
-import { EnvelopeCategorySQLiteDao, EnvelopeSQLiteDao } from './envelope-sqlite';
+import { CategorySQLiteDao } from './category-sqlite';
+import { EnvelopeSQLiteDao } from './envelope-sqlite';
 import { RevenueDaoSQLite } from "./revenue-sqlite";
 import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './transaction-sqlite';
 
@@ -14,7 +16,7 @@ export const SQLITE_DAO : {[key: string] : any } = {
     [AccountDao.name]: new AccountDaoSQLite(),
     [RevenueDao.name]: new RevenueDaoSQLite(),
     
-    [EnvelopeCategoryDao.name]: new EnvelopeCategorySQLiteDao(),
+    [CategoryDao.name]: new CategorySQLiteDao(),
     [EnvelopeDao.name]: new EnvelopeSQLiteDao(),
     
     [EnvelopeTransactionDao.name]: new EnvelopeTransactionDaoSQLite(),

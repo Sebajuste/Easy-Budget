@@ -188,7 +188,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                     </View>
                 </View>
 
-                { type == 'outcome' ? (
+                { type == TransactionType.OUTCOME ? (
                     <Button text="PAY" disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
                 ) : (
                     <Button text="ADD" disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />

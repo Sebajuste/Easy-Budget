@@ -3,7 +3,8 @@ import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EnvelopeCategory, Envelope, periodToString, budgetPerYear, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
+import { Envelope, periodToString, budgetPerYear, EnvelopeDao } from "../../services/envelope";
+import { Category, CategoryDao } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -117,13 +118,13 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 }
 
 
-export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: EnvelopeCategory[]) => void}) {
+export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: Category[]) => void}) {
 
     const viewRef = useRef(null);
 
     const [loading, setLoading] = useState(false);
 
-    const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
 
@@ -131,7 +132,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const isFocused = useIsFocused();
 
-    const categoriesDao = DAOFactory.getDAO(EnvelopeCategoryDao, DATABASE_TYPE);
+    const categoriesDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
     const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
     const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
 
@@ -169,11 +170,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     
     const envelopes_group = _.groupBy(envelopes, 'category_id');
 
-    const editCategoryHandler = (category: EnvelopeCategory) => {
-      navigation.navigate({name: 'EditCategory', params: {envelopeCategory: category} });
+    const editCategoryHandler = (category: Category) => {
+      navigation.navigate({name: 'EditCategory', params: {category: category} });
     };
         
-    const addEnvelopHandler = (category: EnvelopeCategory) => {
+    const addEnvelopHandler = (category: Category) => {
       navigation.navigate({name: 'CreateEnvelope', params: {category: category} });
     };
 
@@ -190,8 +191,8 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     };
 
-    const renderHeaderHandler = ({section}) => {
-      const category = {_id: section._id, name: section.name, color: section.color} as EnvelopeCategory;
+    const renderHeaderHandler = ({section}: any) => {
+      const category = {_id: section._id, name: section.name, color: section.color} as Category;
       return <TopNav
               style={{backgroundColor: category.color }}
               middleContent={section.name}

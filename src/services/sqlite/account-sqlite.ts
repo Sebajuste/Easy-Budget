@@ -10,17 +10,6 @@ export class AccountDaoSQLite extends AccountDao {
     }
 
     load(): Promise<Account[]> {
-
-        /*
-        const SQL = knex.select([
-            "act_id as _id",
-            "act_name as name",
-            "act_balance as balance",
-            "act_envelope_balance as envelope_balance",
-            "act_created_at as created_at"
-        ]).from("t_account_act")//
-        .toString();
-        */
        const SQL = `
         SELECT act_id as _id,
             act_name as name,
@@ -43,24 +32,10 @@ export class AccountDaoSQLite extends AccountDao {
     }
 
     save(accounts: Account[]): Promise<void> {
-
-
         throw new Error("Method not implemented.");
     }
 
     add(account: Account) : Promise<string|number|undefined> {
-
-        /*
-        const SQL = knex('t_account_act')
-        .insert({
-            act_id: account._id,
-            act_name: account.name,
-            act_balance: account.balance,
-            act_envelope_balance: account.envelope_balance,
-            act_created_at: account.created_at
-        })
-        .toString();
-        */
 
         const SQL = `INSERT INTO t_account_act (
             act_name,
@@ -83,18 +58,7 @@ export class AccountDaoSQLite extends AccountDao {
     }
 
     update(account: Account) : Promise<void> {
-        /*
-        const SQL = knex('t_account_act')
-            .update({
-                act_name: account.name,
-                act_balance: account.balance,
-                act_envelope_balance: account.envelope_balance,
-                act_created_at: account.created_at
-            })
-            .where('act_id', account._id)
-            .toString();
-        */
-        
+
         const SQL = `UPDATE t_account_act
             SET act_name = ?,
                 act_balance = ?,

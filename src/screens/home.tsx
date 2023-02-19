@@ -31,7 +31,6 @@ export default function HomeScreen({navigation} : any) {
     return (
       <SafeAreaView style={scroll_styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          
           <Button text="Start tuto" onPress={startTuto}></Button>
         </View>
         <View style={{ flex: 1, margin: 10 }}>
