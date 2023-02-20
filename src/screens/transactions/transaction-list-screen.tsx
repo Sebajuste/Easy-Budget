@@ -8,8 +8,9 @@ import _ from "lodash";
 import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
-import { t } from "../../services/i18n";
 
+import { t } from "../../services/i18n";
+import { DaoType } from "../../services/dao";
 
 
 
@@ -50,7 +51,8 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
-    const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE);
+    // const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
     const newTransactionHandler = () => {
         navigation.navigate({name: 'Transaction'});

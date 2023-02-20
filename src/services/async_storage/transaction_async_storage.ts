@@ -23,6 +23,10 @@ export class AccountTransactionDaoStorage extends AccountTransactionDao {
         return [];
     }
 
+    find(selector: any) : Promise<AccountTransaction|null> {
+        throw new Error("Method not implemented.");
+    }
+
     async save(transactions: AccountTransaction[]) {
         return await AsyncStorage.setItem('account_transactions', JSON.stringify(transactions));
     }
@@ -123,6 +127,10 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
             return JSON.parse(json_transactions) ;
         }
         return [];
+    }
+
+    find(selector: any) : Promise<EnvelopeTransaction|null> {
+        throw new Error("Method not implemented.");
     }
 
     async save(transactions: EnvelopeTransaction[]) {

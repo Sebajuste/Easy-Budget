@@ -11,6 +11,7 @@ import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/tran
 import { scroll_styles } from "../../styles";
 import EnvelopeTransactionView from "../transactions/transaction-view";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { DaoType } from "../../services/dao";
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -31,8 +32,10 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
-    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
+    // const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    // const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE);
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);

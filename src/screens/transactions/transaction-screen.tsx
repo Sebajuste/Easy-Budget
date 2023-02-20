@@ -9,6 +9,7 @@ import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { Account, AccountDao } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
+import { DaoType } from "../../services/dao";
 
 import { t } from "../../services/i18n";
 
@@ -26,31 +27,45 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const [amount, setAmount] = useState( transaction ? `${transaction.amount}` : '');
 
-    const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
-
     const [date, setDate] = useState( transaction ? ( typeof transaction.date === 'string' ? new Date(transaction.date) : transaction.date ) : new Date());
 
     const [envelopItems, setEnvelopItems] = useState<any[]>([]);
 
     const [accountItems, setAccountItems] = useState<any[]>([]);
 
-    const [envelope, setEnvelope] = useState<Envelope|undefined>();
+    // const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
 
-    const [account, setAccount] = useState<Account|undefined>();
+    const [envelope, setEnvelope] = useState<Envelope|null>();
+
+    // const [accountID, setAccountID] = useState<string|undefined>();
+
+    const [account, setAccount] = useState<Account|null>();
 
     const isFocused = useIsFocused();
 
-    const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+    // const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
+    // const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
+    // const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
+
+    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+
+    const setEnvelopeHandler = (value: string) => {
+        envelopeDao.find(value).then(setEnvelope);
+    }
+
+    const setAccountHandler = (value:string) => {
+        accountDao.find(value).then(setAccount);
+    };
 
     const outcomeHandler = () => {
 
-        if( account ) {
+        if( account != null ) {
             transaction.name = name;
             transaction.type = type;
             transaction.amount = parseFloat(amount);
-            transaction.envelope_id = 'null';
+            transaction.envelope_id = envelope?._id || '';
             transaction.account_id = account._id;
             transaction.date = date;
             transaction.reconciled = false;
@@ -64,10 +79,10 @@ export function AccountTransactionScreen({navigation, route} : any) {
     };
 
     const incomeHandler = () => {
-        if( account ) {
+        if( account != null ) {
             transaction.name = name;
             transaction.amount = parseFloat(amount);
-            transaction.envelope_id = envelopID;
+            transaction.envelope_id = envelope?._id || '';
             transaction.account_id = account._id;
             transaction.date = date;
             transaction.reconciled = false;
@@ -99,7 +114,9 @@ export function AccountTransactionScreen({navigation, route} : any) {
         
         envelopeDao.load().then(envelopes => {
 
-            setEnvelope( _.find(envelopes, env => env._id == envelopID) );
+            if( transaction ) {
+                setEnvelope( _.find(envelopes, env => env._id == transaction.envelope_id) );
+            }
 
             return envelopes.map(envelop => {
                 return {
@@ -113,7 +130,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
             return accounts.map(account => {
                 return {
                     label: `${account.name} [${account.balance}]`,
-                    value: account
+                    value: `${account._id}`
                 };
             });
         }).then(setAccountItems);
@@ -166,8 +183,8 @@ export function AccountTransactionScreen({navigation, route} : any) {
                         </View>
                     ) : (
                         <View>
-                            <Text style={{ fontSize: 12 }}>{t('common:envelope')}</Text>
-                            <Picker placeholder="Envelope" items={envelopItems} value={ envelopID } onValueChange={setEnvelopeID} ></Picker>
+                            <Text style={{ fontSize: 12 }}>Envelope </Text>
+                            <Picker placeholder="Envelope" items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
                         </View>
                     ) }
                 </View>
@@ -176,8 +193,8 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>{t('common:account')}</Text>
-                        <Picker placeholder={t('common:account')} items={accountItems} value={ account } onValueChange={setAccount} ></Picker>
+                        <Text style={{ fontSize: 12 }}>Account</Text>
+                        <Picker placeholder="Account" items={accountItems} value={ `${account?._id}` } onValueChange={setAccountHandler} ></Picker>
                     </View>
                 </View>
 
@@ -187,7 +204,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                     </View>
                 </View>
 
-                { type == 'outcome' ? (
+                { type == TransactionType.OUTCOME ? (
                     <Button text={t('buttons:pay')} disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
                 ) : (
                     <Button text={t('buttons:add')} disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />

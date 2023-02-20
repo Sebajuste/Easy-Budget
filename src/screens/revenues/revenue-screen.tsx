@@ -2,10 +2,14 @@ import { StackActions } from "@react-navigation/native";
 import { useState } from "react"
 import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
+import ErrorMessage from "../../components/error-message";
 import { SelectDateComponent } from "../../components/select-date";
+import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+
 import { t } from "../../services/i18n";
 import { Revenue, RevenueDao } from "../../services/revenue";
+
 
 
 export default function RevenueScreen({navigation, route} : any) {
@@ -20,7 +24,7 @@ export default function RevenueScreen({navigation, route} : any) {
 
     const [expectDate, setExpectDate] = useState( revenue?.expecteDate || new Date() );
 
-    const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
+    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
 
     const saveHandler = () => {
         
@@ -57,6 +61,8 @@ export default function RevenueScreen({navigation, route} : any) {
 
     return (
         <Layout style={{margin: 10}}>
+
+            <ErrorMessage error={error} />            
 
             <View style={{margin: 2}}>
                 <Text style={{ fontSize: 12 }}>{t('forms:revenues_name')}</Text>

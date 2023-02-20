@@ -43,6 +43,10 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         });
     }
 
+    find(selector: any) : Promise<AccountTransaction|null> {
+        throw new Error("Method not implemented.");
+    }
+
     add(transaction: AccountTransaction): Promise<string | number | undefined> {
 
         const SQL_TRANSACTION = `INSERT INTO t_account_transaction_ats (
@@ -55,7 +59,17 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
         const SQL_ACCOUNT = `UPDATE t_account_act SET act_balance = act_balance - ? WHERE act_id = ?`;
 
-        const params = [transaction.name, transaction.type.toString(), transaction.amount, transaction.envelope_id == '' ? null : transaction.envelope_id, transaction.account_id, transaction.date.toISOString(), transaction.reconciled ? 1 : 0];
+        const params = [
+            transaction.name,
+            transaction.type.toString(),
+            transaction.amount,
+            transaction.envelope_id == '' ? null : transaction.envelope_id,
+            transaction.account_id,
+            transaction.date.toISOString(),
+            transaction.reconciled ? 1 : 0
+        ];
+
+        console.info('params : ', params);
 
         return new Promise((resolve, reject) => {
 
@@ -72,7 +86,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                     });
                 }
 
-                await tx.executeSql(SQL_ACCOUNT, [ transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount, transaction.account_id], (_, { insertId }) => {
+                await tx.executeSql(SQL_ACCOUNT, [ (transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount), transaction.account_id], (_, { insertId }) => {
                 }, (tx, err) => {
                     console.error('Error update account', err);
                     console.error(err);
@@ -166,6 +180,10 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
                 });
             });
         });
+    }
+
+    find(selector: any) : Promise<EnvelopeTransaction|null> {
+        throw new Error("Method not implemented.");
     }
 
     public add(transaction: EnvelopeTransaction): Promise<string | number | undefined> {

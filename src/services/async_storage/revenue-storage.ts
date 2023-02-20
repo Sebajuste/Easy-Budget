@@ -14,6 +14,10 @@ export class RevenueDaoStorage extends RevenueDao {
         return [];
     }
 
+    find(selector: any) : Promise<Revenue|null> {
+        throw new Error("Method not implemented.");
+    }
+
     async save(revenues: Revenue[]) {
 
         return await AsyncStorage.setItem('revenues', JSON.stringify(revenues));

@@ -13,9 +13,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import HomeScreen from "./screens/home";
 
 import EnvelopesScreen from "./screens/envelope/envelopes-screen";
-import { AccountsScreen } from "./screens/account/accounts-screen";
+import { AccountListScreen } from "./screens/account/account-list-screen";
 
-import CategoryScreen from "./screens/envelope/category-screen";
+import CategoryScreen from "./screens/category/category-screen";
 
 import { AccountTransactionListScreen } from "./screens/transactions/transaction-list-screen";
 import { AccountTransactionScreen } from "./screens/transactions/transaction-screen";
@@ -26,9 +26,11 @@ import { TutoAccountScreen, TutoEnvelopeScreen, TutoFinalScreen, TutoFirstFillEn
 import RevenueScreen from "./screens/revenues/revenue-screen";
 import RevenueListScreen from "./screens/revenues/revenue-list-screen";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-import { useEffect, useRef } from "react";
 
-import { CategoryListScreen } from "./screens/envelope/category-list-screen";
+import React, { useEffect, useRef } from "react";
+import { fontSize } from "react-native-rapi-ui/constants/typography";
+
+import { CategoryListScreen } from "./screens/category/category-list-screen";
 import { DatabaseScreen } from "./screens/database/database-screen";
 import { t } from "./services/i18n";
 
@@ -46,12 +48,12 @@ const TABS_LIST = [
     {label: t('common:home'), route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
     {label: t('common:envelopes'), route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
     {label: t('common:revenues'), route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro' },
-    {label: t('common:accounts'), route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
+    {label: t('common:accounts'), route: 'Accounts', component: AccountListScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
 ]
 
 
 const TabButton = ({item, onPress, accessibilityState} : any) => {
-    const viewRef = useRef();
+    const viewRef = useRef<any>();
     const focused = accessibilityState.selected;
 
     useEffect( () => {
@@ -117,7 +119,7 @@ function BudgetStackScreen({navigation} : any) {
             <Tab.Screen name="Home" component={HomeScreen} options={ ({navigation}) => ({tabBarIcon: homeIconHandler}) } />            
             <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>), tabBarIcon: envelopeIconHandler} ) } />
             <Tab.Screen name="Revenues" component={RevenueListScreen} options={ ({navigation}) => ({tabBarIcon: revenueIconHandler}) } />
-            <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />        
+            <Tab.Screen name="Accounts" component={AccountListScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />        
     */
 
     const menuHandler = () => {
@@ -247,6 +249,9 @@ function DrawerContent(props: any) {
             <DrawerContentScrollView>
                 <DrawerItemList {...props} />
             </DrawerContentScrollView>
+            <View>
+                <Text style={{textAlign: "center", padding: 10, fontSize: 12}}>v1.0.0</Text>
+            </View>
         </View>
     );
 }
@@ -273,14 +278,66 @@ function AppDrawer() {
 }
 
 
+
+type ErrorBundaryState = {
+    hasError: boolean;
+    error?: any;
+    errorInfo?: any;
+};
+
+class ErrorBundary extends React.Component<any, ErrorBundaryState> {
+
+    constructor(props : any) {
+        super(props);
+        this.state = {
+            hasError: false
+        };
+    }
+
+    static getDerivedStateFromError(error:any) {
+        return { hasError: true, error: error };
+    }
+
+    componentDidCatch(error:any, errorInfo:any) {
+        // errorService.log({ error, errorInfo });
+        console.error('Error : ', error);
+        console.error('Error info : ', JSON.stringify(errorInfo) );
+        /*
+        this.setState({
+            error: error,
+            errorInfo: errorInfo,
+          });
+          */
+    }
+
+
+    render() {
+
+        if (this.state.hasError) {
+            return (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text>Oops, something went wrong.</Text>
+                    { this.state.error ? (<Text>Error: {this.state.error.toString()}</Text>) : null }
+                    { this.state.errorInfo ? (<Text>Error Info: {JSON.stringify(this.state.errorInfo.toString())}</Text>) : null }
+                </View>
+            );
+        }
+        return this.props.children; 
+    }
+
+}
+
+
 export default function Router() {
 
     return (
-        <ThemeProvider theme="light">
-            <NavigationContainer>
-                <MainStackScreen />
-            </NavigationContainer>
-        </ThemeProvider>
+        <ErrorBundary>
+            <ThemeProvider theme="light">
+                <NavigationContainer>
+                    <MainStackScreen />
+                </NavigationContainer>
+            </ThemeProvider>
+        </ErrorBundary>
     );
 
 }
