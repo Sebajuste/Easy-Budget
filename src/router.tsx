@@ -26,7 +26,7 @@ import { TutoAccountScreen, TutoEnvelopeScreen, TutoFinalScreen, TutoFirstFillEn
 import RevenueScreen from "./screens/revenues/revenue-screen";
 import RevenueListScreen from "./screens/revenues/revenue-list-screen";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { fontSize } from "react-native-rapi-ui/constants/typography";
 
 import { CategoryListScreen } from "./screens/category/category-list-screen";
@@ -276,14 +276,64 @@ function AppDrawer() {
 }
 
 
+
+type ErrorBundaryState = {
+    hasError: boolean;
+    error?: any;
+    errorInfo?: any;
+};
+
+class ErrorBundary extends React.Component<any, ErrorBundaryState> {
+
+    constructor(props : any) {
+        super(props);
+        this.state = {
+            hasError: false
+        };
+    }
+
+    static getDerivedStateFromError(error:any) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error:any, errorInfo:any) {
+        // errorService.log({ error, errorInfo });
+        console.error('Error : ', error);
+        console.error('Error info : ', JSON.stringify(errorInfo) );
+        this.setState({
+            error: error,
+            errorInfo: errorInfo,
+          });
+    }
+
+
+    render() {
+
+        if (this.state.hasError) {
+            return (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text>Oops, something went wrong.</Text>
+                    <Text>Error: {this.state.error.toString()}</Text>
+                    <Text>Error Info: {JSON.stringify(this.state.errorInfo)}</Text>
+                </View>
+            );
+        }
+        return this.props.children; 
+    }
+
+}
+
+
 export default function Router() {
 
     return (
-        <ThemeProvider theme="light">
-            <NavigationContainer>
-                <MainStackScreen />
-            </NavigationContainer>
-        </ThemeProvider>
+        <ErrorBundary>
+            <ThemeProvider theme="light">
+                <NavigationContainer>
+                    <MainStackScreen />
+                </NavigationContainer>
+            </ThemeProvider>
+        </ErrorBundary>
     );
 
 }
