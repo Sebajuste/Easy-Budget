@@ -5,6 +5,7 @@ import { Account, AccountDao } from "../../services/account";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { DaoType } from "../../services/dao";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -14,7 +15,7 @@ export function AccountScreen({navigation, route} : any) {
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
 
     const saveHandler = () => {
         const balanceFloat = parseFloat(balance);

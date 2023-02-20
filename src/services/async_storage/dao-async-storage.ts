@@ -13,13 +13,13 @@ import { EnvelopeDaoStorage } from "./envelope-async-storage";
 import { RevenueDaoStorage } from "./revenue-storage";
 import { SettingsDaoStorage } from "./settings_async_storage";
 import { AccountTransactionDaoStorage, EnvelopeTransactionDaoStorage } from "./transaction_async_storage";
-import { DaoType } from "../dao";
+import { DAO } from "../dao";
 
 
 
 export const DB_MANAGER_ASYNC = new DatabaseManagerAsyncStorage();
 
-export const ASYNC_STORAGE_DAO : Map<string, any> = new Map<string, any>([
+export const ASYNC_STORAGE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
     [AccountDao.name, new  AccountDaoStorage() ],
     [RevenueDao.name, new  RevenueDaoStorage() ],
 

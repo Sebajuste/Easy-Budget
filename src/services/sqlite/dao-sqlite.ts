@@ -9,14 +9,14 @@ import { CategorySQLiteDao } from './category-sqlite';
 import { EnvelopeSQLiteDao } from './envelope-sqlite';
 import { RevenueDaoSQLite } from "./revenue-sqlite";
 import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './transaction-sqlite';
-import { DaoType } from '../dao';
+import { DAO, DaoType } from '../dao';
 
 export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 
 
-export const SQLITE_DAO : Map<string, any> = new Map<string, any>([
+export const SQLITE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
     [AccountDao.name, new  AccountDaoSQLite() ],
-    [RevenueDao.name, new  RevenueDaoSQLite() ],
+    [DaoType.REVENUE.toString(), new  RevenueDaoSQLite() ],
 
     [CategoryDao.name, new  CategorySQLiteDao() ],
     [EnvelopeDao.name, new  EnvelopeSQLiteDao() ],

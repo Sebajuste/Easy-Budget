@@ -46,7 +46,7 @@ export function CategoryListScreen({navigation} : any) {
 
     const isFocused = useIsFocused();
 
-    const categoryDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
+    const categoryDao = DAOFactory.getDAO<Category>(CategoryDao, DATABASE_TYPE);
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 

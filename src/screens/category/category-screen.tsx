@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import { Category, CategoryDao } from "../../services/category";
-import { EnvelopeDao } from "../../services/envelope";
+import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
@@ -23,8 +23,8 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
 
     const [hasEnvelope, setHasEnvelope] = useState(false);
 
-    const categoryDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE); // getDao<CategoryDao>(CategoryDao, Database.ASYNC_STORAGE);
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const categoryDao = DAOFactory.getDAO<Category>(CategoryDao, DATABASE_TYPE); // getDao<CategoryDao>(CategoryDao, Database.ASYNC_STORAGE);
+    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
 
     useEffect(() => {
 

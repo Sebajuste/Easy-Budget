@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { DaoType } from "../../services/dao";
 
 export function AccountView() {
 
@@ -21,7 +22,7 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
 
     const isFocused = useIsFocused();
 
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
 
     const selectHandler = (account: Account) => {
         navigation.navigate({name: 'AccountTransaction', params: {account: account} });

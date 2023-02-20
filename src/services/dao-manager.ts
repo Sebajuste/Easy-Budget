@@ -11,6 +11,16 @@ export enum DatabaseType {
 export const DATABASE_TYPE = DatabaseType.SQLite;
 
 
+function getDaoMapping(databaseType : DatabaseType) {
+  switch(databaseType) {
+    case DatabaseType.ASYNC_STORAGE:
+      return ASYNC_STORAGE_DAO;
+    case DatabaseType.SQLite:
+      return SQLITE_DAO;
+  }
+}
+
+
 export class DAOFactory {
 
   static getDatabaseManager(databaseType : DatabaseType) : DatabaseManager {
@@ -27,23 +37,48 @@ export class DAOFactory {
     throw new Error("Invalid DAO type");
   }
 
-  static getDAO<T>(clazz: typeof DAO<T>, databaseType : DatabaseType) {
+  static getDAOFromType<T>(daoType : DaoType, databaseType : DatabaseType) : DAO<T> {
 
+    const daoMapping = getDaoMapping(databaseType);
+
+    const className = daoType.toString();
+
+    if( daoMapping.has(className) ) {
+      return daoMapping.get(className) as DAO<T>;
+    }
+    throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
+  }
+
+  static getDAO<T>(clazz: typeof DAO<T>, databaseType : DatabaseType) : DAO<T> {
+
+    const daoMapping = getDaoMapping(databaseType);
+
+    const className = clazz.name;
+
+    console.log('getDAO className : ', className, ', clazz: ', clazz);
+
+    if( daoMapping.has(className) ) {
+      return daoMapping.get(className) as DAO<T>;
+    }
+
+    /*
     switch(databaseType) {
       case DatabaseType.ASYNC_STORAGE: {
         if( ASYNC_STORAGE_DAO.has(clazz.name) ) {
-          return ASYNC_STORAGE_DAO.get(clazz.name);
+          return ASYNC_STORAGE_DAO.get(clazz.name) as DAO<T>;
         }
         break;
       }
       case DatabaseType.SQLite: {
         if( SQLITE_DAO.has(clazz.name) ) {
-          return SQLITE_DAO.get(clazz.name);
+          return SQLITE_DAO.get(clazz.name) as DAO<T>;
         }
         break;
       }
     }
-    throw new Error(`Invalid DAO type ${clazz.name} for ${databaseType}`);
+    */
+
+    throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
 
   }
 
