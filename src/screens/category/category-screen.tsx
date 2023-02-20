@@ -8,6 +8,7 @@ import { EnvelopeDao } from "../../services/envelope";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
+import ErrorMessage from "../../components/error-message";
 
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
@@ -85,11 +86,7 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
     return (
         <Layout style={{margin: 10}}>
 
-            { error ? (
-                <View style={{margin: 2}}>
-                    <Text style={{ marginBottom: 10, padding: 10, borderWidth: 1, borderColor: 'red', color: 'red', fontWeight: 'bold', borderRadius: 5 }}>{ error.toString() }</Text>
-                </View>
-            ) : null}
+            <ErrorMessage error={error} />
 
             <View style={{margin: 2}}>
                 <Text style={{ marginBottom: 10 }}>Category name</Text>

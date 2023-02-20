@@ -5,6 +5,7 @@ import { EnvelopeDao } from "../envelope";
 import { RevenueDao } from "../revenue";
 import { SettingsDao } from "../settings";
 import { AccountTransactionDao, EnvelopeTransactionDao } from "../transaction";
+
 import { AccountDaoStorage } from "./account_async_storage";
 import { DatabaseManagerAsyncStorage } from "./database-manager-storage";
 import { CategoryDaoStorage } from "./category-async-storage";
@@ -12,10 +13,24 @@ import { EnvelopeDaoStorage } from "./envelope-async-storage";
 import { RevenueDaoStorage } from "./revenue-storage";
 import { SettingsDaoStorage } from "./settings_async_storage";
 import { AccountTransactionDaoStorage, EnvelopeTransactionDaoStorage } from "./transaction_async_storage";
+import { DaoType } from "../dao";
+
 
 
 export const DB_MANAGER_ASYNC = new DatabaseManagerAsyncStorage();
 
+export const ASYNC_STORAGE_DAO : Map<string, any> = new Map<string, any>([
+    [AccountDao.name, new  AccountDaoStorage() ],
+    [RevenueDao.name, new  RevenueDaoStorage() ],
+
+    [CategoryDao.name, new  CategoryDaoStorage() ],
+    [EnvelopeDao.name, new  EnvelopeDaoStorage() ],
+
+    [EnvelopeTransactionDao.name, new  EnvelopeTransactionDaoStorage() ],
+    [AccountTransactionDao.name, new  AccountTransactionDaoStorage() ],
+]);
+
+/*
 export const ASYNC_STORAGE_DAO : {[key: string] : any } = {
 
     [AccountDao.name]: new AccountDaoStorage(),
@@ -28,3 +43,4 @@ export const ASYNC_STORAGE_DAO : {[key: string] : any } = {
     [EnvelopeTransactionDao.name]: new EnvelopeTransactionDaoStorage(),
     [AccountTransactionDao.name]: new AccountTransactionDaoStorage(),
 };
+*/

@@ -2,6 +2,7 @@ import { StackActions } from "@react-navigation/native";
 import { useState } from "react"
 import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
+import ErrorMessage from "../../components/error-message";
 import { SelectDateComponent } from "../../components/select-date";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Revenue, RevenueDao } from "../../services/revenue";
@@ -56,6 +57,8 @@ export default function RevenueScreen({navigation, route} : any) {
 
     return (
         <Layout style={{margin: 10}}>
+
+            <ErrorMessage error={error} />            
 
             <View style={{margin: 2}}>
                 <Text style={{ fontSize: 12 }}>Revenue name</Text>

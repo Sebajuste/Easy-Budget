@@ -1,4 +1,13 @@
 
+export enum DaoType {
+    ACCOUNT = "AccountDao",
+    REVENUE = "RevenueDao",
+    SETTINGS = "SettingsDao",
+    CATEGORY = "CategoryDao",
+    ENVELOPE = "EnvelopeDao",
+    ENVELOPE_TRANSACTION = "EnvelopeTransactionDao",
+    ACCOUNT_TRANSACTION = "AccountTransactionDao"
+  }
 
 export abstract class DAO<T> {
 
