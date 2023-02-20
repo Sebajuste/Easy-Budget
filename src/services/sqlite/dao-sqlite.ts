@@ -15,14 +15,14 @@ export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 
 
 export const SQLITE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
-    [AccountDao.name, new  AccountDaoSQLite() ],
+    [DaoType.ACCOUNT.toString(), new  AccountDaoSQLite() ],
     [DaoType.REVENUE.toString(), new  RevenueDaoSQLite() ],
 
-    [CategoryDao.name, new  CategorySQLiteDao() ],
-    [EnvelopeDao.name, new  EnvelopeSQLiteDao() ],
+    [DaoType.CATEGORY.toString(), new  CategorySQLiteDao() ],
+    [DaoType.ENVELOPE.toString(), new  EnvelopeSQLiteDao() ],
 
-    [EnvelopeTransactionDao.name, new  EnvelopeTransactionDaoSQLite() ],
-    [AccountTransactionDao.name, new  AccountTransactionDaoSQLite() ],
+    [DaoType.ENVELOPE_TRANSACTION.toString(), new  EnvelopeTransactionDaoSQLite() ],
+    [DaoType.ACCOUNT_TRANSACTION.toString(), new  AccountTransactionDaoSQLite() ],
 ]);
 
 /*

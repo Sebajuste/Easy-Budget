@@ -49,7 +49,7 @@ export class DAOFactory {
     throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
   }
 
-  static getDAO<T>(clazz: typeof DAO<T>, databaseType : DatabaseType) : DAO<T> {
+  static getDAO<T>(clazz: typeof DAO<T>, databaseType : DatabaseType) : DAO<T> | null {
 
     const daoMapping = getDaoMapping(databaseType);
 
@@ -78,7 +78,8 @@ export class DAOFactory {
     }
     */
 
-    throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
+    // throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
+    return null;
 
   }
 

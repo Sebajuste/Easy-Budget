@@ -5,24 +5,24 @@ import { View } from "react-native-animatable";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AccountDao } from "../../services/account";
+import { Account, AccountDao } from "../../services/account";
+import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { EnvelopeDao } from "../../services/envelope";
+import { Envelope, EnvelopeDao } from "../../services/envelope";
 import { EnvelopeTransactionDao } from "../../services/transaction";
 
 
 async function checkDatabase() {
-    // const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE); // new TransactionDaoStorage();
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
   
     /*
     const total_fill = await transactionDao.load()//
       .then(transactions => _.filter(transactions, transaction => transaction.transactionType == TransactionType.FILL) )//
       .then(transactions => _.sum(_.map(transactions, transaction => transaction.amount ) ) );
     */
-   
-  
+
     const total_funds = await envelopeDao.load().then(envelopes => _.sum(_.map(envelopes, envelope => envelope.funds )) );
   
     const total_account_filled = await accountDao.load()//

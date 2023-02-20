@@ -13,7 +13,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import HomeScreen from "./screens/home";
 
 import EnvelopesScreen from "./screens/envelope/envelopes-screen";
-import { AccountsScreen } from "./screens/account/accounts-screen";
+import { AccountListScreen } from "./screens/account/account-list-screen";
 
 import CategoryScreen from "./screens/category/category-screen";
 
@@ -46,7 +46,7 @@ const TABS_LIST = [
     {label: 'Home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
     {label: 'Envelopes', route: 'Envelopes', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
     {label: 'Revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro' },
-    {label: 'Accounts', route: 'Accounts', component: AccountsScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
+    {label: 'Accounts', route: 'Accounts', component: AccountListScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
 ]
 
 
@@ -117,7 +117,7 @@ function BudgetStackScreen({navigation} : any) {
             <Tab.Screen name="Home" component={HomeScreen} options={ ({navigation}) => ({tabBarIcon: homeIconHandler}) } />            
             <Tab.Screen name="Envelopes" component={EnvelopesScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateCategory')}></Button>), tabBarIcon: envelopeIconHandler} ) } />
             <Tab.Screen name="Revenues" component={RevenueListScreen} options={ ({navigation}) => ({tabBarIcon: revenueIconHandler}) } />
-            <Tab.Screen name="Accounts" component={AccountsScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />        
+            <Tab.Screen name="Accounts" component={AccountListScreen} options={ ({navigation}) => ( {headerRight: () => (<Button title="+" onPress={() => navTo(navigation, 'CreateAccount')}></Button>), tabBarIcon: accountIconHandler } ) } />        
     */
 
     const menuHandler = () => {

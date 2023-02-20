@@ -5,9 +5,10 @@ import { Button, Text } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable'
 
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Category, CategoryDao } from "../../services/category";
+import { Category } from "../../services/category";
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DaoType } from "../../services/dao";
 
 
 
@@ -46,7 +47,7 @@ export function CategoryListScreen({navigation} : any) {
 
     const isFocused = useIsFocused();
 
-    const categoryDao = DAOFactory.getDAO<Category>(CategoryDao, DATABASE_TYPE);
+    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 

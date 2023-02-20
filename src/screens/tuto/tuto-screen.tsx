@@ -5,17 +5,19 @@ import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
-import { budgetPerMonth, countMonth, Envelope, Category, EnvelopeDao } from "../../services/envelope";
+import { budgetPerMonth, countMonth, Envelope, EnvelopeDao } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
-import { AccountsScreen } from "../account/accounts-screen";
+import { AccountsScreen } from "../account/account-list-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import { Account, AccountDao } from "../../services/account";
-import { DAOFactory, DATABASE_TYPE, getDao } from "../../services/dao-manager";
+import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { SettingsDao } from "../../services/settings";
 import RevenueScreen from "../revenues/revenue-screen";
 import { Revenue } from "../../services/revenue";
 import RevenueListScreen from "../revenues/revenue-list-screen";
+import { DaoType } from "../../services/dao";
+import { Category } from "../../services/category";
 
 
 
@@ -52,9 +54,9 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const transactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE);
 
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 
@@ -280,57 +282,6 @@ export function TutoRevenueScreen({navigation} : any) {
         </>
     );
 }
-
-/**
- * @deprecated The method should not be used
- */
-export function TutoRevenueScreenOld({navigation} : any) {
-
-    const [revenue, setRevenue] = useState('0.00');
-
-    const settingsDao = getDao<SettingsDao>(SettingsDao, DATABASE_TYPE ); // new SettingsDaoStorage();
-
-    const nextHandler = () => {
-
-        settingsDao.load().then(settings => {
-            settings.revenue = parseFloat(revenue);
-            return settings;
-        }).then(settingsDao.save)//
-        .then(v => {
-            navigation.navigate({name: 'TutoInfoEnvelopeScreen'});
-        })
-
-    };
-
-    useEffect(() => {
-        settingsDao.load().then(settings => {
-            setRevenue(settings.revenue.toFixed(2));
-        });
-    }, []);
-
-    const revenueValid = revenue && revenue.trim().length > 0 && parseFloat(revenue) >= 0;
-
-    return (
-        <SafeAreaView style={scroll_styles.container}>
-
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Enter your average global revenue per month</Text>
-
-                <View style={{ margin: 20, width: 200}}>
-                    <TextInput style={{textAlign: 'center'}} value={revenue} onChangeText={setRevenue} keyboardType="numeric" />
-                </View>
-
-            </View>
-
-            <View style={{margin: 10}}>
-                <Button text="NEXT" disabled={!revenueValid} onPress={nextHandler}></Button>
-            </View>
-
-        </SafeAreaView>
-    );
-
-}
-
 
 export function TutoAccountScreen({navigation} : any) {
 

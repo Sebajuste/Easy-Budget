@@ -9,6 +9,7 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
 import ErrorMessage from "../../components/error-message";
+import { DaoType } from "../../services/dao";
 
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
@@ -23,8 +24,8 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
 
     const [hasEnvelope, setHasEnvelope] = useState(false);
 
-    const categoryDao = DAOFactory.getDAO<Category>(CategoryDao, DATABASE_TYPE); // getDao<CategoryDao>(CategoryDao, Database.ASYNC_STORAGE);
-    const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE); // getDao<CategoryDao>(CategoryDao, Database.ASYNC_STORAGE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
 
     useEffect(() => {
 

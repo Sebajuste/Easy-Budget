@@ -6,7 +6,7 @@ import ErrorMessage from "../../components/error-message";
 import { SelectDateComponent } from "../../components/select-date";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Revenue, RevenueDao } from "../../services/revenue";
+import { Revenue } from "../../services/revenue";
 
 
 export default function RevenueScreen({navigation, route} : any) {

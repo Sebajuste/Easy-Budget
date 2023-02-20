@@ -11,11 +11,14 @@ export function AccountScreen({navigation, route} : any) {
 
     const account : Account = route.params?.account;
 
+    const [error, setError] = useState<string|null>(null);
+
     const [name, setName] = useState( account ? account.name: '');
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    // const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
 
     const saveHandler = () => {
         const balanceFloat = parseFloat(balance);
@@ -28,12 +31,14 @@ export function AccountScreen({navigation, route} : any) {
 
         console.log('account : ', account);
 
-        accountDao.add(account).then(v => {
-            const popAction = StackActions.pop(1);
-            navigation.dispatch(popAction);
-        }).catch(err => {
-            console.error(err);
-        })
+        if(accountDao != null) {
+            accountDao.add(account).then(v => {
+                const popAction = StackActions.pop(1);
+                navigation.dispatch(popAction);
+            }).catch(err => {
+                console.error(err);
+            });
+        }
 
     };
 

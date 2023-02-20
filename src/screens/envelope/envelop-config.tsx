@@ -9,6 +9,7 @@ import { SelectDateComponent } from "../../components/select-date";
 import { budgetPerMonth, Envelope, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
 import {  Category, CategoryDao } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { DaoType } from "../../services/dao";
 
 
 const operation_type_picker_items = [
@@ -52,8 +53,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const showDueDate = period != Period.MONTHLY;
 
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const categoryDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
 
     const isFocused = useIsFocused();
 
