@@ -17,8 +17,8 @@ export function AccountScreen({navigation, route} : any) {
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
-    // const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    // const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
 
     const saveHandler = () => {
         const balanceFloat = parseFloat(balance);

@@ -3,6 +3,7 @@ import uuid from 'react-native-uuid';
 import _ from "lodash";
 
 import { Account, AccountDao } from "../account";
+import { acc } from "react-native-reanimated";
 
 export class AccountDaoStorage extends AccountDao {
 
@@ -12,6 +13,13 @@ export class AccountDaoStorage extends AccountDao {
             return JSON.parse(json_accounts) ;
         }
         return [];
+    }
+
+    find(selector: any) : Promise<Account|null> {
+        return this.load().then(accounts => {
+            const result = _.find(accounts, account => account._id === selector);
+            return result ? result : null;
+        });
     }
 
     async save(accounts: Account[]) {

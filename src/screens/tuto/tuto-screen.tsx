@@ -4,10 +4,9 @@ import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { SettingsDaoStorage } from "../../services/async_storage/settings_async_storage";
 import { budgetPerMonth, countMonth, Envelope, EnvelopeDao } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
-import { AccountsScreen } from "../account/account-list-screen";
+import { AccountListScreen } from "../account/account-list-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import { Account, AccountDao } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
@@ -297,7 +296,7 @@ export function TutoAccountScreen({navigation} : any) {
 
     return (
         <>
-            <AccountsScreen navigation={navigation} onChange={changeHandler}></AccountsScreen>
+            <AccountListScreen navigation={navigation} onChange={changeHandler}></AccountListScreen>
 
             { countAccount > 0 ? (
                 <View style={{margin: 10}}>

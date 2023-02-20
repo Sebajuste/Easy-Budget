@@ -17,6 +17,10 @@ export class CategoryDaoStorage extends CategoryDao {
         return [];
     }
 
+    find(selector: any) : Promise<Category|null> {
+        throw new Error("Method not implemented.");
+    }
+
     async save(envelopeCategories: Category[]) : Promise<void> {
         await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
     }

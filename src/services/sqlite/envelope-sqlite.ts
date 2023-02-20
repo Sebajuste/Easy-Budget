@@ -1,5 +1,6 @@
 import { Envelope, EnvelopeDao, Period } from "../envelope";
 import { sqlite_client } from "./database-manager-sqlite";
+import _ from "lodash";
 
 export class EnvelopeSQLiteDao extends EnvelopeDao {
 
@@ -35,6 +36,50 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
                         item.dueDate = new Date(item.dueDate);
                         return item;
                     }) );
+                    
+                   // resolve( _array );
+
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+            });
+
+        });
+    }
+
+    find(selector: any) : Promise<Envelope|null> {
+        return new Promise((resolve, reject) => {
+
+            const SQL = `
+            SELECT evp_id as _id,
+                evp_name as name,
+                evp_current_amount as funds,
+                evp_target_amount as amount,
+                CASE evp_target_period
+                    WHEN 'MONTHLY' THEN '${Period.MONTHLY}'
+                    WHEN 'TRIMESTER' THEN '${Period.TRIMESTER}'
+                    WHEN 'SEMESTER' THEN '${Period.SEMESTER}'
+                    WHEN 'YEARLY' THEN '${Period.YEARLY}'
+                    ELSE '${Period.MONTHLY}'
+                END AS period,
+                evp_due_date as dueDate,
+                evp_category_id as category_id
+            FROM t_envelope_evp
+            WHERE evp_id = ?
+            `;
+
+            sqlite_client().transaction(tx => {
+                tx.executeSql(SQL, [selector], (tx2, { rows: {_array} }) => {
+
+                    if( _array.length > 0 ) {
+                        resolve( _.head(_array.map(item => {
+                            item.dueDate = new Date(item.dueDate);
+                            return item;
+                        }) ) );
+                    } else {
+                        resolve(null);
+                    }
                     
                    // resolve( _array );
 

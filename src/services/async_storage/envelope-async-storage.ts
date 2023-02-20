@@ -5,6 +5,7 @@ import uuid from 'react-native-uuid';
 import { Envelope, EnvelopeDao } from "../envelope";
 
 export class EnvelopeDaoStorage extends EnvelopeDao {
+
     addAll(entry: Envelope[]): Promise<(string | number | undefined)[]> {
         throw new Error("Method not implemented.");
     }
@@ -15,6 +16,10 @@ export class EnvelopeDaoStorage extends EnvelopeDao {
             return JSON.parse(json);
         }
         return [];
+    }
+
+    find(selector: any) : Promise<Envelope|null> {
+        throw new Error("Method not implemented.");
     }
 
     async save(envelopes: Envelope[]) : Promise<void> {

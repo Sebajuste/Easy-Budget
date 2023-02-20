@@ -31,6 +31,30 @@ export class AccountDaoSQLite extends AccountDao {
         });
     }
 
+    find(selector: any) : Promise<Account|null> {
+
+        const SQL = `
+        SELECT act_id as _id,
+            act_name as name,
+            act_balance as balance,
+            act_envelope_balance as envelope_balance,
+            act_created_at as created_at
+        FROM t_account_act
+        WHERE act_id = ?`;
+
+        return new Promise((resolve, reject) => {
+            sqlite_client().transaction(tx => {
+                tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
+                    resolve(_array.length > 0 ? _array[0] : null);
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+            });
+        });
+
+    };
+
     save(accounts: Account[]): Promise<void> {
         throw new Error("Method not implemented.");
     }

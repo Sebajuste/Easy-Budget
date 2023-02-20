@@ -20,7 +20,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
     const isFocused = useIsFocused();
 
-    const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
 
     const selectHandler = (account: Account) => {
         navigation.navigate({name: 'AccountTransaction', params: {account: account} });

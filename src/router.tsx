@@ -293,17 +293,19 @@ class ErrorBundary extends React.Component<any, ErrorBundaryState> {
     }
 
     static getDerivedStateFromError(error:any) {
-        return { hasError: true };
+        return { hasError: true, error: error };
     }
 
     componentDidCatch(error:any, errorInfo:any) {
         // errorService.log({ error, errorInfo });
         console.error('Error : ', error);
         console.error('Error info : ', JSON.stringify(errorInfo) );
+        /*
         this.setState({
             error: error,
             errorInfo: errorInfo,
           });
+          */
     }
 
 
@@ -313,8 +315,8 @@ class ErrorBundary extends React.Component<any, ErrorBundaryState> {
             return (
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Text>Oops, something went wrong.</Text>
-                    <Text>Error: {this.state.error.toString()}</Text>
-                    <Text>Error Info: {JSON.stringify(this.state.errorInfo)}</Text>
+                    { this.state.error ? (<Text>Error: {this.state.error.toString()}</Text>) : null }
+                    { this.state.errorInfo ? (<Text>Error Info: {JSON.stringify(this.state.errorInfo.toString())}</Text>) : null }
                 </View>
             );
         }

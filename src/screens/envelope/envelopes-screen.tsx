@@ -12,8 +12,9 @@ import { useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { RevenueDao } from "../../services/revenue";
+import { Revenue, RevenueDao } from "../../services/revenue";
 import { Colors } from "react-native/Libraries/NewAppScreen";
+import { DaoType } from "../../services/dao";
 
 
 function EnvelopeListItem(props : any) {
@@ -132,9 +133,13 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const isFocused = useIsFocused();
 
-    const categoriesDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
+    // const categoriesDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
+    // const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
+    // const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
+
+    const categoriesDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
 
     const createEnvelopeHandler = () => {
       navigation.navigate('CreateEnvelope');

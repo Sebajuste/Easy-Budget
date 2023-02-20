@@ -1,5 +1,5 @@
 import { ASYNC_STORAGE_DAO, DB_MANAGER_ASYNC } from "./async_storage/dao-async-storage";
-import { DAO, DaoType } from "./dao";
+import { DAO, DaoType, InvalidDao } from "./dao";
 import { DatabaseManager } from "./database-manager";
 import { SQLITE_DAO, DB_MANAGER_SQLite } from "./sqlite/dao-sqlite";
 
@@ -46,16 +46,18 @@ export class DAOFactory {
     if( daoMapping.has(className) ) {
       return daoMapping.get(className) as DAO<T>;
     }
-    throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
+    // throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
+    return new InvalidDao(className);
   }
 
+  /**
+   * @deprecated Use DAOFactory.getDAOFromType() instead 
+   */
   static getDAO<T>(clazz: typeof DAO<T>, databaseType : DatabaseType) : DAO<T> | null {
 
     const daoMapping = getDaoMapping(databaseType);
 
     const className = clazz.name;
-
-    console.log('getDAO className : ', className, ', clazz: ', clazz);
 
     if( daoMapping.has(className) ) {
       return daoMapping.get(className) as DAO<T>;
@@ -79,7 +81,7 @@ export class DAOFactory {
     */
 
     // throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
-    return null;
+    return new InvalidDao(className);
 
   }
 

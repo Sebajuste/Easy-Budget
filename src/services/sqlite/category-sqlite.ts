@@ -26,6 +26,10 @@ export class CategorySQLiteDao extends CategoryDao {
 
     }
 
+    find(selector: any) : Promise<Category|null> {
+        throw new Error("Method not implemented.");
+    }
+
     add(category: Category): Promise<string|number|undefined> {
 
         if( category.name.trim().length == 0) {
