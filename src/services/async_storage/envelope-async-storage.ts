@@ -1,56 +1,11 @@
 import _ from "lodash";
 import { AsyncStorage } from "react-native";
-import { Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao } from "../envelope";
 import uuid from 'react-native-uuid';
 
-export class EnvelopeCategoryDaoStorage extends EnvelopeCategoryDao {
-    
-    addAll(entry: EnvelopeCategory[]): Promise<(string | number | undefined)[]> {
-        throw new Error("Method not implemented.");
-    }
-
-    async load() : Promise<EnvelopeCategory[]> {
-        const json = await AsyncStorage.getItem('envelope_categories');
-        if( json ) {
-            return JSON.parse(json);
-        }
-        return [];
-    }
-
-    async save(envelopeCategories: EnvelopeCategory[]) : Promise<void> {
-        await AsyncStorage.setItem('envelope_categories', JSON.stringify(envelopeCategories) );
-    }
-
-    async add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined> {
-        envelopeCategorie._id = uuid.v4() as string;
-        return this.load().then(categories => {
-            categories.push(envelopeCategorie);
-            return this.save(categories);
-        }).then(r => (envelopeCategorie._id));
-    }
-
-    async update(category : EnvelopeCategory) : Promise<void> {
-        return this.load().then(categories => {
-            const result = _.find(categories, item => item._id == category._id );
-            if( result ) {
-                result.name = category.name;
-                result.color = category.color;
-                return this.save(categories);
-            }
-            throw new Error('Cannot find item');
-        });
-    }
-
-    async remove(envelopeCategorie : EnvelopeCategory) : Promise<void> {
-        return this.load().then(categories => {
-            categories = _.remove(categories, cat => cat._id != envelopeCategorie._id);
-            return this.save(categories);
-        });
-    }
-
-}
+import { Envelope, EnvelopeDao } from "../envelope";
 
 export class EnvelopeDaoStorage extends EnvelopeDao {
+
     addAll(entry: Envelope[]): Promise<(string | number | undefined)[]> {
         throw new Error("Method not implemented.");
     }
@@ -61,6 +16,10 @@ export class EnvelopeDaoStorage extends EnvelopeDao {
             return JSON.parse(json);
         }
         return [];
+    }
+
+    find(selector: any) : Promise<Envelope|null> {
+        throw new Error("Method not implemented.");
     }
 
     async save(envelopes: Envelope[]) : Promise<void> {

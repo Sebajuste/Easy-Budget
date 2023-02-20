@@ -2,11 +2,14 @@ import { StackActions, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
-import { SelectDateComponent } from "../../components/select-date";
-import { budgetPerMonth, Envelope, EnvelopeCategory, EnvelopeCategoryDao, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
+
+import { SelectDateComponent } from "../../components/select-date";
+import { budgetPerMonth, Envelope, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
+import {  Category, CategoryDao } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { DaoType } from "../../services/dao";
 
 
 const operation_type_picker_items = [
@@ -20,7 +23,7 @@ const operation_type_picker_items = [
 
 export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, route : any}) {
 
-    const category : EnvelopeCategory | null = route.params?.category;
+    const category : Category | null = route.params?.category;
 
     const envelope : Envelope = route.params?.envelope || {
         _id: uuid.v4(),
@@ -50,8 +53,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const showDueDate = period != Period.MONTHLY;
 
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const categoryDao = DAOFactory.getDAO(EnvelopeCategoryDao, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
 
     const isFocused = useIsFocused();
 
@@ -131,9 +134,6 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
     const now = new Date();
 
     const formValid = name.trim().length > 0 && amount.trim().length > 0 && parseFloat(amount) != 0;
-
-    console.log('categoryID    : ', categoryID)
-    console.log('categoryItems : ', categoryItems)
 
     return (
         <Layout style={{margin: 10}}>

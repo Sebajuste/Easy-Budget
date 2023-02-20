@@ -5,13 +5,14 @@ import { Button, Text } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable'
 
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { EnvelopeCategory, EnvelopeCategoryDao } from "../../services/envelope";
+import { Category } from "../../services/category";
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DaoType } from "../../services/dao";
 
 
 
-function CategoryItem({category, index, navigation} : {category: EnvelopeCategory, index: number, navigation: any}) {
+function CategoryItem({category, index, navigation} : {category: Category, index: number, navigation: any}) {
 
     const selectHandler = () => {
         navigation.navigate({name: 'EditCategory', params: {category: category} });
@@ -38,19 +39,19 @@ function CategoryItem({category, index, navigation} : {category: EnvelopeCategor
 
 export function CategoryListScreen({navigation} : any) {
 
-    const viewRef = useRef(null);
+    const viewRef = useRef<any>(null);
 
     const [loading, setLoading] = useState(false);
 
-    const [ categories, setCategories] = useState<EnvelopeCategory[]>([]);
+    const [ categories, setCategories] = useState<Category[]>([]);
 
     const isFocused = useIsFocused();
 
-    const categoryDao = DAOFactory.getDAO(EnvelopeCategoryDao, DATABASE_TYPE);
+    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 
-    const renderItemHandler = ({item, index} : {item: EnvelopeCategory, index: number}) => {
+    const renderItemHandler = ({item, index} : {item: Category, index: number}) => {
 
         return (<CategoryItem category={item} index={index} navigation={navigation} />);
     };

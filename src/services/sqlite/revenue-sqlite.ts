@@ -29,6 +29,10 @@ export class RevenueDaoSQLite extends RevenueDao {
         });
     }
 
+    find(selector: any) : Promise<Revenue|null> {
+        throw new Error("Method not implemented.");
+    }
+
     add(revenue: Revenue): Promise<string | number | undefined> {
 
         const SQL = 'INSERT INTO t_revenue_rev (rev_name, rev_amount, rev_expect_date) VALUES (?, ?, ?)';

@@ -1,27 +1,26 @@
+import { useEffect, useState } from "react";
 import { ScrollView, TouchableHighlight, View } from "react-native";
 import { Button, Section, SectionContent, Text } from "react-native-rapi-ui";
+import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import _ from 'lodash';
+
 import { Account, AccountDao } from "../../services/account";
 import { scroll_styles } from "../../styles";
-
-import _ from 'lodash';
-import { useIsFocused } from "@react-navigation/native";
-import { useEffect, useState } from "react";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-
-export function AccountView() {
-
-
-}
+import { DaoType } from "../../services/dao";
+import ErrorMessage from "../../components/error-message";
 
 
-export function AccountsScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: Account[]) => void}) {
+export function AccountListScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: Account[]) => void}) {
+
+    const [error, setError] = useState<string|null>(null);
 
     const [accounts, setAccounts] = useState<Account[]>([]);
 
     const isFocused = useIsFocused();
 
-    const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
+    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
 
     const selectHandler = (account: Account) => {
         navigation.navigate({name: 'AccountTransaction', params: {account: account} });
@@ -32,10 +31,16 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
     };
 
     useEffect(() => {
-        accountDao.load().then(result => {
-            setAccounts(result);
-            if( onChange ) onChange(result);
-        });
+        if( accountDao != null) {
+            setError(null);
+            accountDao.load().then(result => {
+                setAccounts(result);
+                if( onChange ) onChange(result);
+            });
+        } else {
+            setError('Invalid AccountDao');
+        }
+        
     }, [isFocused])
 
     const total = _.sum( _.map(accounts, account => account.balance) );
@@ -59,6 +64,9 @@ export function AccountsScreen ({navigation, onChange} : {navigation: any, onCha
 
     return (
         <SafeAreaView style={scroll_styles.container}>
+
+            <ErrorMessage error={error} />
+
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
                     <Text style={{textAlign: 'right', margin: 10}}>All accounts : {total} €</Text>

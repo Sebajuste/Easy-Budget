@@ -8,13 +8,6 @@ export enum Period {
     YEARLY = "YEARLY"
 }
 
-export interface EnvelopeCategory {
-  _id: string | number;
-  name: string;
-  color: string;
-  icon: string;
-}
-
 export interface Envelope {
     _id : string | number;
     name: string;
@@ -128,15 +121,6 @@ export function updateNextDueDate(envelopes: Envelope[]) : Envelope[] {
   const checkDate = new Date();
   checkDate.setMonth(checkDate.getMonth()-1);
   return _.filter(envelopes, envelope => envelope.dueDate.getTime() < checkDate.getTime()).map(envelope => Object.assign({}, envelope, {dueDate: envelopeNextDate(envelope)}));
-}
-
-
-export abstract class EnvelopeCategoryDao extends DAO<EnvelopeCategory> {
-  abstract load() : Promise<EnvelopeCategory[]>;
-  // abstract save(envelopeCategories: EnvelopeCategory[]) : Promise<void>;
-  abstract add(envelopeCategorie : EnvelopeCategory) : Promise<string|number|undefined>;
-  abstract update(envelopeCategorie : EnvelopeCategory) : Promise<void>;
-  abstract remove(envelopeCategorie : EnvelopeCategory) : Promise<void>;
 }
 
 export abstract class EnvelopeDao extends DAO<Envelope> {

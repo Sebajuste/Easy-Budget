@@ -31,7 +31,7 @@ export interface AccountTransaction {
     _id: string | number;
     name: string;
     amount: number;
-    envelope_id: string;
+    envelope_id: string | number;
     account_id: string | number;
     type: TransactionType;
     date: Date;

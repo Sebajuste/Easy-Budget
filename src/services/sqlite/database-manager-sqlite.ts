@@ -1,28 +1,22 @@
 import * as SQLite from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system';
+
 import { DatabaseManager } from "../database-manager";
 
 const SQLITE_VERSION = "1.0";
 const DATABASE_NAME = "easy_budget.db";
 
 
-// export let sqlite_client : SQLite.WebSQLDatabase;
-/*
-function OpenSQLite() {
-    sqlite_client = SQLite.openDatabase('easy_budget.db', SQLITE_VERSION, "", 1, (db) => {
-        new DatabaseManagerSQLite().init();
-    });
-}
-
-OpenSQLite();
-*/
-
 
 export class DatabaseManagerSQLite extends DatabaseManager {
 
     private db: any;
 
-    constructor(/*sqlite: SQLite.WebSQLDatabase | null*/) {
+    private error: any;
+
+    constructor() {
         super();
+        this.error = null;
         this.open().then(db => {
             console.log('DB opened');
             this.init();
@@ -33,7 +27,19 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         return this.db;
     }
 
-    public open() : Promise<void> {
+    public async open() : Promise<void> {
+
+        if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
+            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
+        }
+        /*
+        // To download from external file
+        await FileSystem.downloadAsync(
+            Asset.fromModule(require(pathToDatabaseFile)).uri,
+            FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`
+        );
+        */
+
         return new Promise((resolve, reject) => {
             SQLite.openDatabase(DATABASE_NAME, SQLITE_VERSION, "", 1, (db) => {
                 this.db = db;
@@ -54,6 +60,8 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     public init(): Promise<void> {
         return new Promise((resolve, reject) => {
+
+            this.error = null;
 
             this.client.exec([
                 { sql: 'PRAGMA foreign_keys = ON;', args: [] },
@@ -274,10 +282,11 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 
             ], false, (err : any, resultSet) => {
 
-                console.log(resultSet);
+                // console.log(resultSet);
+                this.error = resultSet;
     
                 if( err ) {
-                    console.error('Database Init error', err);
+                    console.error('Database Init error', err); 
                     reject(err);
                 } else {
 
@@ -291,8 +300,6 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                             }
                         }
                     }
-
-
                     console.log('Database Init done');
                     resolve();
                 }
@@ -304,12 +311,19 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     public delete(): Promise<void> {
 
-        return this.close().then( () => this.db.deleteAsync()).then(() => {
+        return this.close()//
+        .then( () => this.db.deleteAsync())//
+        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) )//
+        .then( () => {
             console.log('Database removed');
             return this.open();
         });
 
     }
+
+    public getLastError() {
+        return this.error;
+    }    
 }
 
 export const DB_MANAGER_SQLite = new DatabaseManagerSQLite();

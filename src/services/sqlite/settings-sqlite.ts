@@ -32,6 +32,10 @@ export class SettingsDaoSQLite extends SettingsDao {
 
     }
 
+    find(selector: any) : Promise<Settings|null> {
+        throw new Error("Method not implemented.");
+    }
+
 
     save(settings: Settings): Promise<void> {
 

@@ -11,6 +11,10 @@ export class SettingsDaoStorage extends SettingsDao {
         return DEFAULT_SETTINGS;
     }
 
+    find(selector: any) : Promise<Settings|null> {
+        throw new Error("Method not implemented.");
+    }
+
     async save(settings : Settings) : Promise<void> {
 
         await AsyncStorage.setItem('settings', JSON.stringify(settings) );

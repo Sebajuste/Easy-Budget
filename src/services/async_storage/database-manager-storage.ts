@@ -25,4 +25,8 @@ export class DatabaseManagerAsyncStorage extends DatabaseManager {
         
     }
 
+    getLastError() {
+        return null;
+    }
+
 }

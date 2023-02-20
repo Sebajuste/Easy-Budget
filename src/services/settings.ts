@@ -1,4 +1,3 @@
-import { DAO } from "./dao-manager";
 
 export const DEFAULT_SETTINGS : Settings= {
     tuto_shown: false,

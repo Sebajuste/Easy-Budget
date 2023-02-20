@@ -1,10 +1,10 @@
 import { Dimensions, FlatList, ScrollView, SectionList, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
-import CircularProgress from 'react-native-circular-progress-indicator';
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EnvelopeCategory, Envelope, periodToString, budgetPerYear, EnvelopeCategoryDao, EnvelopeDao } from "../../services/envelope";
+import { Envelope, periodToString, budgetPerYear, EnvelopeDao } from "../../services/envelope";
+import { Category, CategoryDao } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -12,8 +12,9 @@ import { useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { RevenueDao } from "../../services/revenue";
+import { Revenue, RevenueDao } from "../../services/revenue";
 import { Colors } from "react-native/Libraries/NewAppScreen";
+import { DaoType } from "../../services/dao";
 
 
 function EnvelopeListItem(props : any) {
@@ -31,15 +32,10 @@ function EnvelopeListItem(props : any) {
     <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
       <View style={{...styles.image, backgroundColor: 'silver', padding: 10}}>
         
-        <CircularProgress
-          value={envelope.funds.toFixed(2)}
-          maxValue={envelope.funds > envelope.amount ? envelope.funds : envelope.amount}
-          progressValueColor={ category.color }
-          titleColor={ category.color }
-          activeStrokeColor={ category.color }
-          valueSuffix={'€'}
-        />
-        
+        <View style={{flex: 1, flexDirection: 'column'}}>
+          <Text style={{alignItems: 'center', color: category.color, fontSize: 30, textAlign: 'center'}}> {envelope.funds.toFixed(2)}€</Text>
+          <Text style={{textAlign: 'center'}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+        </View>
         <Text style={{fontSize: 12}}>{dueDate}</Text>
       </View>
       <View style={styles.detailsContainer}>
@@ -123,13 +119,13 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 }
 
 
-export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: EnvelopeCategory[]) => void}) {
+export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: Category[]) => void}) {
 
     const viewRef = useRef(null);
 
     const [loading, setLoading] = useState(false);
 
-    const [categories, setCategories] = useState<EnvelopeCategory[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
 
@@ -137,9 +133,13 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const isFocused = useIsFocused();
 
-    const categoriesDao = DAOFactory.getDAO(EnvelopeCategoryDao, DATABASE_TYPE);
-    const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
+    // const categoriesDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
+    // const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
+    // const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
+
+    const categoriesDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
 
     const createEnvelopeHandler = () => {
       navigation.navigate('CreateEnvelope');
@@ -175,11 +175,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     
     const envelopes_group = _.groupBy(envelopes, 'category_id');
 
-    const editCategoryHandler = (category: EnvelopeCategory) => {
-      navigation.navigate({name: 'EditCategory', params: {envelopeCategory: category} });
+    const editCategoryHandler = (category: Category) => {
+      navigation.navigate({name: 'EditCategory', params: {category: category} });
     };
         
-    const addEnvelopHandler = (category: EnvelopeCategory) => {
+    const addEnvelopHandler = (category: Category) => {
       navigation.navigate({name: 'CreateEnvelope', params: {category: category} });
     };
 
@@ -196,8 +196,8 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     };
 
-    const renderHeaderHandler = ({section}) => {
-      const category = {_id: section._id, name: section.name, color: section.color} as EnvelopeCategory;
+    const renderHeaderHandler = ({section}: any) => {
+      const category = {_id: section._id, name: section.name, color: section.color} as Category;
       return <TopNav
               style={{backgroundColor: category.color }}
               middleContent={section.name}
