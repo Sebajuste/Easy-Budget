@@ -73,7 +73,7 @@ export default function RevenueListScreen({navigation, onChange} : {navigation: 
             </ScrollView>
 
             <View style={{flex: 1, margin: 20, justifyContent: 'center', alignItems: 'center'}}>
-                <Button text={t('common:add')} onPress={addRevenueHandler} />
+                <Button text={t('buttons:add')} onPress={addRevenueHandler} />
             </View>
 
         </SafeAreaView>

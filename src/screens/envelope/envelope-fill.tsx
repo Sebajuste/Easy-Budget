@@ -12,6 +12,7 @@ import { scroll_styles } from "../../styles";
 import EnvelopeTransactionView from "../transactions/transaction-view";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -32,8 +33,6 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
-    // const accountDao = DAOFactory.getDAO(AccountDao, DATABASE_TYPE);
-    // const transactionDao = DAOFactory.getDAO(EnvelopeTransactionDao, DATABASE_TYPE);
     const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
     const transactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE);
 
@@ -74,7 +73,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
     };
 
     useEffect(() => {
-        console.log('EnvelopFillScreen use effect');
+
         accountDao.load().then(setAccounts);
         
         transactionDao.load()//
@@ -98,13 +97,13 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const accountItems = accounts.map(account => {
         return {
-            label: `${account.name} [${account.envelope_balance}]`,
+            label: `${account.name} [${account.envelope_balance.toFixed(2)}]`,
             value: account._id as string
         };
     });
 
     const editHandler = () => {
-        const action = StackActions.replace('ConfigEnvelope', {envelopeCategory: envelopeCategory, envelope: envelope});
+        const action = StackActions.replace('ConfigEnvelop', {envelopeCategory: envelopeCategory, envelope: envelope});
         navigation.dispatch(action);
     };
 
@@ -114,15 +113,15 @@ export function EnvelopFillScreen({navigation, route} : any) {
         <Layout style={{margin: 10}}>
 
             { envelopeCategory ?
-                <Button text="EDIT" onPress={editHandler}></Button>
+                <Button text={ t('buttons:edit') } onPress={editHandler}></Button>
             :
                 null
             }
             
             <View style={{ margin: 2, flexDirection: 'row' }}>
                 <View style={{flex: 1, margin: 2}}>
-                    <Text style={{ fontSize: 12 }}>Account</Text>
-                    <Picker placeholder="Account" items={accountItems} value={ accountID } onValueChange={selectAccountHandler} ></Picker>
+                    <Text style={{ fontSize: 12 }}>{ t('common:account') }</Text>
+                    <Picker placeholder={ t('common:account') } items={accountItems} value={ accountID } onValueChange={selectAccountHandler} ></Picker>
                 </View>
             </View>
 
@@ -136,17 +135,17 @@ export function EnvelopFillScreen({navigation, route} : any) {
                     onValueChange={(values: any) => setSolde(values[0])}
                 />
                 <View style={{flexDirection: 'row', margin: 10}}>
-                    <Text style={{flex: 1, textAlign: "center"}}>Envelope: {solde}</Text>
-                    <Text style={{flex: 1, textAlign: "center"}}>Account: {(account?.envelope_balance || 0) - (solde-funds)}</Text>
+                    <Text style={{flex: 1, textAlign: "center"}}>{ t('common:envelope') }: {solde.toFixed(2)} €</Text>
+                    <Text style={{flex: 1, textAlign: "center"}}>{ t('common:account') }: {((account?.envelope_balance || 0) - (solde-funds)).toFixed(2)} €</Text>
                 </View>
             </View>
 
             <View style={{ flexDirection: 'row'}} >
-                <Button style={{margin: 5, flexGrow: 1}} text="SAVE" status="primary" disabled={!formValid} onPress={saveHandler}></Button>
+                <Button style={{margin: 5, flexGrow: 1}} text={ t('buttons:save') } status="primary" disabled={!formValid} onPress={saveHandler}></Button>
             </View>
 
             <View style={{marginTop: 10, flex: 1}}>
-                <Text style={{padding: 10}}>Last transactions :</Text>
+                <Text style={{padding: 10}}>{ t('common:last_transactions') } :</Text>
                 <ScrollView style={scroll_styles.scrollView}>
                     {transactions_items}
                 </ScrollView>

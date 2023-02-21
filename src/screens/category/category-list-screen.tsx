@@ -9,6 +9,7 @@ import { Category } from "../../services/category";
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
 
 
 
@@ -94,7 +95,7 @@ export function CategoryListScreen({navigation} : any) {
                     ItemSeparatorComponent={itemSeparatorHandler}
                 />
                 <View style={styles.footer}>
-                    <Button text="ADD" onPress={addCategoryHandler} />
+                    <Button text={ t('buttons:add') } onPress={addCategoryHandler} />
                 </View>
             </Animatable.View>
         </SafeAreaView>

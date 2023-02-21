@@ -54,8 +54,8 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
                 <Section style={{margin: 5}} key={index}>
                     <SectionContent >
                         <Text>{account.name}</Text>
-                        <Text>{account.balance} €</Text>
-                        <Text>[{account.envelope_balance}] €</Text>
+                        <Text>{account.balance.toFixed(2)} €</Text>
+                        <Text>[{account.envelope_balance.toFixed(2)}] €</Text>
                     </SectionContent>
                 </Section>
             </TouchableHighlight>

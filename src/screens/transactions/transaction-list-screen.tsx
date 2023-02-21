@@ -51,7 +51,6 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
-    // const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE);
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
     const newTransactionHandler = () => {

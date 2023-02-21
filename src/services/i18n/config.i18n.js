@@ -2,13 +2,13 @@ export const fallback = "en";
 export const supportedLocales = {
     en: {
         name: "English",
-        translationFileLoader: () => require('../../assets/lang/en.json'),
+        translationFileLoader: () => require('../../../assets/lang/en.json'),
         // en is default locale in Moment
         momentLocaleLoader: () => Promise.resolve(),
     },
     fr: {
         name: "Français",
-        translationFileLoader: () => require('../../assets/lang/fr.json'),
+        translationFileLoader: () => require('../../../assets/lang/fr.json'),
         momentLocaleLoader: () => Promise.resolve(),
     },
     /*
@@ -23,7 +23,8 @@ export const defaultNamespace = "common";
 export const namespaces = [
     "buttons",
     "common",
-    "menus",
     "forms",
+    "menus",
+    "title",
     "tutorial"
 ];

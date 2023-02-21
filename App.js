@@ -22,7 +22,6 @@ export default function App() {
             Updates.reloadFromCache();
         }
         setIsI18nInitialized(true);
-        // this.setState({ isI18nInitialized: true });
       })
       .catch((error) => console.warn(error));
   }, []);

@@ -6,6 +6,8 @@ import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
+import ErrorMessage from "../../components/error-message";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -18,7 +20,6 @@ export function AccountScreen({navigation, route} : any) {
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
     const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-    // const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE);
 
     const saveHandler = () => {
         const balanceFloat = parseFloat(balance);
@@ -29,21 +30,26 @@ export function AccountScreen({navigation, route} : any) {
             envelope_balance: balanceFloat,
         } as Account;
 
-        console.log('account : ', account);
-
         if(accountDao != null) {
             accountDao.add(account).then(v => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(err => {
                 console.error(err);
+                setError(err.message);
             });
         }
 
     };
 
     const deleteHandler = () => {
-
+        accountDao.remove(account).then(v => {
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+        }).catch(err => {
+            console.error(err);
+            setError(err.message);
+        });
     };
 
     const formValid = name.trim().length > 0 && balance.trim().length > 0;
@@ -51,17 +57,19 @@ export function AccountScreen({navigation, route} : any) {
     return (
         <Layout style={{margin: 10}}>
 
+            <ErrorMessage error={error} />
+
             <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>Account name</Text>
+                <Text style={{ fontSize: 12 }}>{ t('forms:account_name') }</Text>
                 <TextInput
-                    placeholder="Enter the account name"
+                    placeholder={ t('forms:enter_account_name') }
                     value={name}
                     onChangeText={setName}
                 />
             </View>
 
             <View style={{flex: 1, margin: 2}}>
-                <Text style={{ fontSize: 12 }}>Amount</Text>
+                <Text style={{ fontSize: 12 }}>{ t('commmon:amount') }</Text>
                 <TextInput
                     placeholder="0.00"
                     value={balance}
@@ -71,8 +79,8 @@ export function AccountScreen({navigation, route} : any) {
             </View>
 
             <View style={{ flexDirection: 'row'}} >
-                { account ? <Button style={{margin: 5, flexGrow: 1}} text="DELETE" status="danger" onPress={deleteHandler}></Button> : <></> }
-                <Button style={{margin: 5, flexGrow: 1}} text="SAVE" status="primary" disabled={!formValid} onPress={saveHandler}></Button>
+                { account ? <Button style={{margin: 5, flexGrow: 1}} text={ t('common:delete') } status="danger" onPress={deleteHandler}></Button> : <></> }
+                <Button style={{margin: 5, flexGrow: 1}} text={ t('common:save') } status="primary" disabled={!formValid} onPress={saveHandler}></Button>
             </View>
 
         </Layout>

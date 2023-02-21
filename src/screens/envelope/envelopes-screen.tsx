@@ -1,10 +1,10 @@
-import { Dimensions, FlatList, ScrollView, SectionList, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Envelope, periodToString, budgetPerYear, EnvelopeDao } from "../../services/envelope";
-import { Category, CategoryDao } from "../../services/category";
+import { Envelope, budgetPerYear } from "../../services/envelope";
+import { Category } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -12,9 +12,10 @@ import { useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Revenue, RevenueDao } from "../../services/revenue";
+import { Revenue } from "../../services/revenue";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
 
 
 function EnvelopeListItem(props : any) {
@@ -99,18 +100,17 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 
       <View style={{margin: 5, padding: 5, borderRadius: 10, ...budgetStyle}}>
         <Text style={{textAlign: 'center'}}>{monthBudget.toFixed(2)} €</Text>
-        <Text style={{fontSize: 12}}>Month budget</Text>
-
+        <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_monthly')}</Text>
       </View>
 
       <View style={{margin: 5, padding: 5, borderRadius: 10}}>
-        <Text>{totalRevenue.toFixed(2)} €</Text>
-        <Text style={{fontSize: 12}}>Revenues</Text>
+        <Text style={{textAlign: 'center'}}>{totalRevenue.toFixed(2)} €</Text>
+        <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:revenues')}</Text>
       </View>
 
       <View style={{margin: 5, padding: 5, borderRadius: 10}}>
-        <Text>{total_year.toFixed(2)} €</Text>
-        <Text style={{fontSize: 12}}>Year budget</Text>
+        <Text style={{textAlign: 'center'}}>{total_year.toFixed(2)} €</Text>
+        <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_yearly')}</Text>
       </View>
 
     </View>
@@ -132,10 +132,6 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const [totalRevenue, setTotalRevenue] = useState(0);
 
     const isFocused = useIsFocused();
-
-    // const categoriesDao = DAOFactory.getDAO(CategoryDao, DATABASE_TYPE);
-    // const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE);
-    // const revenueDao = DAOFactory.getDAO(RevenueDao, DATABASE_TYPE);
 
     const categoriesDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
     const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
@@ -203,8 +199,6 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
               middleContent={section.name}
               leftContent={<Icon name="edit" size={20} />}
               leftAction={() => editCategoryHandler(category)}
-              rightContent={ <><Icon name="plus" size={20} /></> }
-              rightAction={() => addEnvelopHandler(category)}
             />;
     };
 
@@ -216,11 +210,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
         <Section>
           <SectionContent style={{backgroundColor: 'inherit'}}>
             <View style={{flexDirection: 'row'}}>
-              <Text style={{flex: 2}}>Cost per year : </Text>
+              <Text style={{flex: 2}}>{t('common:cost_per_year')} : </Text>
               <Text style={{textAlign: 'right'}}> {total_year.toFixed(2)} €</Text>
             </View>
             <View style={{flexDirection: 'row'}}>
-              <Text style={{flex: 2}}>Cost per month : </Text>
+              <Text style={{flex: 2}}>{t('common:cost_per_month')} : </Text>
               <Text style={{textAlign: 'right'}}>{(total_year/12).toFixed(2)} €</Text>
             </View>
           </SectionContent>
@@ -235,7 +229,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const emptyComponent = (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', margin: 20, }}>
-        <Button text="Create First envelope" onPress={createEnvelopeHandler} />
+        <Button text={t('buttons:create_first_envelope')} onPress={createEnvelopeHandler} />
       </View>
     );
 

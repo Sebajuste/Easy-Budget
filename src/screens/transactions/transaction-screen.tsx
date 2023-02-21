@@ -5,16 +5,13 @@ import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 
 import { SelectDateComponent } from "../../components/select-date";
-import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { Account, AccountDao } from "../../services/account";
+import { Envelope } from "../../services/envelope";
+import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
+import { AccountTransaction, TransactionType } from "../../services/transaction";
 import { DaoType } from "../../services/dao";
 
 import { t } from "../../services/i18n";
-
-
-
 
 
 export function AccountTransactionScreen({navigation, route} : any) {
@@ -33,19 +30,11 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const [accountItems, setAccountItems] = useState<any[]>([]);
 
-    // const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
-
     const [envelope, setEnvelope] = useState<Envelope|null>();
-
-    // const [accountID, setAccountID] = useState<string|undefined>();
 
     const [account, setAccount] = useState<Account|null>();
 
     const isFocused = useIsFocused();
-
-    // const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
-    // const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    // const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
     const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
@@ -71,7 +60,6 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.reconciled = false;
             
             transactionDao.add(transaction).then(result => {
-                console.log(`Result : ${result ? 'true' : 'false' }`)
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
@@ -89,7 +77,6 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.type = type;
 
             transactionDao.add(transaction).then(result => {
-                console.log(`Result : ${result ? 'true' : 'false' }`)
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
@@ -145,7 +132,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                     <View style={{flex: 1, margin: 2}}>
                         <Text style={{ fontSize: 12 }}>{t('common:transaction_name')}</Text>
                         <TextInput
-                            placeholder="Enter the transaction name"
+                            placeholder={t('forms:enter_transaction_name')}
                             value={name}
                             onChangeText={(val) => setName(val)}
                         />
@@ -176,15 +163,15 @@ export function AccountTransactionScreen({navigation, route} : any) {
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
                             <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.name } </Text>
                         { envelope && parseFloat(amount) > envelope.funds ?
-                            <Button text="FILL" onPress={fillHandler} ></Button>
+                            <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
                         :
                             null
                         }
                         </View>
                     ) : (
                         <View>
-                            <Text style={{ fontSize: 12 }}>Envelope </Text>
-                            <Picker placeholder="Envelope" items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
+                            <Text style={{ fontSize: 12 }}>{t('common:envelop')}</Text>
+                            <Picker placeholder={t('common:envelop')} items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
                         </View>
                     ) }
                 </View>
@@ -193,8 +180,8 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Account</Text>
-                        <Picker placeholder="Account" items={accountItems} value={ `${account?._id}` } onValueChange={setAccountHandler} ></Picker>
+                        <Text style={{ fontSize: 12 }}>{t('common:account')}</Text>
+                        <Picker placeholder={t('common:account')} items={accountItems} value={ `${account?._id}` } onValueChange={setAccountHandler} ></Picker>
                     </View>
                 </View>
 

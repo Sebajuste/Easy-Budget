@@ -6,6 +6,7 @@ import { Button, Section, Text } from "react-native-rapi-ui";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Envelope, EnvelopeDao, updateNextDueDate } from "../../services/envelope";
+import { t } from "../../services/i18n";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 
@@ -15,7 +16,6 @@ export default function NextPaymentListView({onPayment} : {onPayment?: (envelop:
 
     const isFocused = useIsFocused();
 
-    // const envelopeDao = DAOFactory.getDAO(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
     const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
 
     useEffect(() => {
@@ -59,7 +59,7 @@ export default function NextPaymentListView({onPayment} : {onPayment?: (envelop:
                             <Text>{envelope.funds} € / {envelope.amount} €</Text>
                     </View>
                     <View >
-                        <Button text="Pay" onPress={() => { if( onPayment ) { onPayment(envelope); } } }></Button>
+                        <Button text={t('buttons:pay')} onPress={() => { if( onPayment ) { onPayment(envelope); } } }></Button>
                     </View>
                 </View>
             </Section>

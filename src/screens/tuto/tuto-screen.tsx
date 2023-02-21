@@ -1,18 +1,17 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Button, Text, TextInput } from "react-native-rapi-ui";
+import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { budgetPerMonth, countMonth, Envelope, EnvelopeDao } from "../../services/envelope";
+
+import { budgetPerMonth, countMonth, Envelope } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
 import { AccountListScreen } from "../account/account-list-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
-import { Account, AccountDao } from "../../services/account";
+import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
-import { SettingsDao } from "../../services/settings";
-import RevenueScreen from "../revenues/revenue-screen";
+import { EnvelopeTransaction } from "../../services/transaction";
 import { Revenue } from "../../services/revenue";
 import RevenueListScreen from "../revenues/revenue-list-screen";
 
@@ -32,7 +31,7 @@ export function TutoFinalScreen({navigation} : any) {
         <SafeAreaView style={scroll_styles.container}>
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{margin: 10, fontSize: 24}}>Your app is now ready to be used ! Enjoy</Text>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:app_ready')}</Text>
             </View>
 
             <View style={{margin: 10}}>
@@ -63,7 +62,6 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
         const now = new Date();
 
-        // const eveloped_filtered = _.orderBy(envelopes, ['dueDate'], ['asc']).filter(envelope => envelope.funds < envelope.amount && ( typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate.getTime()) >= now.getTime() );
         const eveloped_filtered = _.orderBy(envelopes, ['dueDate'], ['asc']).filter(envelope => envelope.funds < envelope.amount );
 
         return _.map( eveloped_filtered , envelope => {
@@ -290,6 +288,29 @@ export function TutoRevenueScreen({navigation} : any) {
     );
 }
 
+export function TutoInfoRevenueScreen({navigation} : any) {
+
+    const nextHandler = () => {
+
+        navigation.navigate({name: 'TutoRevenueScreen'});
+
+    };
+
+    return (
+        <SafeAreaView style={scroll_styles.container}>
+
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{margin: 10, fontSize: 24}}>{t('tutorial:enter_revenues')}</Text>
+            </View>
+
+            <View style={{margin: 10}}>
+                <Button text={t('common:next')} onPress={nextHandler}></Button>
+            </View>
+
+        </SafeAreaView>
+    );
+
+}
 
 export function TutoAccountScreen({navigation} : any) {
 
@@ -300,7 +321,7 @@ export function TutoAccountScreen({navigation} : any) {
     }
 
     const nextHandler = () => {
-        navigation.navigate({name: 'TutoRevenueScreen'});
+        navigation.navigate({name: 'TutoInfoRevenueScreen'});
     };
 
     return (

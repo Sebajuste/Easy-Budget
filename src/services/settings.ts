@@ -1,23 +1,17 @@
-
-export const DEFAULT_SETTINGS : Settings= {
-    tuto_shown: false,
-    revenue: 0
-};
+import { DAO } from "./dao";
 
 
 export interface Settings {
-
-    tuto_shown: boolean;
-    revenue: number;
-
+    name: string;
+    value: string;
 }
 
 
-export abstract class SettingsDao {
+export abstract class SettingsDao extends DAO<Settings> {
 
-    abstract load() : Promise<Settings>;
+    // abstract load() : Promise<Settings[]>;
 
-    abstract save(settings : Settings) : Promise<void>;
+    // abstract update(settings : Settings) : Promise<void>;
 
 }
 

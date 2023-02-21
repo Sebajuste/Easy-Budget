@@ -1,4 +1,7 @@
 import * as Localization from 'expo-localization';
+import { DAO, DaoType } from '../dao';
+import { DAOFactory, DATABASE_TYPE } from '../dao-manager';
+import { Settings } from '../settings';
 
 const languageDetector = {
     type: 'languageDetector',
@@ -9,9 +12,25 @@ const languageDetector = {
         // return a string like "en" to match our language
         // files.
 
-        console.log('lang : ', Localization.locale.split('-')[0] )
+        const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
 
-        callback(Localization.locale.split('-')[0]);
+        settingsDao.find('language').then(setting => {
+
+            if( setting ) {
+                console.log('lang : ', setting.value )
+                callback(setting.value);
+            } else {
+                console.log('lang : ', Localization.locale.split('-')[0] )
+                callback(Localization.locale.split('-')[0]);
+            }
+
+        }).catch(err => {
+            console.error(err);
+            console.log('lang : ', Localization.locale.split('-')[0] )
+            callback(Localization.locale.split('-')[0]);
+        });
+
+        
     },
     init: () => { },
     cacheUserLanguage: () => { },

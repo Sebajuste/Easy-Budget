@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+import i18next, { Callback } from 'i18next';
 import { I18nManager as RNI18nManager } from 'react-native';
 
 import * as config from './config.i18n';
@@ -72,6 +72,9 @@ const i18n = {
     select(map: {[key:string] : string}) {
         const key = this.isRTL ? 'rtl' : 'ltr';
         return map[key];
+    },
+    changeLanguage(lng:string, callback: Callback|undefined) {
+        return i18next.changeLanguage(lng, callback)
     }
 };
 

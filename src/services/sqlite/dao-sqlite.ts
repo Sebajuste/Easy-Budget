@@ -10,6 +10,7 @@ import { EnvelopeSQLiteDao } from './envelope-sqlite';
 import { RevenueDaoSQLite } from "./revenue-sqlite";
 import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './transaction-sqlite';
 import { DAO, DaoType } from '../dao';
+import { SettingsDaoSQLite } from './settings-sqlite';
 
 export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 
@@ -23,6 +24,8 @@ export const SQLITE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
 
     [DaoType.ENVELOPE_TRANSACTION.toString(), new  EnvelopeTransactionDaoSQLite() ],
     [DaoType.ACCOUNT_TRANSACTION.toString(), new  AccountTransactionDaoSQLite() ],
+
+    [DaoType.SETTINGS.toString(), new SettingsDaoSQLite()]
 ]);
 
 /*

@@ -6,10 +6,11 @@ import uuid from 'react-native-uuid';
 import _ from "lodash";
 
 import { SelectDateComponent } from "../../components/select-date";
-import { budgetPerMonth, Envelope, EnvelopeDao, Period, periodFromString, periodToString } from "../../services/envelope";
-import {  Category, CategoryDao } from "../../services/category";
+import { budgetPerMonth, Envelope, Period, periodFromString, periodToString } from "../../services/envelope";
+import {  Category } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
 
 
 const operation_type_picker_items = [
@@ -143,16 +144,16 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                 <View style={{ flexDirection: 'row' }}>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Envelope name</Text>
+                        <Text style={{ fontSize: 12 }}>{ t('forms:envelope_name') }</Text>
                         <TextInput
-                            placeholder="Enter the envelope name"
+                            placeholder={ t('forms:enter_envelope_name') }
                             value={name}
                             onChangeText={(val) => setName(val)}
                         />
                     </View>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Budget Amount</Text>
+                        <Text style={{ fontSize: 12 }}>{t('common:amount_budget')}</Text>
                         <TextInput
                             placeholder="0.00"
                             value={amount}
@@ -165,31 +166,31 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2 }}>
-                        <Text style={{ fontSize: 12 }}>Category</Text>
-                        <Picker placeholder="Category" items={categoryItems} value={ categoryID } onValueChange={setCategoryID} />
+                        <Text style={{ fontSize: 12 }}>{t('common:category')}</Text>
+                        <Picker placeholder={t('common:category')} items={categoryItems} value={ categoryID } onValueChange={setCategoryID} />
                     </View>
                     <View style={{flex: 1, margin: 4, alignItems: 'flex-end', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Button text="New category" onPress={newCategoryHandler} />
+                        <Button text={t('buttons:category_new')} onPress={newCategoryHandler} />
                     </View>
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Budget Period</Text>
-                        <Picker placeholder="Period" items={operation_type_picker_items} value={ periodToString(period) } onValueChange={(val: string) =>  setPeriod( periodFromString(val) )} ></Picker>
+                        <Text style={{ fontSize: 12 }}>{t('common:budget_period')}</Text>
+                        <Picker placeholder={t('common:period')} items={operation_type_picker_items} value={ periodToString(period) } onValueChange={(val: string) =>  setPeriod( periodFromString(val) )} ></Picker>
                     </View>
 
                     <View style={{flex: 1, margin: 10}}>
                         <Text style={{ flex: 1, alignItems: "flex-end", color: '#888'}}>{ budgetPerMonth(parseFloat(amount), period).toFixed(2) } </Text>
-                        <Text style={{ flex: 2, fontSize: 12, color: '#888' }}>Montly</Text>
+                        <Text style={{ flex: 2, fontSize: 12, color: '#888' }}>{t('common:montly')}</Text>
                     </View>
 
                 </View>
                 <View>
 
                     <View>
-                        { showDueDate ? (<SelectDateComponent label="Due Date" date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
+                        { showDueDate ? (<SelectDateComponent label={t('common:due_date')} date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
                     </View>
 
                 </View>
@@ -198,8 +199,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
             </View>
 
             <View style={{ flexDirection: 'row'}} >
-                { updateForm ? <Button style={{margin: 5, flexGrow: 1}} text="DELETE" status="danger" onPress={deleteHandler}></Button> : <></> }
-                <Button style={{margin: 5, flexGrow: 1}} text="SAVE" status="primary" disabled={!formValid} onPress={updateForm ? updateHandler : addHandler}></Button>
+                { updateForm ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={deleteHandler}></Button> : <></> }
+                <Button style={{margin: 5, flexGrow: 1}} text={t('common:save')} status="primary" disabled={!formValid} onPress={updateForm ? updateHandler : addHandler}></Button>
             </View>
             
         </Layout>

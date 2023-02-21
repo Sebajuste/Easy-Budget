@@ -39,7 +39,6 @@ export default function RevenueScreen({navigation, route} : any) {
             }).catch(console.error);
         } else {
             revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expecteDate: expectDate}).then((id) => {
-                console.log('new id : ', id);
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
