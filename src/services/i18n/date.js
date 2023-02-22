@@ -1,4 +1,4 @@
-import moment from 'moment';
+// import moment from 'moment';
 import * as config from './config.i18n';
 
 const date = {
@@ -14,7 +14,7 @@ const date = {
                 .supportedLocales[locale]
                 .momentLocaleLoader()
                 .then(() => {
-                    moment.locale(locale);
+                    // moment.locale(locale);
                     return resolve();
                 })
                 .catch(err => reject(err));
@@ -26,7 +26,8 @@ const date = {
      * @return {string}
      */
     format(date, format) {
-        return moment(date).format(format);
+        // return moment(date).format(format);
+        return '';
     }
 }
 export default date;
