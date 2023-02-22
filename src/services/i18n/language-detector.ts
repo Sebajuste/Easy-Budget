@@ -7,12 +7,12 @@ const languageDetector = {
     type: 'languageDetector',
     compatibilityJSON: 'v3',
     async: true,
-    detect: (callback) => {
+    detect: (callback: (lng: string) => void) => {
         // We will get back a string like "en-US". We
         // return a string like "en" to match our language
         // files.
 
-        const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
+        const settingsDao : DAO<Settings> = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
 
         settingsDao.find('language').then(setting => {
 

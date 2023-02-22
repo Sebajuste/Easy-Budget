@@ -28,14 +28,23 @@ export class SettingsDaoSQLite extends SettingsDao {
         const SQL = `SELECT set_name as name, set_value as value FROM t_settings_set WHERE set_name = ?`;
 
         return new Promise<Settings|null>((resolve, reject) => {
-            sqlite_client().transaction(tx => {
-                tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
-                    resolve(_array.length > 0 ? _array[0] : null);
-                }, (tx, err) => {
-                    reject(err);
-                    return true;
+
+            const client = sqlite_client();
+
+            if( client ) {
+                client.transaction(tx => {
+                    tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
+                        resolve(_array.length > 0 ? _array[0] : null);
+                    }, (tx, err) => {
+                        reject(err);
+                        return true;
+                    });
                 });
-            });
+            } else {
+                reject('DB not ready');
+            }
+
+            
         });
     }
 

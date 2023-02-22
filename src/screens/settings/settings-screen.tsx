@@ -27,13 +27,17 @@ export default function SettingsScreen() {
 
     const changeLanguageHandler = (lang:string) => {
         setLanguage(lang);
-        i18n.changeLanguage(lang, (err, t) => {
-            if (err) return console.log('something went wrong loading', err);
-        });
+        
         settingDao.update({
             name: 'language',
             value: lang
-        }).catch(console.error);
+        })//
+        .then(r => {
+            i18n.changeLanguage(lang, (err, t) => {
+                if (err) return console.log('something went wrong loading', err);
+            });
+        })//
+        .catch(console.error);
     };
 
     useEffect(() => {

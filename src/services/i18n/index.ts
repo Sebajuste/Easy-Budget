@@ -1,5 +1,7 @@
-import i18next, { Callback } from 'i18next';
-import { I18nManager as RNI18nManager } from 'react-native';
+// import i18next, { Callback } from 'i18next';
+// import { I18nManager as RNI18nManager } from 'react-native';
+
+import I18N, { Callback } from './i18n';
 
 import * as config from './config.i18n';
 import date from './date';
@@ -8,6 +10,23 @@ import translationLoader from './translation-loader';
 
 import 'intl-pluralrules'
 
+/*
+ "i18n-js": "^4.2.2",
+ "i18next": "^22.4.9",
+
+ "@types/i18n-js": "^3.8.4",
+ "@types/i18next": "^13.0.0",
+*/
+
+
+let lazyLoading : I18N|undefined;
+
+if( !lazyLoading ) {
+    lazyLoading = new I18N();
+}
+
+const i18next = lazyLoading;
+
 const i18n = {
     /**
      * @returns {Promise}
@@ -15,8 +34,8 @@ const i18n = {
     init: () => {
         return new Promise((resolve, reject) => {
             i18next
-                .use(languageDetector)
-                .use(translationLoader)
+                .use(languageDetector)//
+                .use(translationLoader)//
                 .init({
                     fallbackLng: config.fallback,
                     ns: config.namespaces,
@@ -30,6 +49,7 @@ const i18n = {
                         }
                     },
                 }, (error) => {
+                    console.log('end');
                     if (error) { return reject(error); }
                     date.init(i18next.language)
                         .then(resolve)
@@ -57,7 +77,8 @@ const i18n = {
      * @returns {boolean}
      */
     get isRTL() {
-        return RNI18nManager.isRTL;
+        // return RNI18nManager.isRTL;
+        return false;
     },
     /**
      * Similar to React Native's Platform.select(),
@@ -73,10 +94,12 @@ const i18n = {
         const key = this.isRTL ? 'rtl' : 'ltr';
         return map[key];
     },
-    changeLanguage(lng:string, callback: Callback|undefined) {
+    changeLanguage(lng:string, callback?: Callback) {
         return i18next.changeLanguage(lng, callback)
     }
 };
+
+i18n.init();
 
 export const t = i18n.t;
 
