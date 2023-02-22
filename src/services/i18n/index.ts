@@ -8,7 +8,7 @@ import date from './date';
 import languageDetector from './language-detector';
 import translationLoader from './translation-loader';
 
-import 'intl-pluralrules'
+// import 'intl-pluralrules'
 
 /*
  "i18n-js": "^4.2.2",
