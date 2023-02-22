@@ -25,7 +25,7 @@ if( !lazyLoading ) {
     lazyLoading = new I18N();
 }
 
-const i18next = lazyLoading;
+const i18next = lazyLoading ? lazyLoading : new I18N();
 
 const i18n = {
     /**
@@ -99,7 +99,7 @@ const i18n = {
     }
 };
 
-i18n.init();
+// i18n.init();
 
 export const t = i18n.t;
 

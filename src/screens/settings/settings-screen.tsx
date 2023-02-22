@@ -41,8 +41,12 @@ export default function SettingsScreen() {
     };
 
     useEffect(() => {
-        console.log('i18n.locale: ', i18n.locale);
-        setLanguage( i18n.locale );
+        if( i18n.locale ) {
+            console.log('i18n.locale: ', i18n.locale);
+            setLanguage( i18n.locale );
+        } else {
+            console.warn('No locale found');
+        }
 
         settingDao.find('language').then(setting => {
             if( setting ) {
