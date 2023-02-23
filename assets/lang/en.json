@@ -62,7 +62,8 @@
         "revenues_name": "Revenue name",
         "revenues_enter_name": "Enter the account name",
         "revenues_enter_amount": "Enter the amount",
-        "revenues_due_date": "Due date"
+        "revenues_due_date": "Due date",
+        "select_language": "Select language"
     },
     "menus": {
         "categories": "Categories",

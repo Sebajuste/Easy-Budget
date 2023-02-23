@@ -1,5 +1,7 @@
+import { LangConfig } from "./i18n";
+
 export const fallback = "en";
-export const supportedLocales = {
+export const supportedLocales : {[lang:string]:LangConfig} = {
     en: {
         name: "English",
         translationFileLoader: () => require('../../../assets/lang/en.json'),

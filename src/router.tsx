@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { DrawerActions, NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigationOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Text, ThemeProvider } from "react-native-rapi-ui";
-import { Button, StyleSheet, TouchableOpacity, useWindowDimensions, Pressable, View } from 'react-native';
+import { ThemeProvider } from "react-native-rapi-ui";
+import { TouchableOpacity, useWindowDimensions, Pressable, View, ActivityIndicator } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -30,9 +30,13 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 
 import { CategoryListScreen } from "./screens/category/category-list-screen";
 import { DatabaseScreen } from "./screens/database/database-screen";
-import { t } from "./services/i18n";
+import { LanguageContext, t } from "./services/i18n";
 import DrawerContent from "./screens/drawer/left-drawer";
 import SettingsScreen from "./screens/settings/settings-screen";
+import { DAOFactory, DATABASE_TYPE } from "./services/dao-manager";
+import { DaoType } from "./services/dao";
+import { styles } from "./styles";
+import InitConfigScreen from "./screens/settings/init-config-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,7 +67,7 @@ const TabButton = ({item, onPress, accessibilityState} : any) => {
                 viewRef.current.animate({0: {scale: 1.5}, 1: {scale: 1}});
             }
         }
-    }, [focused])
+    }, [focused]);
 
     return (
         <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={1} >
@@ -90,7 +94,7 @@ function BudgetStackScreen({navigation} : any) {
                 headerRight: () => ( item.headerRight ? (<Pressable style={{padding: 15}} onPress={() => navTo(navigation, item.headerRight.route)} ><Icon name={item.headerRight.icon} style={{fontSize: 17}} /></Pressable>) : null )
             } as BottomTabNavigationOptions;
         }
-        return (<Tab.Screen key={index} name={item.route} component={item.component} options={optionsHandler} style={styles.screen} ></Tab.Screen>);
+        return (<Tab.Screen key={index} name={item.route} component={item.component} options={optionsHandler} ></Tab.Screen>);
     });
 
     return (
@@ -111,23 +115,68 @@ function BudgetStackScreen({navigation} : any) {
 
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    screen: {
-        paddingBottom: 16
-    }
-});
+const Drawer = createDrawerNavigator();
 
+function AppDrawer() {
 
+    // const dimension = useWindowDimensions();
+    // const drawerType = dimension.width >= 700 ? 'permanent' : 'front';
 
-function MainStackScreen({navigation} : any) {
-
+    // drawerType={drawerType} edgeWith={300}
     return (
-        <Stack.Navigator>
+        <Drawer.Navigator
+            initialRouteName="Main"
+            drawerContent={(props) => <DrawerContent {...props} /> }
+        >
+            <Drawer.Screen name="Main" component={BudgetStackScreen} options={{headerShown: false, title: t('menus:home') }} />
+            <Drawer.Screen name="Categories" component={CategoryListScreen} options={{title: t('menus:categories') }} />
+            <Drawer.Screen name="TutoScreen" component={TutoScreen} options={{title: t('menus:tutorial') }} />
+            <Drawer.Screen name="SettingsScreen" component={SettingsScreen} options={{title: t('menus:settings') }} />
+            <Drawer.Screen name="Database" component={DatabaseScreen} options={{title: t('menus:database') }} />
+        </Drawer.Navigator>
+    );
+
+}
+
+function MainStackScreen() {
+
+    const [isInit, setIsInit] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+
+    const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
+
+    useEffect(() => {
+        setLoading(true);
+        settingsDao.find('language').then(r => {
+            console.log('check init with lang : ', r)
+            if( r ) {
+                setIsInit(true);
+                // navigation.navigate('Drawer');
+            } else {
+                setIsInit(false);
+            }
+
+        }).finally(() => {
+            setLoading(false);
+        })
+
+    }, []);
+
+    if( loading ) {
+        return (
+            <View style={styles.loadingScreen}>
+                <ActivityIndicator />
+            </View>
+        );
+    }
+
+    // initialRouteName={isInit ? "Drawer" : "InitConfigScreen"}
+    return (
+        <Stack.Navigator >
+
+            <Stack.Screen name="InitConfigScreen" component={InitConfigScreen} options={{ headerShown: false }}/>
+
             <Stack.Screen name="Drawer" component={AppDrawer} options={{ headerShown: false }}/>
             
             <Stack.Screen name="CreateRevenue" component={ RevenueScreen } options={{title: t('title:revenue_new')}}/>
@@ -162,93 +211,58 @@ function MainStackScreen({navigation} : any) {
 
 
 
-const Drawer = createDrawerNavigator();
-
-
-
-function AppDrawer() {
-
-    const dimension = useWindowDimensions();
-    const drawerType = dimension.width >= 700 ? 'permanent' : 'front';
-
-    return (
-        <Drawer.Navigator
-            initialRouteName="Main"
-            drawerType={drawerType}
-            edgeWith={300}
-            drawerContent={(props) => <DrawerContent {...props} /> }
-        >
-            <Drawer.Screen name="Main" component={BudgetStackScreen} options={{headerShown: false, title: t('menus:home') }} />
-            <Drawer.Screen name="Categories" component={CategoryListScreen} options={{title: t('menus:categories') }} />
-            <Drawer.Screen name="TutoScreen" component={TutoScreen} options={{title: t('menus:tutorial') }} />
-            <Drawer.Screen name="SettingsScreen" component={SettingsScreen} options={{title: t('menus:settings') }} />
-            <Drawer.Screen name="Database" component={DatabaseScreen} options={{title: t('menus:database') }} />
-        </Drawer.Navigator>
-    );
-
-}
-
-
-
-type ErrorBundaryState = {
-    hasError: boolean;
-    error?: any;
-    errorInfo?: any;
-};
-
-class ErrorBundary extends React.Component<any, ErrorBundaryState> {
-
-    constructor(props : any) {
-        super(props);
-        this.state = {
-            hasError: false
-        };
-    }
-
-    static getDerivedStateFromError(error:any) {
-        return { hasError: true, error: error };
-    }
-
-    componentDidCatch(error:any, errorInfo:any) {
-        // errorService.log({ error, errorInfo });
-        console.error('Error : ', error);
-        console.error('Error info : ', JSON.stringify(errorInfo) );
-        /*
-        this.setState({
-            error: error,
-            errorInfo: errorInfo,
-          });
-          */
-    }
-
-
-    render() {
-
-        if (this.state.hasError) {
-            return (
-                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text>Oops, something went wrong.</Text>
-                    { this.state.error ? (<Text>Error: {this.state.error.toString()}</Text>) : null }
-                    { this.state.errorInfo ? (<Text>Error Info: {JSON.stringify(this.state.errorInfo.toString())}</Text>) : null }
-                </View>
-            );
-        }
-        return this.props.children; 
-    }
-
-}
 
 
 export default function Router() {
 
+    /*
+    const { language } = useContext(LanguageContext);
+
+    const [isInit, setIsInit] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+
+    const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
+
+    useEffect(() => {
+        setLoading(true);
+        settingsDao.find('language').then(r => {
+            console.log('check init with lang : ', r)
+            if( r ) {
+                setIsInit(true);
+            } else {
+                setIsInit(false);
+            }
+
+        }).finally(() => {
+            setLoading(false);
+        })
+
+    }, []);
+    
+
+
+    if( loading ) {
+        return (
+            <View style={styles.loadingScreen}>
+                <ActivityIndicator />
+            </View>
+        );
+    }
+
+    if( !isInit ) {
+        return (
+            <InitConfigScreen />
+        );
+    }
+    */
+
     return (
-        <ErrorBundary>
-            <ThemeProvider theme="light">
-                <NavigationContainer>
-                    <MainStackScreen />
-                </NavigationContainer>
-            </ThemeProvider>
-        </ErrorBundary>
+        <ThemeProvider theme="light">
+            <NavigationContainer>
+                <MainStackScreen />
+            </NavigationContainer>
+        </ThemeProvider>
     );
 
 }

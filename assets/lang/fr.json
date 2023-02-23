@@ -7,7 +7,7 @@
         "edit": "Modifier",
         "fill": "Remplir",
         "pay": "Payer",
-        "save": "Save",
+        "save": "Sauvegarder",
         "start_tutorial": "Démarrer le tutoriel"
     },
     "common": {
@@ -62,7 +62,8 @@
         "revenues_name": "Nom du revenu",
         "revenues_enter_name": "Entrez le nom de ce revenu",
         "revenues_enter_amount": "Entrez la quantité",
-        "revenues_due_date": "Date de réception"
+        "revenues_due_date": "Date de réception",
+        "select_language": "Sélectionez la langue"
     },
     "menus": {
         "categories": "Categories",
