@@ -17,10 +17,12 @@ export class DatabaseManagerSQLite extends DatabaseManager {
     constructor() {
         super();
         this.error = null;
+        /*
         this.open().then(db => {
             console.log('DB opened');
             this.init();
         }).catch(console.error);
+        */
     }
 
     public get client() : SQLite.WebSQLDatabase {
@@ -326,7 +328,26 @@ export class DatabaseManagerSQLite extends DatabaseManager {
     }    
 }
 
-export const DB_MANAGER_SQLite = new DatabaseManagerSQLite();
+export let DB_MANAGER_SQLite : DatabaseManagerSQLite; // = new DatabaseManagerSQLite();
+
+export const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve, reject) => {
+    DB_MANAGER_SQLite = new DatabaseManagerSQLite();
+    DB_MANAGER_SQLite.open().then(db => {
+        console.log('DB opened');
+        return DB_MANAGER_SQLite.init();
+    })//
+    .then(r => {
+        resolve(DB_MANAGER_SQLite.client);
+    }, err => {
+        reject(err);
+    })//
+    .catch(console.error);
+    
+});
+
+export function sqlite_client_async() {
+    return sqlite_client_future;
+}
 
 export const sqlite_client = () : SQLite.WebSQLDatabase => {
     return DB_MANAGER_SQLite.client;

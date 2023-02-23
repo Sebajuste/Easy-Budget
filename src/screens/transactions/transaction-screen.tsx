@@ -1,23 +1,17 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { StackActions, useIsFocused } from "@react-navigation/native";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
+
 import { SelectDateComponent } from "../../components/select-date";
-import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { StackActions, useIsFocused } from "@react-navigation/native";
-import { Account, AccountDao } from "../../services/account";
+import { Envelope } from "../../services/envelope";
+import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
+import { AccountTransaction, TransactionType } from "../../services/transaction";
 import { DaoType } from "../../services/dao";
 
-
-const incomeOutcomeItems = [{
-    label: 'Outcome',
-    value: TransactionType.OUTCOME.toString(),
-}, {
-    label: 'Income',
-    value: TransactionType.INCOME.toString(),
-}];
+import { t } from "../../services/i18n";
 
 
 export function AccountTransactionScreen({navigation, route} : any) {
@@ -36,19 +30,13 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const [accountItems, setAccountItems] = useState<any[]>([]);
 
-    // const [envelopID, setEnvelopeID] = useState( transaction ? transaction.envelope_id : '' );
-
     const [envelope, setEnvelope] = useState<Envelope|null>();
 
-    // const [accountID, setAccountID] = useState<string|undefined>();
+    const [account, setAccount] = useState<Account|null>( route.params?.account || null );
 
-    const [account, setAccount] = useState<Account|null>();
+    console.log('route.params?.account ', route.params?.account, ' -> ', account)
 
     const isFocused = useIsFocused();
-
-    // const transactionDao = DAOFactory.getDAO<AccountTransaction>(AccountTransactionDao, DATABASE_TYPE); // getDao<AccountTransactionDao>(AccountTransactionDao, DATABASE_TYPE);
-    // const accountDao = DAOFactory.getDAO<Account>(AccountDao, DATABASE_TYPE); // getDao<AccountDao>(AccountDao, DATABASE_TYPE);
-    // const envelopeDao = DAOFactory.getDAO<Envelope>(EnvelopeDao, DATABASE_TYPE); // getDao<EnvelopeDao>(EnvelopeDao, DATABASE_TYPE);
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
     const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
@@ -74,7 +62,6 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.reconciled = false;
             
             transactionDao.add(transaction).then(result => {
-                console.log(`Result : ${result ? 'true' : 'false' }`)
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
@@ -92,7 +79,6 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.type = type;
 
             transactionDao.add(transaction).then(result => {
-                console.log(`Result : ${result ? 'true' : 'false' }`)
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
@@ -105,9 +91,16 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     };
 
+    const incomeOutcomeItems = [{
+        label: t('common:outcome'),
+        value: TransactionType.OUTCOME.toString(),
+    }, {
+        label: t('common:income'),
+        value: TransactionType.INCOME.toString(),
+    }];
+
     useEffect(() => {
         
-
         envelopeDao.load().then(envelopes => {
 
             if( transaction ) {
@@ -123,14 +116,10 @@ export function AccountTransactionScreen({navigation, route} : any) {
         }).then(setEnvelopItems);
 
         accountDao.load().then(accounts => {
-
-            // setAccount( _.find(accounts, item => item._id == accountID) );
-
             return accounts.map(account => {
                 return {
                     label: `${account.name} [${account.balance}]`,
-                    // value: account._id
-                    value: `${account._id}`
+                    value: `${account._id}`.trim()
                 };
             });
         }).then(setAccountItems);
@@ -140,13 +129,12 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     return (
         <Layout style={{margin: 10}}>
-            
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Transation name</Text>
+                        <Text style={{ fontSize: 12 }}>{t('common:transaction_name')}</Text>
                         <TextInput
-                            placeholder="Enter the transaction name"
+                            placeholder={t('forms:enter_transaction_name')}
                             value={name}
                             onChangeText={(val) => setName(val)}
                         />
@@ -156,12 +144,12 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
 
                     <View>
-                        <Text style={{ fontSize: 12 }}>Type</Text>
-                        <Picker placeholder="Type" items={incomeOutcomeItems} value={type.toString()} onValueChange={(value:string) => setType(TransactionType[value]) } />
+                        <Text style={{ fontSize: 12 }}>{t('common:type')}</Text>
+                        <Picker placeholder={t('type')} items={incomeOutcomeItems} value={type.toString()} onValueChange={(value:string) => setType(TransactionType[value]) } />
                     </View>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Amount</Text>
+                        <Text style={{ fontSize: 12 }}>{t('common:amount')}</Text>
                         <TextInput
                             placeholder="0.00"
                             value={amount}
@@ -175,17 +163,17 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
                     { envelope ? (
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
-                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>Envelope : { envelope?.name } </Text>
+                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelop')}: { envelope?.name } </Text>
                         { envelope && parseFloat(amount) > envelope.funds ?
-                            <Button text="FILL" onPress={fillHandler} ></Button>
+                            <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
                         :
                             null
                         }
                         </View>
                     ) : (
                         <View>
-                            <Text style={{ fontSize: 12 }}>Envelope </Text>
-                            <Picker placeholder="Envelope" items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
+                            <Text style={{ fontSize: 12 }}>{t('common:envelop')}</Text>
+                            <Picker placeholder={t('common:envelop')} items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
                         </View>
                     ) }
                 </View>
@@ -194,25 +182,28 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>Account</Text>
-                        <Picker placeholder="Account" items={accountItems} value={ `${account?._id}` } onValueChange={setAccountHandler} ></Picker>
+                        <Text style={{ fontSize: 12 }}>{t('common:account')}</Text>
+                        { route.params?.account ? (
+                            <Text style={{margin: 10, padding: 10, borderWidth: 1, borderRadius: 5, borderColor: 'grey'}}>{ account?.name }</Text>
+                        ) : (
+                            <Picker placeholder={t('common:account')} items={accountItems} value={ `${account?._id}`.trim() } onValueChange={setAccountHandler} ></Picker>
+                        )}
+                        
                     </View>
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
-                        <SelectDateComponent label="Date" date={date} onChange={(newDate: Date) => setDate(newDate) } />
+                        <SelectDateComponent label={t('common:date')} date={date} onChange={(newDate: Date) => setDate(newDate) } />
                     </View>
                 </View>
 
                 { type == TransactionType.OUTCOME ? (
-                    <Button text="PAY" disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
+                    <Button text={t('buttons:pay')} disabled={ !account || !envelope || parseFloat(amount) > account.balance || parseFloat(amount) > envelope.funds } onPress={outcomeHandler} />
                 ) : (
-                    <Button text="ADD" disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />
+                    <Button text={t('buttons:add')} disabled={ !account || parseFloat(amount) < 0 } onPress={incomeHandler} />
                 ) }
 
-                
-            
         </Layout>
     );
 

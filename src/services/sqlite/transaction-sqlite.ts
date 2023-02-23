@@ -57,7 +57,10 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
         const SQL_ENVELOPE = `UPDATE t_envelope_evp SET evp_current_amount = evp_current_amount - ? WHERE evp_id = ?`;
 
-        const SQL_ACCOUNT = `UPDATE t_account_act SET act_balance = act_balance - ? WHERE act_id = ?`;
+        const SQL_ACCOUNT = `UPDATE t_account_act
+            SET act_balance = act_balance - ?,
+            act_envelope_balance = act_envelope_balance - ?
+            WHERE act_id = ?`;
 
         const params = [
             transaction.name,
@@ -86,7 +89,13 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                     });
                 }
 
-                await tx.executeSql(SQL_ACCOUNT, [ (transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount), transaction.account_id], (_, { insertId }) => {
+                const accountParams = [
+                    (transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount),
+                    (transaction.type == TransactionType.OUTCOME ? 0 : -transaction.amount),
+                    transaction.account_id
+                ];
+
+                await tx.executeSql(SQL_ACCOUNT, accountParams, (_, { insertId }) => {
                 }, (tx, err) => {
                     console.error('Error update account', err);
                     console.error(err);

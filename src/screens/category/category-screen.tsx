@@ -10,6 +10,7 @@ import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
 import ErrorMessage from "../../components/error-message";
 import { DaoType } from "../../services/dao";
+import { t } from "../../services/i18n";
 
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
@@ -90,9 +91,9 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
             <ErrorMessage error={error} />
 
             <View style={{margin: 2}}>
-                <Text style={{ marginBottom: 10 }}>Category name</Text>
+                <Text style={{ marginBottom: 10 }}>{ t('forms:category_name') }</Text>
                 <TextInput
-                    placeholder="Enter the category name"
+                    placeholder={ t('forms:enter_category_name') }
                     value={name}
                     onChangeText={(val) => setName(val)}
                 />
@@ -106,8 +107,8 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
             </View>
 
             <View style={{ flexDirection: 'row'}}>
-                { category ? <Button style={{margin: 5, flexGrow: 1}} status="danger" text="DELETE" disabled={deleteDisabled} onPress={deleteHandler}></Button> : <></> }
-                <Button style={{margin: 5, flexGrow: 1}} status="primary" text="SAVE" disabled={name.trim().length == 0} onPress={saveHandler}></Button>
+                { category ? <Button style={{margin: 5, flexGrow: 1}} status="danger" text={ t('common:delete') } disabled={deleteDisabled} onPress={deleteHandler}></Button> : <></> }
+                <Button style={{margin: 5, flexGrow: 1}} status="primary" text={ t('common:save') } disabled={name.trim().length == 0} onPress={saveHandler}></Button>
             </View>
         </Layout>
     );

@@ -6,7 +6,10 @@ import { Button, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Revenue } from "../../services/revenue";
+
+import { t } from "../../services/i18n";
+import { Revenue, RevenueDao } from "../../services/revenue";
+
 import { scroll_styles } from "../../styles";
 
 
@@ -65,12 +68,12 @@ export default function RevenueListScreen({navigation, onChange} : {navigation: 
     return (
         <SafeAreaView style={scroll_styles.container}>
             <ScrollView style={scroll_styles.scrollView}>
-                <Text style={{textAlign: 'right', margin: 10}}>All revenues : {total} €</Text>
+                <Text style={{textAlign: 'right', margin: 10}}>{t('common:all_revenues')} : {total} €</Text>
                 {revenue_items}
             </ScrollView>
 
             <View style={{flex: 1, margin: 20, justifyContent: 'center', alignItems: 'center'}}>
-                <Button text="ADD" onPress={addRevenueHandler} />
+                <Button text={t('buttons:add')} onPress={addRevenueHandler} />
             </View>
 
         </SafeAreaView>

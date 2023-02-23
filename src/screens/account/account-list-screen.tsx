@@ -8,6 +8,8 @@ import _ from 'lodash';
 import { Account, AccountDao } from "../../services/account";
 import { scroll_styles } from "../../styles";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+
+import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
 import ErrorMessage from "../../components/error-message";
 
@@ -52,8 +54,8 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
                 <Section style={{margin: 5}} key={index}>
                     <SectionContent >
                         <Text>{account.name}</Text>
-                        <Text>{account.balance} €</Text>
-                        <Text>[{account.envelope_balance}] €</Text>
+                        <Text>{account.balance.toFixed(2)} €</Text>
+                        <Text>[{account.envelope_balance.toFixed(2)}] €</Text>
                     </SectionContent>
                 </Section>
             </TouchableHighlight>
@@ -69,12 +71,12 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
-                    <Text style={{textAlign: 'right', margin: 10}}>All accounts : {total} €</Text>
+                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total} €</Text>
                     {accounts_items}
                 </ScrollView>
             ) : (
                 <View style={{flex: 1, margin: 20, justifyContent: 'center', alignItems: 'center'}}>
-                    <Button text="Add your first account" onPress={addAccountHandler} />
+                    <Button text={ t('buttons:add_first_account')} onPress={addAccountHandler} />
                 </View>
             )}
         </SafeAreaView>

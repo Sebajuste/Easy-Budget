@@ -29,6 +29,8 @@ async function checkDatabase() {
       .then(accounts => _.map(accounts, account => account.balance - account.envelope_balance))//
       .then(totals => _.sum(totals));
   
+    console.log(`total_account_filled: ${total_account_filled}, total_funds: ${total_funds}`);
+
     return Math.abs(total_account_filled - total_funds) < 0.001;
     
 }

@@ -5,16 +5,24 @@ import { StatusBar } from 'expo-status-bar';
 export const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      // backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
     },
-  
+    screen: {
+      paddingBottom: 16
+    },
     expense_valid: {
       color: 'green'
     },
     expense_invalid: {
       color: 'red'
+    },
+
+    loadingScreen: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
     }
   
 });
