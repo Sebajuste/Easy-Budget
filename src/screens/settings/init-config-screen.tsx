@@ -1,6 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
-import { CommonActions } from "@react-navigation/native";
+import { useContext, useEffect, useRef } from "react";
+import { Image, Platform, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable';
 
@@ -10,7 +9,43 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 
 
+const FOCUSED = {
+    scale: 1.1,
+    ...Platform.select({
+        ios: {
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 4,
+                height: 5,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 5,
+        },
+        android: {
+            elevation: 10,
+            borderRadius: 10
+        }
+    })
+};
 
+const UNFOCUSED = {
+    scale: 1,
+    ...Platform.select({
+        ios: {
+            shadowColor: "transparent",
+            shadowOffset: {
+                width: 0,
+                height: 5,
+            },
+            shadowOpacity: 0.34,
+            shadowRadius: 0,
+        },
+        android: {
+            elevation: 0,
+            borderRadius: 0
+        }
+    })
+};
 
 function LangButton({image, onPress, focused} : any) {
 
@@ -19,17 +54,17 @@ function LangButton({image, onPress, focused} : any) {
     useEffect( () => {
         if (viewRef && viewRef.current ) {
             if( focused ) {
-                viewRef.current.animate({0: {scale: 1}, 1: {scale: 1.1}});
+                viewRef.current.animate({0: UNFOCUSED, 1: FOCUSED});
             } else {
-                viewRef.current.animate({0: {scale: 1.1}, 1: {scale: 1}});
+                viewRef.current.animate({0: FOCUSED, 1: UNFOCUSED});
             }
         }
     }, [focused]);
 
     return (
-        <Pressable onPress={ onPress }>
+        <Pressable onPress={onPress} style={{margin: 16}}>
             <Animatable.View ref={viewRef} duration={500}>
-                <Image source={ image } style={{margin: 16, height: 128, width: 128, resizeMode: 'cover'}} />
+                <Image source={ image } style={{height: 128, width: 128, resizeMode: 'cover'}} />
             </Animatable.View>
         </Pressable>
     );

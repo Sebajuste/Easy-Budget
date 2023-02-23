@@ -63,7 +63,7 @@
         "revenues_enter_name": "Entrez le nom de ce revenu",
         "revenues_enter_amount": "Entrez la quantité",
         "revenues_due_date": "Date de réception",
-        "select_language": "Sélectionez la langue"
+        "select_language": "Sélectionnez la langue"
     },
     "menus": {
         "categories": "Categories",
