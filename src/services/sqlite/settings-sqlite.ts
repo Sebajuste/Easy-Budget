@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import { Settings, SettingsDao } from '../settings';
-import { sqlite_client } from "./database-manager-sqlite";
+import { sqlite_client, sqlite_client_async } from "./database-manager-sqlite";
 
 
 export class SettingsDaoSQLite extends SettingsDao {
@@ -23,13 +23,27 @@ export class SettingsDaoSQLite extends SettingsDao {
 
     }
 
-    find(selector: any) : Promise<Settings|null> {
+    async find(selector: any) : Promise<Settings|null> {
 
         const SQL = `SELECT set_name as name, set_value as value FROM t_settings_set WHERE set_name = ?`;
 
+        const client = await sqlite_client_async();
+
+        return new Promise<Settings|null>((resolve, reject) => {
+            client.transaction(tx => {
+                tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
+                    resolve(_array.length > 0 ? _array[0] : null);
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+            });
+        });
+
+        /*
         return new Promise<Settings|null>((resolve, reject) => {
 
-            const client = sqlite_client();
+            const client = await sqlite_client_async();
 
             if( client ) {
                 client.transaction(tx => {
@@ -44,8 +58,8 @@ export class SettingsDaoSQLite extends SettingsDao {
                 reject('DB not ready');
             }
 
-            
         });
+        */
     }
 
     add(settings: Settings): Promise<string | number | undefined> {

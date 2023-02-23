@@ -49,7 +49,7 @@ const navTo = (navigation: any, pageName : string) => {
 
 const TABS_LIST = [
     {label: 'common:home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
-    {label: 'common:envelops', route: 'Envelops', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelope'} },
+    {label: 'common:envelops', route: 'Envelops', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelop'} },
     {label: 'common:revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro', headerRight: {icon: 'plus', route: 'CreateRevenue'} },
     {label: 'common:accounts', route: 'Accounts', component: AccountListScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
 ]
@@ -98,7 +98,7 @@ function BudgetStackScreen({navigation} : any) {
     });
 
     return (
-        <Tab.Navigator screenOptions={{
+        <Tab.Navigator initialRouteName="Home" screenOptions={{
             headerShown: true,
             tabBarStyle: {
                 height: 60,
@@ -171,9 +171,8 @@ function MainStackScreen() {
         );
     }
 
-    // initialRouteName={isInit ? "Drawer" : "InitConfigScreen"}
     return (
-        <Stack.Navigator >
+        <Stack.Navigator initialRouteName={isInit ? "Drawer" : "InitConfigScreen"}>
 
             <Stack.Screen name="InitConfigScreen" component={InitConfigScreen} options={{ headerShown: false }}/>
 
@@ -214,48 +213,6 @@ function MainStackScreen() {
 
 
 export default function Router() {
-
-    /*
-    const { language } = useContext(LanguageContext);
-
-    const [isInit, setIsInit] = useState(false);
-
-    const [loading, setLoading] = useState(false);
-
-    const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
-
-    useEffect(() => {
-        setLoading(true);
-        settingsDao.find('language').then(r => {
-            console.log('check init with lang : ', r)
-            if( r ) {
-                setIsInit(true);
-            } else {
-                setIsInit(false);
-            }
-
-        }).finally(() => {
-            setLoading(false);
-        })
-
-    }, []);
-    
-
-
-    if( loading ) {
-        return (
-            <View style={styles.loadingScreen}>
-                <ActivityIndicator />
-            </View>
-        );
-    }
-
-    if( !isInit ) {
-        return (
-            <InitConfigScreen />
-        );
-    }
-    */
 
     return (
         <ThemeProvider theme="light">

@@ -138,7 +138,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
 
     const createEnvelopeHandler = () => {
-      navigation.navigate('CreateEnvelope');
+      navigation.navigate('CreateEnvelop');
     };
 
     useEffect(() => {

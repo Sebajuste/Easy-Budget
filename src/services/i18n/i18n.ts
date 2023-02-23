@@ -12,7 +12,7 @@ export interface LangConfig {
 export type TranslationWords = {[key:string]:string};
 export type LangResource = {[namespace:string]:TranslationWords};
 
-export function t(key: string) : string {
+export function t(key: string, options?: any) : string {
 
     const parts = key.split(':');
     const namespace = parts[0];

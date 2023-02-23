@@ -24,7 +24,8 @@ import { DaoType } from "../../services/dao";
 export function TutoFinalScreen({navigation} : any) {
 
     const closeHandler = () => {
-        navigation.navigate({name: 'Home'});
+        // navigation.navigate({name: 'Home'});
+        navigation.navigate('Main', { screen: 'Home' });
     };
 
     return (

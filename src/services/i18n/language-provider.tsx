@@ -21,6 +21,9 @@ export function LanguageProvider({ children }: any) {
             if( setting ) {
                 setLanguage(setting.value);
             }
+        }).catch(err => {
+            console.error('Cannot init LanguageProvider');
+            console.error(err);
         }).finally(() => {
             setIsI18nInitialized(true);
         });
@@ -41,8 +44,6 @@ export function LanguageProvider({ children }: any) {
         </View>
     );
 
-    
-    
 }
 
 

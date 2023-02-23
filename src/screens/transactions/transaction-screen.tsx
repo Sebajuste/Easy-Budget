@@ -32,7 +32,9 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const [envelope, setEnvelope] = useState<Envelope|null>();
 
-    const [account, setAccount] = useState<Account|null>();
+    const [account, setAccount] = useState<Account|null>( route.params?.account || null );
+
+    console.log('route.params?.account ', route.params?.account, ' -> ', account)
 
     const isFocused = useIsFocused();
 
@@ -117,7 +119,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
             return accounts.map(account => {
                 return {
                     label: `${account.name} [${account.balance}]`,
-                    value: `${account._id}`
+                    value: `${account._id}`.trim()
                 };
             });
         }).then(setAccountItems);
@@ -161,7 +163,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
                     { envelope ? (
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
-                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.name } </Text>
+                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelop')}: { envelope?.name } </Text>
                         { envelope && parseFloat(amount) > envelope.funds ?
                             <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
                         :
@@ -181,7 +183,12 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{flex: 1, margin: 2}}>
                         <Text style={{ fontSize: 12 }}>{t('common:account')}</Text>
-                        <Picker placeholder={t('common:account')} items={accountItems} value={ `${account?._id}` } onValueChange={setAccountHandler} ></Picker>
+                        { route.params?.account ? (
+                            <Text style={{margin: 10, padding: 10, borderWidth: 1, borderRadius: 5, borderColor: 'grey'}}>{ account?.name }</Text>
+                        ) : (
+                            <Picker placeholder={t('common:account')} items={accountItems} value={ `${account?._id}`.trim() } onValueChange={setAccountHandler} ></Picker>
+                        )}
+                        
                     </View>
                 </View>
 

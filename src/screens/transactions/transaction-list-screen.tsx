@@ -54,7 +54,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
     const newTransactionHandler = () => {
-        navigation.navigate({name: 'Transaction'});
+        navigation.navigate({name: 'Transaction', params: {account: account}});
     };
 
     const transactionRenderHandler = ({item, index} : {item: AccountTransaction, index: number}) => (
