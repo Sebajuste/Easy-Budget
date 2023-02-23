@@ -32,6 +32,7 @@
         "envelops": "Envelopes",
         "fill_auto": "Remplissage automatique",
         "home": "Principal",
+        "language": "Langue",
         "last_transactions": "Dernières transactions",
         "montly": "Mensuel",
         "next_paiements": "Prochains paiements",
@@ -64,10 +65,11 @@
         "revenues_due_date": "Date de réception"
     },
     "menus": {
-        "home": "Principal",
         "categories": "Categories",
+        "database": "Base de données",
+        "home": "Principal",
         "tutorial": "Tutorial",
-        "database": "Base de données"
+        "settings": "Paramètres"
     },
     "title": {
         "category_new": "Nouvelle category",

@@ -1,4 +1,8 @@
 import _ from 'lodash';
+import React, { useContext, useState } from 'react';
+
+import { LanguageContext } from './language-context';
+import * as config from './config.i18n';
 
 export type TranslationWords = {[key:string]:string} | null;
 
@@ -38,11 +42,42 @@ interface SetupI18N {
     interpolation: Interpolation;
 }
 
+
+
+
+export const t = (key: string) => {
+    
+    const { language } = useContext(LanguageContext);
+
+    const parts = key.split(':');
+    const namespace = parts[0];
+    const value = parts.slice(1).join(':');
+
+    
+    if( ! config.supportedLocales[language] ) {
+        return key;
+    }
+
+    const resource : Resource = config.supportedLocales[language].translationFileLoader() as Resource;
+
+    const words = resource[namespace];
+    if( words ) {
+        return words[value];
+    }
+    return key;
+    
+};
+
+
+/**
+ * 
+ */
+
 export type Callback = (err?:any, r?:any) => void;
 
 let CACHE_RESOURCE : Resource | undefined;
 
-export default class I18N {
+export class I18N {
 
     private setup : SetupI18N|undefined;
 

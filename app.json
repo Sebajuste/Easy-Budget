@@ -2,7 +2,7 @@
   "expo": {
     "name": "easy-budget",
     "slug": "easy-budget",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "privacy": "unlisted",
     "icon": "./assets/icon.png",

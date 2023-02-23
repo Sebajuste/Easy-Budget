@@ -1,12 +1,13 @@
 // import i18next, { Callback } from 'i18next';
 // import { I18nManager as RNI18nManager } from 'react-native';
 
-import I18N, { Callback } from './i18n';
+import {I18N, Callback, t as i18n_t } from './i18n';
 
 import * as config from './config.i18n';
 import date from './date';
 import languageDetector from './language-detector';
 import translationLoader from './translation-loader';
+
 
 // import 'intl-pluralrules'
 
@@ -62,7 +63,10 @@ const i18n = {
      * @param {Object} options
      * @returns {string}
      */
-    t: (key:string, options?: any) : string => i18next.t(key, options) as any,
+    t: (key:string, options?: any) : string => {
+        // return i18next.t(key, options) as any
+        return i18n_t(key);
+    },
     /**
      * @returns {string}
      */

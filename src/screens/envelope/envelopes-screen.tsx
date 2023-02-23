@@ -202,6 +202,10 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
             />;
     };
 
+
+    const cost_per_year = t('common:cost_per_year');
+    const cost_per_month = t('common:cost_per_month');
+
     const renderFooterHandler = ({section} : any) => {
  
       const total_year = budgetPerYear(section.data[0]);
@@ -209,12 +213,12 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
       return (
         <Section>
           <SectionContent style={{backgroundColor: 'inherit'}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{flex: 2}}>{t('common:cost_per_year')} : </Text>
+          <View style={{flexDirection: 'row'}}>
+              <Text style={{flex: 2}}>{cost_per_year} : </Text>
               <Text style={{textAlign: 'right'}}> {total_year.toFixed(2)} €</Text>
             </View>
             <View style={{flexDirection: 'row'}}>
-              <Text style={{flex: 2}}>{t('common:cost_per_month')} : </Text>
+              <Text style={{flex: 2}}>{cost_per_month} : </Text>
               <Text style={{textAlign: 'right'}}>{(total_year/12).toFixed(2)} €</Text>
             </View>
           </SectionContent>

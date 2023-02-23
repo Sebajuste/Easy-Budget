@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'; // I18nManag
 
 import Router from './src/router';
 import i18n from './src/services/i18n';
+import { LanguageProvider } from './src/services/i18n/language-provider';
 
 
 function test() {
@@ -20,10 +21,12 @@ function test() {
 
 export default function App() {
 
+
+  /*
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
 
   useState(() => {
-    /*
+    
     i18n.init()
       .then(() => {
         console.log('test')
@@ -31,13 +34,13 @@ export default function App() {
         setIsI18nInitialized(true);
       })
       .catch((error) => console.error(error));
-    */
+    
     setIsI18nInitialized(true);
   }, []);
 
   if( isI18nInitialized ) {
     return (
-      <Router />
+        <Router />
     );
   }
 
@@ -45,6 +48,13 @@ export default function App() {
     <View style={styles.loadingScreen}>
         <ActivityIndicator />
     </View>
+  );
+  */
+
+  return (
+    <LanguageProvider>
+      <Router />
+    </LanguageProvider>
   );
 
 }
