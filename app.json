@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "easy-budget",
+    "name": "Easy Budget",
     "slug": "easy-budget",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
+    "privacy": "unlisted",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -18,7 +19,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sebajuste.easybudget"
     },
     "android": {
       "package": "com.sebajuste.easybudget",
@@ -30,6 +32,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dfd08850-848b-4a2c-b932-e5cacbfcd448"
+      }
     }
   }
 }
