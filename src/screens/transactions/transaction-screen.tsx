@@ -107,10 +107,10 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 setEnvelope( _.find(envelopes, env => env._id == transaction.envelope_id) );
             }
 
-            return envelopes.map(envelop => {
+            return envelopes.map(envelope => {
                 return {
-                    label: `${envelop.name} [${envelop.funds}]`,
-                    value: envelop._id
+                    label: `${envelope.name} [${envelope.funds}]`,
+                    value: envelope._id
                 };
             });
         }).then(setEnvelopItems);
@@ -163,7 +163,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 <View style={{ flexDirection: 'row' }}>
                     { envelope ? (
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
-                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelop')}: { envelope?.name } </Text>
+                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.name } </Text>
                         { envelope && parseFloat(amount) > envelope.funds ?
                             <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
                         :
@@ -172,8 +172,8 @@ export function AccountTransactionScreen({navigation, route} : any) {
                         </View>
                     ) : (
                         <View>
-                            <Text style={{ fontSize: 12 }}>{t('common:envelop')}</Text>
-                            <Picker placeholder={t('common:envelop')} items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
+                            <Text style={{ fontSize: 12 }}>{t('common:envelope')}</Text>
+                            <Picker placeholder={t('common:envelope')} items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
                         </View>
                     ) }
                 </View>

@@ -9,6 +9,7 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 import { t } from "../../services/i18n";
 import { Revenue, RevenueDao } from "../../services/revenue";
+import { styles, styles_form } from "../../styles";
 
 
 
@@ -61,27 +62,40 @@ export default function RevenueScreen({navigation, route} : any) {
     return (
         <Layout style={{margin: 10}}>
 
-            <ErrorMessage error={error} />            
+            <ErrorMessage error={error} />
 
-            <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>{t('forms:revenues_name')}</Text>
-                <TextInput
-                    placeholder={t('forms:revenues_enter_name')}
-                    value={name}
-                    onChangeText={setName}
-                />
-            </View>
-            <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>{t('common:amount')}</Text>
-                <TextInput
-                    placeholder={t('forms:revenues_enter_amount')}
-                    value={amount}
-                    onChangeText={setAmount}
-                    keyboardType="numeric"
-                />
-            </View>
+            <View style={styles_form.container}>
 
-            <SelectDateComponent label={t('forms:revenues_due_date')} date={expectDate} minimumDate={now} onChange={(newDate: Date) => setExpectDate(newDate) } />
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ fontSize: 12 }}>{t('forms:revenues_name')}</Text>
+                        <TextInput
+                            placeholder={t('forms:revenues_enter_name')}
+                            value={name}
+                            onChangeText={setName}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ fontSize: 12 }}>{t('common:amount')}</Text>
+                        <TextInput
+                            placeholder={t('forms:revenues_enter_amount')}
+                            value={amount}
+                            onChangeText={setAmount}
+                            keyboardType="numeric"
+                        />
+                    </View>
+                </View>
+
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <SelectDateComponent label={t('forms:revenues_due_date')} date={expectDate} minimumDate={now} onChange={(newDate: Date) => setExpectDate(newDate) } />
+                    </View>
+                </View>
+
+            </View>
 
             <View style={{ flexDirection: 'row'}} >
                 { revenue ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={deleteHandler}></Button> : <></> }

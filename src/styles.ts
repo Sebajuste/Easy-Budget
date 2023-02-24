@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
+import { verticalScale } from "./util/ui-metrics";
 
 
 export const styles = StyleSheet.create({
     container: {
       flex: 1,
-      // backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -18,7 +18,6 @@ export const styles = StyleSheet.create({
     expense_invalid: {
       color: 'red'
     },
-
     loadingScreen: {
       flex: 1,
       alignItems: 'center',
@@ -61,5 +60,20 @@ export const text_state_styles = StyleSheet.create({
   },
   success: {
     color: '#57a140'
+  }
+});
+
+export const styles_form = StyleSheet.create({
+  container: {
+      flex: 1
+  },
+  row: {
+      flexDirection: 'row',
+      minHeight: 100,
+      height: verticalScale(120)
+  },
+  group: {
+    flex: 1,
+    margin: 2
   }
 });

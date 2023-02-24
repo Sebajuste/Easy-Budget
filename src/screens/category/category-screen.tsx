@@ -11,6 +11,7 @@ import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
 import ErrorMessage from "../../components/error-message";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { styles_form } from "../../styles";
 
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
@@ -90,20 +91,28 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
 
             <ErrorMessage error={error} />
 
-            <View style={{margin: 2}}>
-                <Text style={{ marginBottom: 10 }}>{ t('forms:category_name') }</Text>
-                <TextInput
-                    placeholder={ t('forms:enter_category_name') }
-                    value={name}
-                    onChangeText={(val) => setName(val)}
-                />
-            </View>
+            <View style={styles_form.container}>
 
-            <View style={{margin: 2}}>
-                <Text style={{ marginBottom: 10 }}>Color</Text>
-                <View style={{margin: 2, minHeight: 200}}>
-                    <ColorPicker color={colorHSV} onColorChange={setColorHSV} style={{flex: 1}} hideSliders={true} />
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ marginBottom: 10 }}>{ t('forms:category_name') }</Text>
+                        <TextInput
+                            placeholder={ t('forms:enter_category_name') }
+                            value={name}
+                            onChangeText={(val) => setName(val)}
+                        />
+                    </View>
                 </View>
+
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ marginBottom: 10 }}>Color</Text>
+                        <View style={{margin: 2, minHeight: 200}}>
+                            <ColorPicker color={colorHSV} onColorChange={setColorHSV} style={{flex: 1}} hideSliders={true} />
+                        </View>
+                    </View>
+                </View>
+
             </View>
 
             <View style={{ flexDirection: 'row'}}>

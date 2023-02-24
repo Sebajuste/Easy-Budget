@@ -10,7 +10,7 @@ import { t } from "../../services/i18n";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 
-export default function NextPaymentListView({onPayment} : {onPayment?: (envelop: Envelope) => void}) {
+export default function NextPaymentListView({onPayment} : {onPayment?: (envelope: Envelope) => void}) {
 
     const [nextPaiements, setNextPaiements] = useState<Envelope[]>([]);
 

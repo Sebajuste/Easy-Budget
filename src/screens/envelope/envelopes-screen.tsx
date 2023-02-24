@@ -16,6 +16,7 @@ import { Revenue } from "../../services/revenue";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { horizontalScale, verticalScale } from "../../util/ui-metrics";
 
 
 function EnvelopeListItem(props : any) {
@@ -30,56 +31,64 @@ function EnvelopeListItem(props : any) {
 
   return (
     <Animatable.View animation={"flipInY"} duration={1000} delay={index*300} >
-    <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
-      <View style={{...styles.image, backgroundColor: 'silver', padding: 10}}>
-        
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          <Text style={{alignItems: 'center', color: category.color, fontSize: 30, textAlign: 'center'}}> {envelope.funds.toFixed(2)}€</Text>
-          <Text style={{textAlign: 'center'}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+      <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
+        <View style={{...styles.image}}>
+          <View style={{flex: 1, flexDirection: 'column'}}>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center", fontSize: 20, flexWrap: "nowrap", overflow: "hidden", color: category.color }}>{envelope.funds.toFixed(2)}€</Text>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+          </View>
+          <Text style={{fontSize: 10}}>{dueDate}</Text>
         </View>
-        <Text style={{fontSize: 12}}>{dueDate}</Text>
-      </View>
-      <View style={styles.detailsContainer}>
-        <Text style={{ flex: 1, ...styles.name}}>{envelope.name}</Text>
-        <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 5, left: 10}}>
-          <Icon style={{fontSize: 12, color: 'green'}} name="check" />
+        <View style={styles.detailsContainer}>
+          <Text style={{ flex: 1, ...styles.name}}>{envelope.name}</Text>
+          <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 5, left: 10}}>
+            <Icon style={{fontSize: 12, color: 'green'}} name="check" />
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
     </Animatable.View>
   );
 
 }
 
 
+const ITEM_WIDTH = 160;
+const COLUMNS = Math.trunc(Dimensions.get('window').width / ITEM_WIDTH);
+
 const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+    flexGrow: 1,
+    justifyContent: "center"
+  },
+  listItem: {
+    width: ITEM_WIDTH,
+    backgroundColor: 'white',
+    margin: 8,
+    borderRadius: 10,
+  },
   name: {
     fontWeight: 'bold',
     fontSize: 16,
     color: 'black',
   },
-  listItem: {
-    minHeight: 200,
-    width: Dimensions.get('window').width / 2 - 30,
-    backgroundColor: 'white',
-    margin: 8,
-    borderRadius: 10,
-  },
   listEmpty: {
-    // height: Dimensions.get('window').height,
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: {
-    height: 150,
+    minHeight: 150,
     margin: 5,
     borderRadius: 10,
-    backgroundColor: Colors.primary,
+    // backgroundColor: Colors.primary,
+    backgroundColor: 'silver',
+    padding: 10
   },
   detailsContainer: {
     paddingHorizontal: 16,
     paddingVertical: 5,
+    marginBottom: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -187,7 +196,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const renderSectionHandler = ({item, section} : any) => {
 
       return (
-        <FlatList data={item} renderItem={renderItemHandler} numColumns={2} />
+        <FlatList data={item} renderItem={renderItemHandler} numColumns={COLUMNS} style={styles.list} contentContainerStyle={styles.list} />
       );
 
     };
@@ -228,7 +237,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const data = _.transform(envelopes_group, (result, value, key) => {
       const category = _.find(categories, {"_id": _.parseInt(key) });
-      return result.push( _.assign({"data": [value]}, category) ); // {"title": category.name, "color": category.color, "data": value}
+      return result.push( _.assign({"data": [value]}, category) );
     }, [])
 
     const emptyComponent = (
