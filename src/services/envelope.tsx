@@ -159,7 +159,8 @@ export abstract class EnvelopeDao extends DAO<Envelope> {
 export function isValidEnvelope(envelope: Envelope, currentPeriodFilled:number) : boolean {
   const now = new Date();
   const month_fill_amount = budgetPerMonth(envelope.amount, envelope.period);
-  const diff_date_now_duedate = envelope.dueDate.getMonth() - now.getMonth();
+  const diff_year_now_duedate = envelope.dueDate.getFullYear() - now.getFullYear();
+  const diff_date_now_duedate = diff_year_now_duedate == 0 ? (envelope.dueDate.getMonth() - now.getMonth()) : ( (12-now.getMonth()) + (diff_year_now_duedate-1)*12 + envelope.dueDate.getMonth() );
   const isValid = envelope.funds + (currentPeriodFilled + (month_fill_amount * diff_date_now_duedate) ) >= envelope.amount;
   return isValid;
 }

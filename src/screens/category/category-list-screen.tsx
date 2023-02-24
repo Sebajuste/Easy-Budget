@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
+import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable'
 
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
@@ -27,7 +28,7 @@ function CategoryItem({category, index, navigation} : {category: Category, index
         >
             <TouchableOpacity style={styles.item} onPress={selectHandler}>
                 <View style={{ ...styles.avatar, backgroundColor: category.color}}>
-                    <View />
+                    <Icon name={category.icon} style={{color: 'white', fontSize: 18}} />
                 </View>
                 <View style={styles.details}>
                     <Text style={styles.name}>{category.name}</Text>
@@ -119,10 +120,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     avatar: {
+        margin: 5,
         height: 36,
         width: 36,
         borderRadius: 18,
-        backgroundColor: 'red',
+        backgroundColor: 'silver',
         alignItems: 'center',
         justifyContent: 'center',
     },

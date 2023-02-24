@@ -7,9 +7,9 @@ const package_json = require('../../../package.json')
 
 export default function DrawerContent(props: any) {
 
-    const version = package_json && package_json.version ? package_json.version : '?.?.?';
+    // const version = package_json && package_json.version ? package_json.version : '?.?.?';
 
-    // const version = Application.nativeApplicationVersion;
+    const version = Application.nativeApplicationVersion;
 
     const build = Application.nativeBuildVersion;
     
@@ -22,7 +22,7 @@ export default function DrawerContent(props: any) {
                 <DrawerItemList {...props} />
             </DrawerContentScrollView>
             <View>
-                <Text style={{textAlign: "center", padding: 10, fontSize: 12}}>v{version} - {Application.nativeApplicationVersion} ({build})</Text>
+                <Text style={{textAlign: "center", padding: 10, fontSize: 12}}>v{version} ({build})</Text>
             </View>
         </View>
     );

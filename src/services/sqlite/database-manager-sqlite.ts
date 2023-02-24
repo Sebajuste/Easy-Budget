@@ -247,32 +247,32 @@ export class DatabaseManagerSQLite extends DatabaseManager {
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Alimentation' as cat_name, 'yellow' as cat_color, 'home' as cat_icon
+                    SELECT 'Alimentation' as cat_name, 'yellow' as cat_color, 'spoon' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Alimentation')
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Loisirs' as cat_name, 'cyan' as cat_color, 'home' as cat_icon
+                    SELECT 'Loisirs' as cat_name, 'cyan' as cat_color, 'beer' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Loisirs')
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Banque' as cat_name, 'orange' as cat_color, 'home' as cat_icon
+                    SELECT 'Banque' as cat_name, 'orange' as cat_color, 'bank' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Banque')
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Achats & Shopping' as cat_name, 'red' as cat_color, 'home' as cat_icon
+                    SELECT 'Achats & Shopping' as cat_name, 'red' as cat_color, 'shopping-cart' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Achats & Shopping')
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Transport' as cat_name, 'blue' as cat_color, 'home' as cat_icon
+                    SELECT 'Transport' as cat_name, 'blue' as cat_color, 'car' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Transport')
                 `,
                 args: []},
                 {sql: `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon )
-                    SELECT 'Santé' as cat_name, 'green' as cat_color, 'home' as cat_icon
+                    SELECT 'Santé' as cat_name, 'green' as cat_color, 'heart' as cat_icon
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Santé')
                 `,
                 args: []},

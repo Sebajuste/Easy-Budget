@@ -13,7 +13,6 @@ import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Revenue } from "../../services/revenue";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { horizontalScale, horizontalSplit, verticalScale } from "../../util/ui-metrics";
