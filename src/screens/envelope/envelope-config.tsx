@@ -11,8 +11,6 @@ import {  Category } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
-import { ResponsiveContent } from "../../components/forms";
-import { verticalScale } from "../../util/ui-metrics";
 import { styles_form } from "../../styles";
 
 

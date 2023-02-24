@@ -16,7 +16,7 @@ import { Revenue } from "../../services/revenue";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
-import { horizontalScale, verticalScale } from "../../util/ui-metrics";
+import { horizontalScale, horizontalSplit, verticalScale } from "../../util/ui-metrics";
 
 
 function EnvelopeListItem(props : any) {
@@ -52,48 +52,8 @@ function EnvelopeListItem(props : any) {
 }
 
 
-const ITEM_WIDTH = 160;
-const COLUMNS = Math.trunc(Dimensions.get('window').width / ITEM_WIDTH);
 
-const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-    flexGrow: 1,
-    justifyContent: "center"
-  },
-  listItem: {
-    width: ITEM_WIDTH,
-    backgroundColor: 'white',
-    margin: 8,
-    borderRadius: 10,
-  },
-  name: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: 'black',
-  },
-  listEmpty: {
-    height: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  image: {
-    minHeight: 150,
-    margin: 5,
-    borderRadius: 10,
-    // backgroundColor: Colors.primary,
-    backgroundColor: 'silver',
-    padding: 10
-  },
-  detailsContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    marginBottom: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }
-});
+
 
 
 function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRevenue: number}) {
@@ -105,19 +65,19 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
   const budgetStyle = totalRevenue >= monthBudget ? container_state_styles.success : container_state_styles.danger;
 
   return (
-    <View style={{flexDirection: 'row', justifyContent: 'space-around', margin: 5, borderRadius: 10, backgroundColor: 'white'}}>
+    <View style={{flexDirection: 'row', justifyContent: 'space-around', margin: 5, borderRadius: 10, backgroundColor: 'white', flexWrap: 'wrap'}}>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10, ...budgetStyle}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110), ...budgetStyle}}>
         <Text style={{textAlign: 'center'}}>{monthBudget.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_monthly')}</Text>
       </View>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110)}}>
         <Text style={{textAlign: 'center'}}>{totalRevenue.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:revenues')}</Text>
       </View>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110)}}>
         <Text style={{textAlign: 'center'}}>{total_year.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_yearly')}</Text>
       </View>
@@ -127,6 +87,9 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 
 }
 
+
+
+const ITEM_WIDTH = 160;
 
 export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: Category[]) => void}) {
 
@@ -196,7 +159,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const renderSectionHandler = ({item, section} : any) => {
 
       return (
-        <FlatList data={item} renderItem={renderItemHandler} numColumns={COLUMNS} style={styles.list} contentContainerStyle={styles.list} />
+        <FlatList data={item} renderItem={renderItemHandler} numColumns={horizontalSplit(ITEM_WIDTH)} style={styles.list} contentContainerStyle={styles.list} />
       );
 
     };
@@ -270,3 +233,44 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
         </SafeAreaView>
     );
 }
+
+
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+    flexGrow: 1,
+    justifyContent: "center"
+  },
+  listItem: {
+    width: horizontalScale(ITEM_WIDTH),
+    backgroundColor: 'white',
+    margin: 8,
+    borderRadius: 10,
+  },
+  name: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+  },
+  listEmpty: {
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    minHeight: 150,
+    margin: 5,
+    borderRadius: 10,
+    // backgroundColor: Colors.primary,
+    backgroundColor: 'silver',
+    padding: 10
+  },
+  detailsContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 5,
+    marginBottom: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }
+});
