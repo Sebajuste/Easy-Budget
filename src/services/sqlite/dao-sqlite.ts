@@ -28,18 +28,3 @@ export const SQLITE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
     [DaoType.SETTINGS.toString(), new SettingsDaoSQLite()]
 ]);
 
-/*
-export const SQLITE_DAO : {[key: DaoType] : any } = {
-
-    [AccountDao.name]: new AccountDaoSQLite(),
-    [RevenueDao.name]: new RevenueDaoSQLite(),
-    
-    [CategoryDao.name]: new CategorySQLiteDao(),
-    [EnvelopeDao.name]: new EnvelopeSQLiteDao(),
-    
-    [EnvelopeTransactionDao.name]: new EnvelopeTransactionDaoSQLite(),
-    [AccountTransactionDao.name]: new AccountTransactionDaoSQLite(),
-
-};
-*/
-

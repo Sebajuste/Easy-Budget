@@ -1,9 +1,9 @@
-import { Dimensions, FlatList, SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Envelope, budgetPerYear } from "../../services/envelope";
+import { Envelope, budgetPerYear, isValidEnvelope, envelopePreviousDueDate } from "../../services/envelope";
 import { Category } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
@@ -17,17 +17,31 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { horizontalScale, horizontalSplit, verticalScale } from "../../util/ui-metrics";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 
 
 function EnvelopeListItem(props : any) {
 
   const { envelope, category, navigation, index } = props;
 
+  const [totalFilled, setTotalFilled] = useState(0);
+
+  const dueDate = envelope.dueDate ? ( typeof envelope.dueDate === 'string' ? (new Date(envelope.dueDate).toDateString() ) : envelope.dueDate.toDateString()) : '';
+
+  const isValid = isValidEnvelope(envelope, totalFilled);
+
   const selectHandler = () => {
     navigation.navigate({name: 'FillEnvelope', params: {envelope: envelope, envelopeCategory: category}});
   };
 
-  const dueDate = envelope.dueDate ? ( typeof envelope.dueDate === 'string' ? (new Date(envelope.dueDate).toDateString() ) : envelope.dueDate.toDateString()) : '';
+  useEffect(() => {
+    const envelopeTransactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE) as EnvelopeTransactionDao;
+    envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), new Date() )//
+      .then(transactions => {
+        return _.sum( _.map(transactions,'amount') );
+      })//
+      .then(setTotalFilled);
+  }, [])  
 
   return (
     <Animatable.View animation={"flipInY"} duration={1000} delay={index*300} >
@@ -41,8 +55,8 @@ function EnvelopeListItem(props : any) {
         </View>
         <View style={styles.detailsContainer}>
           <Text style={{ flex: 1, ...styles.name}}>{envelope.name}</Text>
-          <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 5, left: 10}}>
-            <Icon style={{fontSize: 12, color: 'green'}} name="check" />
+          <View style={{borderWidth: 1, borderColor: isValid ? 'green' : 'red', width: 24, height: 24, borderRadius: 24/2, padding: 5, left: 10}}>
+              <Icon style={{textAlign: 'center', fontSize: 12, color: isValid ? 'green' : 'red'}} name={isValid ? 'check' : 'close'} />
           </View>
         </View>
       </TouchableOpacity>

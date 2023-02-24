@@ -1,6 +1,7 @@
 import _ from "lodash";
+import { Envelope } from "../envelope";
 import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao, TransactionType } from "../transaction";
-import { sqlite_client } from "./database-manager-sqlite";
+import { sqlite_client, sqlite_client_async } from "./database-manager-sqlite";
 
 
 
@@ -191,6 +192,45 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
         });
     }
 
+    async range(envelope:Envelope, from:Date, to:Date) : Promise<EnvelopeTransaction[]> {
+
+        const SQL = `SELECT ats_id as _id,
+                ats_name as name,
+                ats_amount as amount,
+                ats_envelope_id as envelope_id,
+                ats_account_id as account_id,
+                CASE ats_type
+                        WHEN 'INCOME' THEN '${TransactionType.INCOME}'
+                        WHEN 'OUTCOME' THEN '${TransactionType.OUTCOME}'
+                        ELSE '${TransactionType.OUTCOME}'
+                    END AS type,
+                ats_date as date,
+                ats_reconciled as reconciled
+            FROM t_account_transaction_ats
+            WHERE ats_envelope_id = ?
+                AND ats_date >= ?
+                AND ats_date < ?`;
+
+
+        const client = await sqlite_client_async();
+
+        return new Promise((resolve, reject) => {
+
+            client.transaction(tx => {
+
+                tx.executeSql(SQL, [envelope._id, from.toISOString(), to.toISOString()], (_, {rows: {_array}}) => {
+                    resolve(_array);
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+
+            }, reject);
+
+        });
+
+    }
+
     find(selector: any) : Promise<EnvelopeTransaction|null> {
         throw new Error("Method not implemented.");
     }
@@ -270,7 +310,7 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
 
     }
 
-    public remove(transaction: AccountTransaction): Promise<void> {
+    public remove(transaction: EnvelopeTransaction): Promise<void> {
         
         const SQL = `DELETE FROM t_envelopes_transaction_ets WHERE ets_id = ?`;
 

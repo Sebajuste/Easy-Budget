@@ -1,9 +1,9 @@
 {
   "name": "easy-budget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "start:dev": "expo start --dev-client",
-    "start": "expo start --clear-cache",
+    "start": "expo start -c",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "build:android:preview": "eas build --platform android --profile preview --clear-cache",
@@ -41,7 +41,8 @@
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "~0.18.7",
     "rxjs": "^7.5.6",
-    "expo-file-system": "~15.1.1"
+    "expo-file-system": "~15.1.1",
+    "expo-application": "~5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

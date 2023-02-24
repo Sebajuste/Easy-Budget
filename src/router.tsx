@@ -119,10 +119,6 @@ const Drawer = createDrawerNavigator();
 
 function AppDrawer() {
 
-    // const dimension = useWindowDimensions();
-    // const drawerType = dimension.width >= 700 ? 'permanent' : 'front';
-
-    // drawerType={drawerType} edgeWith={300}
     return (
         <Drawer.Navigator
             initialRouteName="Main"
