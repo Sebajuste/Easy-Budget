@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { AsyncStorage } from "react-native";
 import uuid from 'react-native-uuid';
-import { envelopeNextDate } from "../envelope";
+import { Envelope, envelopeNextDate } from "../envelope";
 import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, EnvelopeTransactionDao } from "../transaction";
 import { AccountDaoStorage } from "./account_async_storage";
 import { EnvelopeDaoStorage } from "./envelope-async-storage";
@@ -127,6 +127,12 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
             return JSON.parse(json_transactions) ;
         }
         return [];
+    }
+
+    range(envelope:Envelope, from:Date, to:Date) : Promise<EnvelopeTransaction[]> {
+        return new Promise((resolve, reject) => {
+            reject("Method not implemented.");
+        });
     }
 
     find(selector: any) : Promise<EnvelopeTransaction|null> {

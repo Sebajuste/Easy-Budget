@@ -91,6 +91,31 @@ export function budgetPerYear(envelopes: Array<Envelope> ) {
     return result;
 }
 
+export function envelopePreviousDueDate(envelope: Envelope) : Date {
+
+  const dueDate = envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : new Date(envelope.dueDate.toISOString()) ) : new Date();
+
+  switch(envelope.period) {
+    case Period.MONTHLY: {
+      dueDate.setMonth(dueDate.getMonth()-1);
+      break;
+    }
+    case Period.TRIMESTER: {
+      dueDate.setMonth(dueDate.getMonth()-3);
+      break;
+    }
+    case Period.SEMESTER: {
+      dueDate.setMonth(dueDate.getMonth()-6);
+      break;
+    }
+    case Period.YEARLY: {
+      dueDate.setFullYear(dueDate.getFullYear()-1);
+      break;
+    }
+  }
+  return dueDate;
+}
+
 export function envelopeNextDate(envelope: Envelope) : Date {
 
   const date = envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : new Date(envelope.dueDate.toISOString()) ) : new Date();
@@ -130,3 +155,12 @@ export abstract class EnvelopeDao extends DAO<Envelope> {
   abstract update(envelope : Envelope) : Promise<void>;
   abstract remove(envelope : Envelope) : Promise<void>;
 };
+
+export function isValidEnvelope(envelope: Envelope, currentPeriodFilled:number) : boolean {
+  const now = new Date();
+  const month_fill_amount = budgetPerMonth(envelope.amount, envelope.period);
+  const diff_year_now_duedate = envelope.dueDate.getFullYear() - now.getFullYear();
+  const diff_date_now_duedate = diff_year_now_duedate == 0 ? (envelope.dueDate.getMonth() - now.getMonth()) : ( (12-now.getMonth()) + (diff_year_now_duedate-1)*12 + envelope.dueDate.getMonth() );
+  const isValid = envelope.funds + (currentPeriodFilled + (month_fill_amount * diff_date_now_duedate) ) >= envelope.amount;
+  return isValid;
+}

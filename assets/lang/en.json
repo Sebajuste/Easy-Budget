@@ -8,7 +8,8 @@
         "fill": "Fill",
         "pay": "Pay",
         "save": "Save",
-        "start_tutorial": "Start tutorial"
+        "start_tutorial": "Start tutorial",
+        "transfer" : "Transfer"
     },
     "common": {
         "account": "Account",
@@ -27,9 +28,10 @@
         "close": "Close",
         "date": "Date",
         "delete": "Delete",
+        "destination": "Destination",
         "due_date": "Due date",
-        "envelop": "Envelop",
-        "envelops": "Envelops",
+        "envelope": "Envelope",
+        "envelops": "Envelopes",
         "fill_auto": "Fill automatic",
         "home": "Home",
         "language": "Language",
@@ -47,6 +49,7 @@
         "transaction": "Transaction",
         "transactions": "Transactions",
         "transaction_name": "Transaction name",
+        "transfer" : "Transfer",
         "type": "Type",
         "outcome": "Outcome",
         "income": "Income"
@@ -75,9 +78,9 @@
     "title": {
         "category_new": "New Category",
         "category_edit": "Edit Category",
-        "envelop_new": "New Envelop",
-        "envelop_create": "Create Envelop",
-        "envelop_fill": "Fill envelop",
+        "envelop_new": "New Envelope",
+        "envelop_create": "Create Envelope",
+        "envelop_fill": "Fill envelope",
         "account_create": "Create Account",
         "revenue_edit": "Edit Revenue",
         "revenue_new": "Create Revenue",

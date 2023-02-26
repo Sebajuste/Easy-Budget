@@ -1,4 +1,5 @@
 import { DAO } from "./dao";
+import { Envelope } from "./envelope";
 
 export interface EnvelopeTransaction {
     _id: string | number;
@@ -13,6 +14,8 @@ export abstract class EnvelopeTransactionDao extends DAO<EnvelopeTransaction> {
 
     abstract load() : Promise<EnvelopeTransaction[]>;
 
+    abstract range(envelope:Envelope, from:Date, to:Date) : Promise<EnvelopeTransaction[]>;
+
     abstract add(transaction: EnvelopeTransaction): Promise<string|number|undefined>;
 
     abstract addAll(transactions : EnvelopeTransaction[]) : Promise<(string|number|undefined)[]>;
@@ -24,7 +27,8 @@ export abstract class EnvelopeTransactionDao extends DAO<EnvelopeTransaction> {
 
 export enum TransactionType {
     INCOME = 'INCOME',
-    OUTCOME = 'OUTCOME'
+    OUTCOME = 'OUTCOME',
+    TRANSFER = 'TRANSFER'
 }
 
 export interface AccountTransaction {

@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
 import { Button, CheckBox, Text } from "react-native-rapi-ui";
+import Icon from 'react-native-vector-icons/FontAwesome';
 import _ from "lodash";
 
 import { Account } from "../../services/account";
@@ -14,7 +15,7 @@ import { DaoType } from "../../services/dao";
 
 
 
-function AccountTransactionItem({transaction, index} : {transaction : AccountTransaction, index: number}) {
+function AccountTransactionItem({transaction, index} : {transaction : any, index: number}) {
 
     const [reconciled, setReconciled] = useState(false);
 
@@ -25,6 +26,7 @@ function AccountTransactionItem({transaction, index} : {transaction : AccountTra
     return (
         <View style={styles.transaction}>
             <View style={{ ...styles.avatar, backgroundColor: transaction?.color || 'silver'}} >
+                <Icon name={transaction.icon} style={{color: 'white', fontSize: 18}} />
             </View>
             <View style={{flex: 1}}>
                 <Text>{transaction.name}</Text>

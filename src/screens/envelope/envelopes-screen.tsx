@@ -1,9 +1,9 @@
-import { Dimensions, FlatList, SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, Section, SectionContent, Text, TopNav } from "react-native-rapi-ui";
 import * as Animatable from 'react-native-animatable'
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Envelope, budgetPerYear } from "../../services/envelope";
+import { Envelope, budgetPerYear, isValidEnvelope, envelopePreviousDueDate } from "../../services/envelope";
 import { Category } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
@@ -13,78 +13,60 @@ import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Revenue } from "../../services/revenue";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { horizontalScale, horizontalSplit, verticalScale } from "../../util/ui-metrics";
+import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 
 
 function EnvelopeListItem(props : any) {
 
   const { envelope, category, navigation, index } = props;
 
+  const [totalFilled, setTotalFilled] = useState(0);
+
+  const dueDate = envelope.dueDate ? ( typeof envelope.dueDate === 'string' ? (new Date(envelope.dueDate).toDateString() ) : envelope.dueDate.toDateString()) : '';
+
+  const isValid = isValidEnvelope(envelope, totalFilled);
+
   const selectHandler = () => {
     navigation.navigate({name: 'FillEnvelope', params: {envelope: envelope, envelopeCategory: category}});
   };
 
-  const dueDate = envelope.dueDate ? ( typeof envelope.dueDate === 'string' ? (new Date(envelope.dueDate).toDateString() ) : envelope.dueDate.toDateString()) : '';
+  useEffect(() => {
+    const envelopeTransactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE) as EnvelopeTransactionDao;
+    envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), new Date() )//
+      .then(transactions => {
+        return _.sum( _.map(transactions,'amount') );
+      })//
+      .then(setTotalFilled);
+  }, [])  
 
   return (
     <Animatable.View animation={"flipInY"} duration={1000} delay={index*300} >
-    <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
-      <View style={{...styles.image, backgroundColor: 'silver', padding: 10}}>
-        
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          <Text style={{alignItems: 'center', color: category.color, fontSize: 30, textAlign: 'center'}}> {envelope.funds.toFixed(2)}€</Text>
-          <Text style={{textAlign: 'center'}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+      <TouchableOpacity style={styles.listItem} onPress={selectHandler}>
+        <View style={{...styles.image}}>
+          <View style={{flex: 1, flexDirection: 'column'}}>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center", fontSize: 20, flexWrap: "nowrap", overflow: "hidden", color: category.color }}>{envelope.funds.toFixed(2)}€</Text>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+          </View>
+          <Text style={{fontSize: 10}}>{dueDate}</Text>
         </View>
-        <Text style={{fontSize: 12}}>{dueDate}</Text>
-      </View>
-      <View style={styles.detailsContainer}>
-        <Text style={{ flex: 1, ...styles.name}}>{envelope.name}</Text>
-        <View style={{borderWidth: 1, borderColor: 'green', borderRadius: 100, padding: 5, left: 10}}>
-          <Icon style={{fontSize: 12, color: 'green'}} name="check" />
+        <View style={styles.detailsContainer}>
+          <Text style={{ flex: 1, ...styles.name}}>{envelope.name}</Text>
+          <View style={{borderWidth: 1, borderColor: isValid ? 'green' : 'red', width: 24, height: 24, borderRadius: 24/2, padding: 5, left: 10}}>
+              <Icon style={{textAlign: 'center', fontSize: 12, color: isValid ? 'green' : 'red'}} name={isValid ? 'check' : 'close'} />
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
     </Animatable.View>
   );
 
 }
 
 
-const styles = StyleSheet.create({
-  name: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: 'black',
-  },
-  listItem: {
-    minHeight: 200,
-    width: Dimensions.get('window').width / 2 - 30,
-    backgroundColor: 'white',
-    margin: 8,
-    borderRadius: 10,
-  },
-  listEmpty: {
-    // height: Dimensions.get('window').height,
-    height: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  image: {
-    height: 150,
-    margin: 5,
-    borderRadius: 10,
-    backgroundColor: Colors.primary,
-  },
-  detailsContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }
-});
+
+
 
 
 function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRevenue: number}) {
@@ -96,19 +78,19 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
   const budgetStyle = totalRevenue >= monthBudget ? container_state_styles.success : container_state_styles.danger;
 
   return (
-    <View style={{flexDirection: 'row', justifyContent: 'space-around', margin: 5, borderRadius: 10, backgroundColor: 'white'}}>
+    <View style={{flexDirection: 'row', justifyContent: 'space-around', margin: 5, borderRadius: 10, backgroundColor: 'white', flexWrap: 'wrap'}}>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10, ...budgetStyle}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110), ...budgetStyle}}>
         <Text style={{textAlign: 'center'}}>{monthBudget.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_monthly')}</Text>
       </View>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110)}}>
         <Text style={{textAlign: 'center'}}>{totalRevenue.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:revenues')}</Text>
       </View>
 
-      <View style={{margin: 5, padding: 5, borderRadius: 10}}>
+      <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110)}}>
         <Text style={{textAlign: 'center'}}>{total_year.toFixed(2)} €</Text>
         <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:budget_yearly')}</Text>
       </View>
@@ -118,6 +100,9 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 
 }
 
+
+
+const ITEM_WIDTH = 160;
 
 export default function EnvelopesScreen({navigation, onChange} : {navigation : any, onChange?: (categories: Category[]) => void}) {
 
@@ -187,7 +172,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     const renderSectionHandler = ({item, section} : any) => {
 
       return (
-        <FlatList data={item} renderItem={renderItemHandler} numColumns={2} />
+        <FlatList data={item} renderItem={renderItemHandler} numColumns={horizontalSplit(ITEM_WIDTH)} style={styles.list} contentContainerStyle={styles.list} />
       );
 
     };
@@ -228,7 +213,7 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const data = _.transform(envelopes_group, (result, value, key) => {
       const category = _.find(categories, {"_id": _.parseInt(key) });
-      return result.push( _.assign({"data": [value]}, category) ); // {"title": category.name, "color": category.color, "data": value}
+      return result.push( _.assign({"data": [value]}, category) );
     }, [])
 
     const emptyComponent = (
@@ -261,3 +246,44 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
         </SafeAreaView>
     );
 }
+
+
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+    flexGrow: 1,
+    justifyContent: "center"
+  },
+  listItem: {
+    width: horizontalScale(ITEM_WIDTH),
+    backgroundColor: 'white',
+    margin: 8,
+    borderRadius: 10,
+  },
+  name: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+  },
+  listEmpty: {
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    minHeight: 150,
+    margin: 5,
+    borderRadius: 10,
+    // backgroundColor: Colors.primary,
+    backgroundColor: 'silver',
+    padding: 10
+  },
+  detailsContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 5,
+    marginBottom: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }
+});

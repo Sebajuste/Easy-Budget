@@ -119,10 +119,6 @@ const Drawer = createDrawerNavigator();
 
 function AppDrawer() {
 
-    // const dimension = useWindowDimensions();
-    // const drawerType = dimension.width >= 700 ? 'permanent' : 'front';
-
-    // drawerType={drawerType} edgeWith={300}
     return (
         <Drawer.Navigator
             initialRouteName="Main"
@@ -184,7 +180,7 @@ function MainStackScreen() {
             <Stack.Screen name="CreateCategory" component={ CategoryScreen } options={{title: t('title:category_new')}}/>
             <Stack.Screen name="EditCategory" component={ CategoryScreen } options={{title: t('title:category_edit')}}/>
 
-            <Stack.Screen name="ConfigEnvelop" component={ EnvelopeConfigScreen } options={{title: t('common:envelop')}}/>
+            <Stack.Screen name="ConfigEnvelop" component={ EnvelopeConfigScreen } options={{title: t('common:envelope')}}/>
             <Stack.Screen name="CreateEnvelop" component={ EnvelopeConfigScreen } options={{title: t('title:envelop_new')}}/>
             <Stack.Screen name="FillEnvelope" component={ EnvelopFillScreen } options={{title: t('title:envelop_fill')}} />
             

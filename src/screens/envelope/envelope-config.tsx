@@ -1,6 +1,6 @@
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
@@ -11,6 +11,7 @@ import {  Category } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { styles_form } from "../../styles";
 
 
 const operation_type_picker_items = [
@@ -139,13 +140,14 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
     return (
         <Layout style={{margin: 10}}>
         
-            <View style={{ flex: 1 }}>
+            <View style={styles_form.container}>
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={styles_form.row}>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>{ t('forms:envelope_name') }</Text>
+                        <Text style={{flex: 1, fontSize: 12 }}>{ t('forms:envelope_name') }</Text>
                         <TextInput
+                            style={{flex: 1}}
                             placeholder={ t('forms:enter_envelope_name') }
                             value={name}
                             onChangeText={(val) => setName(val)}
@@ -153,8 +155,9 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                     </View>
 
                     <View style={{flex: 1, margin: 2}}>
-                        <Text style={{ fontSize: 12 }}>{t('common:amount_budget')}</Text>
+                        <Text style={{flex: 1, fontSize: 12 }}>{t('common:amount_budget')}</Text>
                         <TextInput
+                            style={{flex: 1}}
                             placeholder="0.00"
                             value={amount}
                             onChangeText={(val) => setAmount(val)}
@@ -164,7 +167,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
                 </View>
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={styles_form.row}>
                     <View style={{flex: 1, margin: 2 }}>
                         <Text style={{ fontSize: 12 }}>{t('common:category')}</Text>
                         <Picker placeholder={t('common:category')} items={categoryItems} value={ categoryID } onValueChange={setCategoryID} />
@@ -174,7 +177,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                     </View>
                 </View>
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={styles_form.row}>
 
                     <View style={{flex: 1, margin: 2}}>
                         <Text style={{ fontSize: 12 }}>{t('common:budget_period')}</Text>
@@ -182,8 +185,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                     </View>
 
                     <View style={{flex: 1, margin: 10}}>
-                        <Text style={{ flex: 1, alignItems: "flex-end", color: '#888'}}>{ budgetPerMonth(parseFloat(amount), period).toFixed(2) } </Text>
-                        <Text style={{ flex: 2, fontSize: 12, color: '#888' }}>{t('common:montly')}</Text>
+                        <Text style={{ flex: 1, alignItems: "flex-end", textAlignVertical: 'bottom', color: '#888'}}>{ budgetPerMonth(parseFloat(amount), period).toFixed(2) } </Text>
+                        <Text style={{ flex: 1, fontSize: 12, color: '#888', textAlignVertical: 'center' }}>{t('common:montly')}</Text>
                     </View>
 
                 </View>
@@ -207,3 +210,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
     );
 
 }
+
+
+
+

@@ -8,6 +8,7 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import ErrorMessage from "../../components/error-message";
+import { styles_form } from "../../styles";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -59,23 +60,29 @@ export function AccountScreen({navigation, route} : any) {
 
             <ErrorMessage error={error} />
 
-            <View style={{margin: 2}}>
-                <Text style={{ fontSize: 12 }}>{ t('forms:account_name') }</Text>
-                <TextInput
-                    placeholder={ t('forms:enter_account_name') }
-                    value={name}
-                    onChangeText={setName}
-                />
-            </View>
+            <View style={styles_form.container}>
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ fontSize: 12 }}>{ t('forms:account_name') }</Text>
+                        <TextInput
+                            placeholder={ t('forms:enter_account_name') }
+                            value={name}
+                            onChangeText={setName}
+                        />
+                    </View>
+                </View>
 
-            <View style={{flex: 1, margin: 2}}>
-                <Text style={{ fontSize: 12 }}>{ t('commmon:amount') }</Text>
-                <TextInput
-                    placeholder="0.00"
-                    value={balance}
-                    onChangeText={setBalance}
-                    keyboardType="numeric"
-                />
+                <View style={styles_form.row}>
+                    <View style={styles_form.group}>
+                        <Text style={{ fontSize: 12 }}>{ t('common:amount') }</Text>
+                        <TextInput
+                            placeholder="0.00"
+                            value={balance}
+                            onChangeText={setBalance}
+                            keyboardType="numeric"
+                        />
+                    </View>
+                </View>
             </View>
 
             <View style={{ flexDirection: 'row'}} >

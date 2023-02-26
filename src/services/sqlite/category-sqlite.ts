@@ -11,7 +11,7 @@ export class CategorySQLiteDao extends CategoryDao {
         
         return new Promise((resolve, reject) => {
 
-            const SQL = `SELECT cat_id as _id, cat_name as name, cat_color as color FROM t_category_cat`;
+            const SQL = `SELECT cat_id as _id, cat_name as name, cat_color as color, cat_icon as icon FROM t_category_cat`;
 
             sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
