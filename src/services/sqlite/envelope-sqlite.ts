@@ -120,21 +120,6 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
     }
 
     update(envelope: Envelope): Promise<void> {
-        /*
-        const SQL = knex('t_envelope_evp')//
-            .update({
-                evp_name: envelope.name,
-                evp_current_amount: envelope.funds,
-                evp_target_amount: envelope.amount,
-                evp_target_period: envelope.period.toString(),
-                evp_due_date: envelope.dueDate,
-                evp_category_id: envelope.category_id,
-            })//
-            .where('evp_id', envelope._id)
-            .toString();
-        */
-
-        console.log('Update ', envelope.period.toString() );
 
         const SQL = `
             UPDATE t_envelope_evp
@@ -162,12 +147,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
     }
 
     remove(envelope: Envelope): Promise<void> {
-        /*
-        const SQL = knex('t_envelope_evp')
-        .where('evp_id', envelope._id)//
-        .del()//
-        .toString();
-        */
+
         const SQL = `DELETE FROM t_envelope_evp WHERE evp_id = ?`;
 
         return new Promise((resolve, reject) => {

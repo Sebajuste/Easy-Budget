@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { StackActions, useIsFocused } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
 import { Button, CheckBox, Text } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -12,6 +12,7 @@ import { AccountTransaction, AccountTransactionDao, TransactionType } from "../.
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
+import { DeleteConfirmModal } from "../../components/modal";
 
 
 
@@ -55,6 +56,24 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
+    const [confirm, setConfirm] = useState(false);
+
+    const openDeleteHandler = () => {
+        setConfirm(true);
+    };
+
+    const deleteHandler =  () => {
+        const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+        accountDao.remove(account)//
+        .then( () => {
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+        })//
+        .catch(err => {
+            console.error(err);
+        });
+    };
+
     const newTransactionHandler = () => {
         navigation.navigate({name: 'Transaction', params: {account: account}});
     };
@@ -74,6 +93,10 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     
     return (
         <SafeAreaView style={styles.container}>
+
+            <DeleteConfirmModal options={{title: t('title:confirm_delete')}} visible={confirm} onCancel={() => setConfirm(false)} onConfirm={() => deleteHandler()} />
+
+            <Button style={styles.button} text="DELETE" onPress={openDeleteHandler} status="danger" />
             <Button style={styles.button} text={t('common:new')} onPress={newTransactionHandler} />
             <FlatList
                 data={transactions}
@@ -85,6 +108,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     );
 
 }
+
 
 const styles = StyleSheet.create({
     container: {

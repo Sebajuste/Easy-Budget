@@ -2,8 +2,10 @@
     "buttons": {
         "add": "Ajouter",
         "add_first_account": "Ajouter votre premier compte",
+        "cancel": "Annuler",
         "category_new": "Nouvelle catégorie",
         "create_first_envelope": "Créez vote première enveloppe",
+        "delete": "Supprimer",
         "edit": "Modifier",
         "fill": "Remplir",
         "pay": "Payer",
@@ -78,6 +80,7 @@
     "title": {
         "category_new": "Nouvelle catégorie",
         "category_edit": "Modification",
+        "confirm_delete": "Confirmez la suppression",
         "envelop_new": "Nouvelle Enveloppe",
         "envelop_create": "Nouvelle Enveloppe",
         "envelop_fill": "Remplissage",

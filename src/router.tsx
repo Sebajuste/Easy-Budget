@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {  useEffect, useRef, useState } from "react";
 import { DrawerActions, NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigationOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider } from "react-native-rapi-ui";
-import { TouchableOpacity, useWindowDimensions, Pressable, View, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Pressable, View, ActivityIndicator } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/FontAwesome';
 

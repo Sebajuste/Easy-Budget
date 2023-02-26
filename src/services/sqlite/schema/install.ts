@@ -59,6 +59,19 @@ export class InstallSQLite implements SchemaAction {
                             END;
                     END;`, args: []
                 },
+                { sql: `CREATE TRIGGER IF NOT EXISTS check_envelope_amount_delete
+                    BEFORE DELETE
+                    ON t_envelope_evp
+                    FOR EACH ROW
+                    BEGIN
+                        SELECT
+                            CASE
+                                WHEN OLD.evp_current_amount > 0
+                                THEN
+                                    RAISE (ABORT, 'Cannot be deleted when evp_current_amount is not equals to 0')
+                            END;
+                    END;`, args: []
+                },
     
                 { sql: `CREATE TRIGGER IF NOT EXISTS check_evp_target_period_insert
                 BEFORE INSERT
@@ -142,7 +155,7 @@ export class InstallSQLite implements SchemaAction {
                     ats_date DATETIME DEFAULT (datetime('now')),
                     ats_reconciled BOOLEAN DEFAULT FALSE,
                     ats_envelope_id INTEGER REFERENCES t_envelope_evp(evp_id) DEFAULT NULL,
-                    ats_account_id INTEGER NOT NULL REFERENCES t_account_act(act_id)
+                    ats_account_id INTEGER NOT NULL CONSTRAINT "fk__ats_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
                 { sql: `CREATE TRIGGER IF NOT EXISTS check_ats_type_insert
                     BEFORE INSERT
@@ -173,11 +186,9 @@ export class InstallSQLite implements SchemaAction {
                     ets_name TEXT NOT NULL,
                     ets_amount DECIMAL(10,2) NOT NULL,
                     ets_date DATETIME DEFAULT (datetime('now')),
-                    ets_envelope_id INTEGER NOT NULL REFERENCES t_envelope_evp(evp_id),
-                    ets_account_id INTEGER NOT NULL REFERENCES t_account_act(act_id)
+                    ets_envelope_id INTEGER NOT NULL CONSTRAINT "fk__ets_envelope_id" REFERENCES t_envelope_evp(evp_id) ON DELETE CASCADE,
+                    ets_account_id INTEGER NOT NULL CONSTRAINT "fk__ets_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
-    
-                
     
                 // Settings
                 { sql: `CREATE TABLE IF NOT EXISTS t_settings_set (

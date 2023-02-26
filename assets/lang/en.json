@@ -2,8 +2,10 @@
     "buttons": {
         "add": "Add",
         "add_first_account": "Add your first account",
+        "cancel": "Cancel",
         "category_new": "New Category",
         "create_first_envelope": "Create first envelope",
+        "delete": "Delete",
         "edit": "Edit",
         "fill": "Fill",
         "pay": "Pay",
@@ -78,6 +80,7 @@
     "title": {
         "category_new": "New Category",
         "category_edit": "Edit Category",
+        "confirm_delete": "Confirm Delete",
         "envelop_new": "New Envelope",
         "envelop_create": "Create Envelope",
         "envelop_fill": "Fill envelope",

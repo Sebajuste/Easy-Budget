@@ -3,6 +3,7 @@ import { useState } from "react"
 import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import ErrorMessage from "../../components/error-message";
+import { DeleteConfirmModal } from "../../components/modal";
 import { SelectDateComponent } from "../../components/select-date";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
@@ -24,6 +25,8 @@ export default function RevenueScreen({navigation, route} : any) {
     const [amount, setAmount] = useState( revenue?.amount.toString() || '' );
 
     const [expectDate, setExpectDate] = useState( revenue?.expecteDate || new Date() );
+
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
     const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
 
@@ -62,6 +65,8 @@ export default function RevenueScreen({navigation, route} : any) {
     return (
         <Layout style={{margin: 10}}>
 
+            <DeleteConfirmModal visible={deleteModalVisible} onCancel={() => setDeleteModalVisible(false)} onConfirm={deleteHandler} />
+
             <ErrorMessage error={error} />
 
             <View style={styles_form.container}>
@@ -98,7 +103,7 @@ export default function RevenueScreen({navigation, route} : any) {
             </View>
 
             <View style={{ flexDirection: 'row'}} >
-                { revenue ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={deleteHandler}></Button> : <></> }
+                { revenue ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={() => setDeleteModalVisible(true)}></Button> : <></> }
                 <Button style={{margin: 5, flexGrow: 1}} text={t('common:save')} status="primary" disabled={!formValid} onPress={saveHandler}></Button>
             </View>
             
