@@ -69,8 +69,8 @@ export const styles_form = StyleSheet.create({
   },
   row: {
       flexDirection: 'row',
-      minHeight: 100,
-      height: verticalScale(120)
+      minHeight: verticalScale(100),
+      // height: verticalScale(120)
   },
   group: {
     flex: 1,

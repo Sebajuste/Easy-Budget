@@ -9,6 +9,7 @@ import { Account, AccountDao } from "../../services/account";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Envelope, EnvelopeDao } from "../../services/envelope";
+import { Settings, SettingsDao } from "../../services/settings";
 import { EnvelopeTransactionDao } from "../../services/transaction";
 
 
@@ -43,6 +44,8 @@ export function DatabaseScreen() {
 
     const [loading, setLoading] = useState(false);
 
+    const [version, setVersion] = useState('');
+
     const [message, setMessage] = useState<string|null>(null)
 
     const [databaseCheck, setDatabaseCheck] = useState(false);
@@ -50,6 +53,8 @@ export function DatabaseScreen() {
     const [databaseResult, setDatabaseResult] = useState([]);
 
     const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
+
+    const settingsDao = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
 
     const isFocused = useIsFocused();
 
@@ -68,7 +73,16 @@ export function DatabaseScreen() {
 
     useEffect(() => {
       setLoading(true);
-      checkDatabase().then(setDatabaseCheck).catch(console.error).finally(() => setLoading(false));
+
+      const p1 = settingsDao.find('version').then(setting => setVersion(setting ? setting.value : 'unknown'));
+
+      settingsDao.load().then(console.log);
+
+      const p2 = checkDatabase().then(setDatabaseCheck).catch(console.error);
+
+      Promise.all([p1, p2]).finally(() => setLoading(false));
+
+      // checkDatabase().then(setDatabaseCheck).catch(console.error).finally(() => setLoading(false));
 
       setDatabaseResult( dbManager.getLastError() )
 
@@ -98,6 +112,7 @@ export function DatabaseScreen() {
           </View>
           <View style={{margin: 20}}>
             <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
+            <Text style={{marginBottom: 20}}>Version  : { version }  </Text>
             { message ? <Text style={{marginBottom: 20}}>{message}</Text> : null }
             <Button text="DELETE Database" onPress={clearDatabaseHandler}></Button>
           </View>

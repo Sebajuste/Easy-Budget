@@ -4,6 +4,32 @@ import { AccountTransaction, AccountTransactionDao, EnvelopeTransaction, Envelop
 import { sqlite_client, sqlite_client_async } from "./database-manager-sqlite";
 
 
+function getEditBalance(transaction : AccountTransaction) {
+
+    if(transaction.type == TransactionType.OUTCOME) {
+        return transaction.amount;
+    }
+    if( transaction.type == TransactionType.TRANSFER ) {
+        return transaction.amount;
+    }
+
+    // If TransactionType.INCOME
+    return -transaction.amount;
+}
+
+function getEditEnvelopeBalance(transaction : AccountTransaction) {
+
+    if( transaction.type == TransactionType.OUTCOME ) {
+        return 0;
+    }
+    if( transaction.type == TransactionType.TRANSFER ) {
+        return transaction.amount
+    }
+
+    // If TransactionType.INCOME
+    return -transaction.amount
+
+}
 
 export class AccountTransactionDaoSQLite extends AccountTransactionDao {
     
@@ -65,7 +91,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
         const params = [
             transaction.name,
-            transaction.type.toString(),
+            transaction.type == TransactionType.TRANSFER ? TransactionType.OUTCOME.toString() : transaction.type.toString(),
             transaction.amount,
             transaction.envelope_id == '' ? null : transaction.envelope_id,
             transaction.account_id,
@@ -81,7 +107,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
             sqlite_client().transaction(async tx => {
 
-                if( transaction.type == TransactionType.OUTCOME ) {
+                if( transaction.type == TransactionType.OUTCOME && transaction.envelope_id !== '') {
                     await tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_, { insertId }) => {
                     }, (tx, err) => {
                         console.error('Error update envelope', err);
@@ -90,15 +116,18 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                     });
                 }
 
+                const editBalance = getEditBalance(transaction); // (transaction.type == TransactionType.OUTCOME || transaction.type == TransactionType.TRANSFER ? transaction.amount : -transaction.amount);
+                const editEnvelopeBalance = getEditEnvelopeBalance(transaction); // (transaction.type == TransactionType.OUTCOME ? 0 : (transaction.type == TransactionType.TRANSFER ? transaction.amount : -transaction.amount));
+
                 const accountParams = [
-                    (transaction.type == TransactionType.OUTCOME ? transaction.amount : -transaction.amount),
-                    (transaction.type == TransactionType.OUTCOME ? 0 : -transaction.amount),
+                    editBalance,
+                    editEnvelopeBalance,
                     transaction.account_id
                 ];
 
                 await tx.executeSql(SQL_ACCOUNT, accountParams, (_, { insertId }) => {
                 }, (tx, err) => {
-                    console.error('Error update account', err);
+                    console.error('Error update account', accountParams, err);
                     console.error(err);
                     return true;
                 });
@@ -106,7 +135,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                 await tx.executeSql(SQL_TRANSACTION, params, (_, { result } : any) => {
                     insertId = result;
                 }, (tx, err) => {
-                    console.error('Error insert transaction', err);
+                    console.error('Error insert transaction', params, err);
                     return true;
                 });
             }, err => {
@@ -120,7 +149,6 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
     addAll(transactions: AccountTransaction[]): Promise<(string|number|undefined)[]> {
         
         return Promise.all( transactions.map(this.add) );
-
     }
 
     update(transaction: AccountTransaction): Promise<void> {

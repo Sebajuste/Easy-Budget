@@ -4,7 +4,7 @@ import _ from "lodash";
 
 import { Envelope } from "../services/envelope";
 import { scroll_styles } from "../styles";
-import { AccountTransaction } from "../services/transaction";
+import { AccountTransaction, TransactionType } from "../services/transaction";
 import NextPaymentListView from "./payment/payment-list-view";
 
 import { t } from '../services/i18n';
@@ -18,6 +18,7 @@ export default function HomeScreen({navigation} : any) {
         amount: envelope.amount,
         envelope_id: envelope._id,
         date: new Date().toISOString() as any,
+        type: TransactionType.OUTCOME
       } as AccountTransaction;
 
       navigation.navigate({name: 'Transaction', params: {transaction: transaction} });

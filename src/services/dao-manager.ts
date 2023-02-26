@@ -63,67 +63,8 @@ export class DAOFactory {
       return daoMapping.get(className) as DAO<T>;
     }
 
-    /*
-    switch(databaseType) {
-      case DatabaseType.ASYNC_STORAGE: {
-        if( ASYNC_STORAGE_DAO.has(clazz.name) ) {
-          return ASYNC_STORAGE_DAO.get(clazz.name) as DAO<T>;
-        }
-        break;
-      }
-      case DatabaseType.SQLite: {
-        if( SQLITE_DAO.has(clazz.name) ) {
-          return SQLITE_DAO.get(clazz.name) as DAO<T>;
-        }
-        break;
-      }
-    }
-    */
-
-    // throw new Error(`Invalid DAO type ${className} for ${databaseType}`);
     return new InvalidDao(className);
 
   }
 
-  /*
-  static getDAO<T>(clazz: typeof DAO<T>, database : Database) : DAO<T> {
-    switch(database) {
-      case Database.ASYNC_STORAGE: {
-        const dao = ASYNC_STORAGE_DAO[clazz.name];
-        if( dao ) {
-          return dao;
-        }
-        break;
-      }
-      case Database.SQLite: {
-        const dao = SQLITE_DAO[clazz.name];
-        if( dao ) {
-          return dao;
-        }
-        break;
-      }
-    }
-    throw new Error(`Invalid DAO type ${clazz.name} for ${database}`);
-  }
-  */
-
 }
-
-
-/*
-export function getDao<T>(clazz: any, database : Database) : T {
-
-	switch(database) {
-
-    case Database.ASYNC_STORAGE: {
-      return ASYNC_STORAGE_DAO[clazz.name] as T;
-    }
-    case Database.SQLite: {
-      return SQLITE_DAO[clazz.name] as T;
-    }
-  }
-  
-  // throw new Error('Cannot find database')
-  return {} as T;
-}
-*/

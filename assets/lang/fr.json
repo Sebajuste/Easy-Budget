@@ -8,7 +8,8 @@
         "fill": "Remplir",
         "pay": "Payer",
         "save": "Sauvegarder",
-        "start_tutorial": "Démarrer le tutoriel"
+        "start_tutorial": "Démarrer le tutoriel",
+        "transfer" : "Transférer"
     },
     "common": {
         "account": "Compte",
@@ -16,7 +17,7 @@
         "account_name": "Nom du compte",
         "all_accounts": "Tous les comptes",
         "all_revenues": "Tous les revenus",
-        "amount": "Quantité",
+        "amount": "Montant",
         "amount_budget": "Quantité du budget alloué",
         "budget_period": "Périodicité du budget",
         "budget_monthly": "Budget mensuel",
@@ -27,6 +28,7 @@
         "close": "Fermer",
         "date": "Date",
         "delete": "Supprimer",
+        "destination": "Destination",
         "due_date": "Date d'échéance",
         "envelope": "Enveloppe",
         "envelops": "Enveloppes",
@@ -48,6 +50,7 @@
         "transactions": "Transactions",
         "transaction_name": "Nom de la transaction",
         "type": "Type",
+        "transfer" : "Virement",
         "outcome": "Sortie",
         "income": "Entrée"
     },
@@ -84,7 +87,7 @@
         "settings": "Paramètres"
     },
     "tutorial": {
-        "start": "Commencez par créer vos comptes bancaires, et initialiser les avec leurs soldes actuels.",
+        "start": "Commencez par créer vos comptes bancaires, et initialisez les avec leurs soldes actuels.",
         "enter_revenues": "Entrez vos revenus mensuels",
         "create_categories_and_envelopes": "Créez vos enveloppes, et configurez les.",
         "fill_envelopes": "Commencez à remplir vos enveloppes. Après cela, chaque mois, vous devrez les remplir avec vos revenus.",

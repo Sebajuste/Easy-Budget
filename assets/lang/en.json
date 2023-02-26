@@ -8,7 +8,8 @@
         "fill": "Fill",
         "pay": "Pay",
         "save": "Save",
-        "start_tutorial": "Start tutorial"
+        "start_tutorial": "Start tutorial",
+        "transfer" : "Transfer"
     },
     "common": {
         "account": "Account",
@@ -27,6 +28,7 @@
         "close": "Close",
         "date": "Date",
         "delete": "Delete",
+        "destination": "Destination",
         "due_date": "Due date",
         "envelope": "Envelope",
         "envelops": "Envelopes",
@@ -47,6 +49,7 @@
         "transaction": "Transaction",
         "transactions": "Transactions",
         "transaction_name": "Transaction name",
+        "transfer" : "Transfer",
         "type": "Type",
         "outcome": "Outcome",
         "income": "Income"

@@ -27,7 +27,8 @@ export abstract class EnvelopeTransactionDao extends DAO<EnvelopeTransaction> {
 
 export enum TransactionType {
     INCOME = 'INCOME',
-    OUTCOME = 'OUTCOME'
+    OUTCOME = 'OUTCOME',
+    TRANSFER = 'TRANSFER'
 }
 
 export interface AccountTransaction {
