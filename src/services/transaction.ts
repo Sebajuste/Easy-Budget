@@ -40,6 +40,8 @@ export interface AccountTransaction {
     type: TransactionType;
     date: Date;
     reconciled: boolean;
+    category_id: string | number;
+    icon?: string;
     color?: string;
 }
 

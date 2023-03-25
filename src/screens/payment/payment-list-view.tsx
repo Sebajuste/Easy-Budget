@@ -35,7 +35,7 @@ function NextPaimentItem({envelope, onPayment} : {envelope:Envelope, onPayment?:
                 <View style={{flex: 1}}>
                      <Text style={{fontSize: 24}}>{envelope.name}</Text>
                         <Text>{ dateStr }</Text>
-                        <Text>{envelope.funds} € / {envelope.amount} €</Text>
+                        <Text>{envelope.funds.toFixed(2)} € / {envelope.amount.toFixed(2)} €</Text>
                 </View>
                 <View >
                     <Button text={t('buttons:pay')} onPress={() => { if( onPayment ) { onPayment(envelope); } } }></Button>

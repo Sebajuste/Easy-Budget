@@ -188,6 +188,7 @@ function MainStackScreen() {
             <Stack.Screen name="Transaction" component={ AccountTransactionScreen } options={{title: t('common:transaction') }}/>
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: t('title:account_create')}}/>
+            <Stack.Screen name="EditAccount" component={ AccountScreen } options={{title: t('title:account_edit')}}/>
 
                                                                                                                                                         
             <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: t('title:account_create'), headerRight: () => (<Pressable style={{padding: 15}} onPress={() => navigation.navigate({name: 'CreateAccount'})} ><Icon name="plus" style={{fontSize: 17}} /></Pressable>) })}/>

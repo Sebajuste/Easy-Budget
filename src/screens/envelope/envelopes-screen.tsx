@@ -48,7 +48,7 @@ function EnvelopeListItem(props : any) {
         <View style={{...styles.image}}>
           <View style={{flex: 1, flexDirection: 'column'}}>
             <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center", fontSize: 20, flexWrap: "nowrap", overflow: "hidden", color: category.color }}>{envelope.funds.toFixed(2)}€</Text>
-            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds.toFixed(2) : envelope.amount.toFixed(2)}€</Text>
           </View>
           <Text style={{fontSize: 10}}>{dueDate}</Text>
         </View>

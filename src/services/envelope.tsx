@@ -16,6 +16,7 @@ export interface Envelope {
     period: Period;
     dueDate: Date;
     category_id: string;
+    category?:string;
 }
 
 export function periodToString(budgetPeriod : Period) {

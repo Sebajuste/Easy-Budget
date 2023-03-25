@@ -84,19 +84,18 @@ export class AccountDaoSQLite extends AccountDao {
     update(account: Account) : Promise<void> {
 
         const SQL = `UPDATE t_account_act
-            SET act_name = ?,
-                act_balance = ?,
-                act_envelope_balance = ?,
-                act_created_at = ?
+            SET act_name = ?
             WHERE act_id = ?`;
 
-        const params = [account.name, account.balance, account.envelope_balance, account.created_at.toISOString()];
+        const params = [account.name, account._id];
         
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
+                    console.log('account updated', account)
                     resolve();
                 }, (tx, err) => {
+                    console.error(err);
                     reject(err);
                     return true;
                 });

@@ -78,13 +78,14 @@
         "settings": "Settings"
     },
     "title": {
+        "account_create": "Create Account",
+        "account_edit": "Edit Account",
         "category_new": "New Category",
         "category_edit": "Edit Category",
         "confirm_delete": "Confirm Delete",
         "envelop_new": "New Envelope",
         "envelop_create": "Create Envelope",
         "envelop_fill": "Fill envelope",
-        "account_create": "Create Account",
         "revenue_edit": "Edit Revenue",
         "revenue_new": "Create Revenue",
         "settings": "Settings"

@@ -79,6 +79,7 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         .then( async () => {
             const versionSetting = await getDatabaseVersion(this.db);
             const version = versionSetting ? versionSetting.value : '1.0.0';
+            console.log('Update version ', version);
             if( SCHEMA_ACTIONS[version] ) {
                 return await SCHEMA_ACTIONS[version].action(this.client).catch(err => {
                     this.error = err;

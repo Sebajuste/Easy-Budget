@@ -24,8 +24,11 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
                     ELSE '${Period.MONTHLY}'
                 END AS period,
                 evp_due_date as dueDate,
-                evp_category_id as category_id
+                evp_category_id as category_id,
+                cat_name as category
             FROM t_envelope_evp
+                INNER JOIN t_category_cat
+                    ON cat_id = evp_category_id
             `;
 
             sqlite_client().transaction(tx => {

@@ -71,7 +71,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
-                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total} €</Text>
+                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total.toFixed(2)} €</Text>
                     {accounts_items}
                 </ScrollView>
             ) : (

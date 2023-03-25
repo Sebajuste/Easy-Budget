@@ -2,7 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { SchemaAction } from './schema-sqlite';
 
 
-const DATABASE_VERSION = '1.0.0';
+const DATABASE_VERSION = '1.0.1';
 
 
 export class InstallSQLite implements SchemaAction {
@@ -154,7 +154,8 @@ export class InstallSQLite implements SchemaAction {
                     ats_amount DECIMAL(10,2) NOT NULL,
                     ats_date DATETIME DEFAULT (datetime('now')),
                     ats_reconciled BOOLEAN DEFAULT FALSE,
-                    ats_envelope_id INTEGER REFERENCES t_envelope_evp(evp_id) DEFAULT NULL,
+                    ats_category_id INTEGER CONSTRAINT "fk__ats_category_id" REFERENCES t_category_cat(cat_id) ON DELETE SET NULL DEFAULT NULL,
+                    ats_envelope_id INTEGER CONSTRAINT "fk__ats_envelope_id" REFERENCES t_envelope_evp(evp_id) ON DELETE SET NULL DEFAULT NULL,
                     ats_account_id INTEGER NOT NULL CONSTRAINT "fk__ats_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
                 { sql: `CREATE TRIGGER IF NOT EXISTS check_ats_type_insert

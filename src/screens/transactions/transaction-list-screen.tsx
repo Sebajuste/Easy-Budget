@@ -30,7 +30,7 @@ function AccountTransactionItem({transaction, index} : {transaction : any, index
                 <Icon name={transaction.icon} style={{color: 'white', fontSize: 18}} />
             </View>
             <View style={{flex: 1}}>
-                <Text>{transaction.name}</Text>
+                <Text>{transaction.name} {transaction.icon}</Text>
                 <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toLocaleDateString() : transaction.date.toLocaleDateString()}</Text>                        
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -62,6 +62,10 @@ export function AccountTransactionListScreen({navigation, route} : any) {
         setConfirm(true);
     };
 
+    const openEditHandler = () => {
+        navigation.navigate({name: 'EditAccount', params: {account: account} });
+    };
+
     const deleteHandler =  () => {
         const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
         accountDao.remove(account)//
@@ -90,13 +94,10 @@ export function AccountTransactionListScreen({navigation, route} : any) {
         }).then(setTransactions);
     }, [isFocused]);
 
-    
     return (
         <SafeAreaView style={styles.container}>
 
-            <DeleteConfirmModal options={{title: t('title:confirm_delete')}} visible={confirm} onCancel={() => setConfirm(false)} onConfirm={() => deleteHandler()} />
-
-            <Button style={styles.button} text="DELETE" onPress={openDeleteHandler} status="danger" />
+            <Button style={styles.button} text={t('buttons:edit')} onPress={openEditHandler} status="warning" />
             <Button style={styles.button} text={t('common:new')} onPress={newTransactionHandler} />
             <FlatList
                 data={transactions}

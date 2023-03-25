@@ -78,13 +78,14 @@
         "settings": "Paramètres"
     },
     "title": {
+        "account_create": "Création de Compte",
+        "account_edit": "Modification de Compte",
         "category_new": "Nouvelle catégorie",
         "category_edit": "Modification",
         "confirm_delete": "Confirmez la suppression",
         "envelop_new": "Nouvelle Enveloppe",
         "envelop_create": "Nouvelle Enveloppe",
         "envelop_fill": "Remplissage",
-        "account_create": "Création de Compte",
         "revenue_edit": "Modification de Revenu",
         "revenue_new": "Nouveau Revenue",
         "settings": "Paramètres"
