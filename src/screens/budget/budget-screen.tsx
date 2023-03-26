@@ -1,9 +1,11 @@
 import { useIsFocused } from "@react-navigation/core";
 import { useEffect, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Button } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { t } from "../../services/i18n";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 
@@ -12,9 +14,33 @@ export default function BudgetScreen() {
 
     const [stats, setStats] = useState<any[]>([]);
 
+    const [date, setDate] = useState(new Date());
+
     const transactionDao : AccountTransactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE) as AccountTransactionDao;
 
     const isFocused = useIsFocused();
+
+    const updateStats = (date: Date) => {
+        transactionDao.statsForMonth(date.getFullYear(), date.getMonth()+1)//
+        .then(setStats)//
+        .catch(console.error);
+    };
+
+    const previousHandler = () => {
+        setDate(oldDate => {
+            oldDate.setUTCMonth( oldDate.getUTCMonth() - 1);
+            updateStats(oldDate);
+            return oldDate;
+        });
+    };
+
+    const nextHandler = () => {
+        setDate(oldDate => {
+            oldDate.setUTCMonth( oldDate.getUTCMonth() + 1);
+            updateStats(oldDate);
+            return oldDate;
+        });
+    };
 
     const renderItemHandler = ({item, index} : {item: any, index: number}) => (
         <View style={styles.item} >
@@ -31,14 +57,21 @@ export default function BudgetScreen() {
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 
     useEffect(() => {
-        transactionDao.statsForMonth(2023, 3)//
-        .then(setStats)//
-        .catch(console.error);
-        
-    }, [isFocused]);
+        updateStats(date);
+    }, [isFocused, date]);
 
     return (
         <SafeAreaView style={scroll_styles.container}>
+
+            <View style={{flexDirection: "row", height: 50, margin: 10}}>
+                <Button text={t('buttons:previous')} onPress={previousHandler} />
+                <View style={{flex: 1, margin: 5}}>
+                    <Text>Year : {date.getFullYear() }</Text>
+                    <Text>Mois : {date.getMonth()}</Text>
+                </View>
+                <Button text={t('buttons:next')} onPress={nextHandler} />
+            </View>
+
             <FlatList data={stats} keyExtractor={(stat, index) => `${index}`} renderItem={renderItemHandler} ItemSeparatorComponent={itemSeparatorHandler} />
         </SafeAreaView>
     );

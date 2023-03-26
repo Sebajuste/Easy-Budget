@@ -53,7 +53,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             cat_color as color,
             cat_icon as icon
         FROM t_account_transaction_ats
-            INNER JOIN t_category_cat
+            LEFT OUTER JOIN t_category_cat
                 ON cat_id = ats_category_id
             LEFT OUTER JOIN t_envelope_evp
                 ON evp_id = ats_envelope_id
@@ -78,9 +78,9 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
     add(transaction: AccountTransaction): Promise<string | number | undefined> {
 
         const SQL_TRANSACTION = `INSERT INTO t_account_transaction_ats (
-            ats_name, ats_type, ats_amount, ats_date, ats_reconciled, ats_category_id, ats_envelope_id, ats_account_id
+            ats_name, ats_type, ats_amount, ats_date, ats_category_id, ats_envelope_id, ats_account_id
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?
         )`;
 
         const SQL_ENVELOPE = `UPDATE t_envelope_evp SET evp_current_amount = evp_current_amount - ? WHERE evp_id = ?`;
@@ -95,8 +95,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             transaction.type == TransactionType.TRANSFER ? TransactionType.OUTCOME.toString() : transaction.type.toString(),
             transaction.amount,
             transaction.date.toISOString(),
-            transaction.reconciled ? 1 : 0,
-            transaction.category_id,
+            transaction.category_id == '' ? null : transaction.category_id,
             transaction.envelope_id == '' ? null : transaction.envelope_id,
             transaction.account_id,
         ];

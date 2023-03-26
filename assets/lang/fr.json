@@ -8,7 +8,9 @@
         "delete": "Supprimer",
         "edit": "Modifier",
         "fill": "Remplir",
+        "next": "Suivant",
         "pay": "Payer",
+        "previous": "Précédent",
         "save": "Sauvegarder",
         "start_tutorial": "Démarrer le tutoriel",
         "transfer" : "Transférer"

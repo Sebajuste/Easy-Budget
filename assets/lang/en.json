@@ -8,7 +8,9 @@
         "delete": "Delete",
         "edit": "Edit",
         "fill": "Fill",
+        "next": "Next",
         "pay": "Pay",
+        "previous": "Previous",
         "save": "Save",
         "start_tutorial": "Start tutorial",
         "transfer" : "Transfer"

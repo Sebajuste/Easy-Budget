@@ -10,6 +10,8 @@ export class AccountDaoSQLite extends AccountDao {
     }
 
     load(): Promise<Account[]> {
+
+        /*
        const SQL = `
         SELECT act_id as _id,
             act_name as name,
@@ -18,6 +20,32 @@ export class AccountDaoSQLite extends AccountDao {
             act_created_at as created_at
         FROM t_account_act
         `;
+        */
+
+        const SQL = `
+        SELECT act_id as _id,
+            act_name as name,
+            act_balance as balance,
+            act_envelope_balance as envelope_balance,
+            act_created_at as created_at,
+            ( IFNULL(outcome.total, 0) + IFNULL(income.total, 0) ) as total_reconciled
+        FROM t_account_act
+            LEFT OUTER JOIN (
+                SELECT ats_account_id, SUM(-ats_amount) as total
+                FROM t_account_transaction_ats
+                WHERE ats_type = 'OUTCOME'
+                    AND ats_reconciled = 1
+                GROUP BY ats_account_id
+            ) as outcome
+                ON outcome.ats_account_id = act_id
+            LEFT OUTER JOIN (
+                SELECT ats_account_id, SUM(ats_amount) as total
+                FROM t_account_transaction_ats
+                WHERE ats_type = 'INCOME'
+                    AND ats_reconciled = 1
+                GROUP BY ats_account_id
+            ) as income
+                ON income.ats_account_id = act_id`;
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
@@ -61,18 +89,39 @@ export class AccountDaoSQLite extends AccountDao {
 
     add(account: Account) : Promise<string|number|undefined> {
 
-        const SQL = `INSERT INTO t_account_act (
+        const SQL_ACCOUNT = `INSERT INTO t_account_act (
             act_name,
             act_balance,
             act_envelope_balance
         ) VALUES (?, ?, ?)`;
 
+        const SQL_TRANSACTION = `INSERT INTO t_account_transaction_ats (
+            ats_name, ats_type, ats_amount, ats_date, ats_account_id
+        ) VALUES (
+            ?, 'INCOME', ?, ?, ?
+        )`;
+
         const params = [account.name, account.balance, account.envelope_balance];
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
-                tx.executeSql(SQL, params, (_, { insertId }) => {
-                    resolve(insertId);
+                tx.executeSql(SQL_ACCOUNT, params, (_, { insertId }) => {
+
+                    const transaction_params = [
+                        account.name,
+                        account.balance,
+                        new Date().toISOString(),
+                        insertId != undefined ? insertId : -1,
+                    ];
+
+                    tx.executeSql(SQL_TRANSACTION, transaction_params, () => {
+                        resolve(insertId);
+                    }, (tx, err) => {
+                        reject(err);
+                        return true;
+                    });
+
+                    
                 }, (tx, err) => {
                     reject(err);
                     return true;
