@@ -8,20 +8,23 @@ import _ from "lodash";
 
 import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
+import { AccountTransaction, TransactionType } from "../../services/transaction";
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
-import { DeleteConfirmModal } from "../../components/modal";
 
 
 
-function AccountTransactionItem({transaction, index} : {transaction : any, index: number}) {
+function AccountTransactionItem({transaction, index} : {transaction : AccountTransaction, index: number}) {
 
-    const [reconciled, setReconciled] = useState(false);
+    const [reconciled, setReconciled] = useState(transaction.reconciled);
+
+    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
     const reconciledHandler = (val: boolean) => {
-        // setReconciled(val);
+        setReconciled(val);
+        transaction.reconciled = val;
+        transactionDao.update(transaction).catch(console.error);
     };
 
     return (
@@ -30,7 +33,7 @@ function AccountTransactionItem({transaction, index} : {transaction : any, index
                 <Icon name={transaction.icon} style={{color: 'white', fontSize: 18}} />
             </View>
             <View style={{flex: 1}}>
-                <Text>{transaction.name} {transaction.icon}</Text>
+                <Text>{transaction.name}</Text>
                 <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toLocaleDateString() : transaction.date.toLocaleDateString()}</Text>                        
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -56,16 +59,19 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
+    /*
     const [confirm, setConfirm] = useState(false);
 
     const openDeleteHandler = () => {
         setConfirm(true);
     };
+    */
 
     const openEditHandler = () => {
         navigation.navigate({name: 'EditAccount', params: {account: account} });
     };
 
+    /*
     const deleteHandler =  () => {
         const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
         accountDao.remove(account)//
@@ -77,6 +83,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
             console.error(err);
         });
     };
+    */
 
     const newTransactionHandler = () => {
         navigation.navigate({name: 'Transaction', params: {account: account}});
