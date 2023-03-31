@@ -67,6 +67,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.name = name;
             transaction.type = type;
             transaction.amount = amount;
+            transaction.category_id = envelope?.category_id || '';
             transaction.envelope_id = envelope?._id || '';
             transaction.account_id = account._id;
             transaction.date = date;
@@ -84,6 +85,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
             transaction.name = name;
             transaction.type = type;
             transaction.amount = amount;
+            transaction.category_id = envelope?.category_id || '';
             transaction.envelope_id = envelope?._id || '';
             transaction.account_id = account._id;
             transaction.date = date;
@@ -154,7 +156,7 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
             return envelopes.map(envelope => {
                 return {
-                    label: `${envelope.name} [${envelope.funds.toFixed(2)}]`,
+                    label: `${envelope.category} - ${envelope.name} [${envelope.funds.toFixed(2)}]`,
                     value: envelope._id
                 };
             });
@@ -172,6 +174,14 @@ export function AccountTransactionScreen({navigation, route} : any) {
     }, [isFocused]);
 
     const destinationAccountItems = _.filter(accountItems, item => item.value !== `${account?._id}`);
+
+    const fillButton = (
+         (envelope && amount > envelope.funds) ? (
+            <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
+         ) : (
+            null
+         )
+    );
 
     return (
         <Layout style={{margin: 10}}>
@@ -220,17 +230,13 @@ export function AccountTransactionScreen({navigation, route} : any) {
                         <View style={styles_form.group}>
                             <Text style={{ fontSize: 12 }}>{t('common:envelope')}</Text>
                             <Picker placeholder={t('common:envelope')} items={envelopItems} value={ `${envelope ? envelope?._id : ''}` } onValueChange={setEnvelopeHandler} ></Picker>
+                            { fillButton }
                         </View>
                     ) : (
                         <View style={{flex: 1, margin: 2, flexDirection: "row"}}>
-                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.name } </Text>
-                        { envelope && amount > envelope.funds ?
-                            <Button text={t('buttons:fill')} onPress={fillHandler} ></Button>
-                        :
-                            null
-                        }
+                            <Text style={{ marginTop: 12, marginBottom: 12, flex: 1 }}>{t('common:envelope')}: { envelope?.category } - { envelope?.name } [{ envelope?.amount }] </Text>
+                            { fillButton }
                         </View>
-                        
                     ) }
                 </View>
                 ) : ( null )}

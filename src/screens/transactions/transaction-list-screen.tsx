@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { StackActions, useIsFocused } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
 import { Button, CheckBox, Text } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -8,19 +8,23 @@ import _ from "lodash";
 
 import { Account } from "../../services/account";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { AccountTransaction, AccountTransactionDao, TransactionType } from "../../services/transaction";
+import { AccountTransaction, TransactionType } from "../../services/transaction";
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
 
 
 
-function AccountTransactionItem({transaction, index} : {transaction : any, index: number}) {
+function AccountTransactionItem({transaction, index} : {transaction : AccountTransaction, index: number}) {
 
-    const [reconciled, setReconciled] = useState(false);
+    const [reconciled, setReconciled] = useState(transaction.reconciled);
+
+    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
     const reconciledHandler = (val: boolean) => {
-        // setReconciled(val);
+        setReconciled(val);
+        transaction.reconciled = val;
+        transactionDao.update(transaction).catch(console.error);
     };
 
     return (
@@ -55,6 +59,11 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
+
+    const openEditHandler = () => {
+        navigation.navigate({name: 'EditAccount', params: {account: account} });
+    };
+
     const newTransactionHandler = () => {
         navigation.navigate({name: 'Transaction', params: {account: account}});
     };
@@ -67,13 +76,15 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     useEffect(() => {
         transactionDao.load().then(transactions => {
+            console.log('transactions: ', transactions);
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);
     }, [isFocused]);
 
-    
     return (
         <SafeAreaView style={styles.container}>
+
+            <Button style={styles.button} text={t('buttons:edit')} onPress={openEditHandler} status="warning" />
             <Button style={styles.button} text={t('common:new')} onPress={newTransactionHandler} />
             <FlatList
                 data={transactions}
@@ -85,6 +96,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     );
 
 }
+
 
 const styles = StyleSheet.create({
     container: {

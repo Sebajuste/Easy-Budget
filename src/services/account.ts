@@ -6,6 +6,7 @@ export interface Account {
     balance: number;
     envelope_balance: number;
     created_at: Date;
+    total_reconciled?: number;
 }
 
 export abstract class AccountDao extends DAO<Account> {

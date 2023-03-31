@@ -1,17 +1,18 @@
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
 
 import { SelectDateComponent } from "../../components/select-date";
 import { budgetPerMonth, Envelope, Period, periodFromString, periodToString } from "../../services/envelope";
-import {  Category } from "../../services/category";
+import { Category } from "../../services/category";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { styles_form } from "../../styles";
+import { DeleteConfirmModal } from "../../components/modal";
 
 
 const operation_type_picker_items = [
@@ -52,6 +53,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
     const [dueDate, setDueDate] = useState( envelope && envelope.dueDate ? (typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate) : new Date() );
 
     const [categoryItems, setCategoryItems] = useState<any[]>([]);
+
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
     const showDueDate = period != Period.MONTHLY;
 
@@ -102,10 +105,16 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     }
 
+    const openDeleteHandler = () => {
+        setDeleteModalVisible(true);
+    };
+
     const deleteHandler = () => {
-        envelopeDao?.remove(envelope).then(v => {
+        envelopeDao.remove(envelope).then(v => {
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
+        }).catch(err => {
+            console.error(err);
         });
     };
 
@@ -139,6 +148,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     return (
         <Layout style={{margin: 10}}>
+
+            <DeleteConfirmModal options={{title: 'Confirm Delete'}} visible={deleteModalVisible} onCancel={() => setDeleteModalVisible(false)} onConfirm={() => deleteHandler()} />
         
             <View style={styles_form.container}>
 
@@ -202,7 +213,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
             </View>
 
             <View style={{ flexDirection: 'row'}} >
-                { updateForm ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" onPress={deleteHandler}></Button> : <></> }
+                { updateForm ? <Button style={{margin: 5, flexGrow: 1}} text={t('common:delete')} status="danger" disabled={ envelope.funds > 0 } onPress={() => setDeleteModalVisible(true)}></Button> : <></> }
                 <Button style={{margin: 5, flexGrow: 1}} text={t('common:save')} status="primary" disabled={!formValid} onPress={updateForm ? updateHandler : addHandler}></Button>
             </View>
             

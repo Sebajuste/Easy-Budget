@@ -109,6 +109,8 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const transactions_items = transactions?.map((transaction, index) => <EnvelopeTransactionView transaction={transaction} key={index} />);
 
+    const maxEnvelope = Math.min((account?.envelope_balance || 0) + funds, envelope.amount);
+
     return (
         <Layout style={{margin: 10}}>
 
@@ -130,7 +132,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
                     value={solde}
                     disabled={ !account }
                     minimumValue={0}
-                    maximumValue={(account?.envelope_balance || 0) + funds}
+                    maximumValue={maxEnvelope}
                     step={1}
                     onValueChange={(values: any) => setSolde(values[0])}
                 />

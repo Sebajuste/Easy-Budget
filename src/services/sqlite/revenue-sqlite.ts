@@ -17,10 +17,13 @@ export class RevenueDaoSQLite extends RevenueDao {
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
+                    resolve( _array );
+                    /*
                     resolve( _array.map(item => {
                         item.expectDate = new Date(item.expectDate);
                         return item;
                     }) );
+                    */
                 }, (tx, err) => {
                     reject(err);
                     return true;
@@ -37,7 +40,7 @@ export class RevenueDaoSQLite extends RevenueDao {
 
         const SQL = 'INSERT INTO t_revenue_rev (rev_name, rev_amount, rev_expect_date) VALUES (?, ?, ?)';
 
-        const params = [revenue.name, revenue.amount, revenue.expecteDate.toISOString() ];
+        const params = [revenue.name, revenue.amount, revenue.expectDate ];
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
@@ -59,10 +62,11 @@ export class RevenueDaoSQLite extends RevenueDao {
     update(revenue: Revenue): Promise<void> {
         const SQL = `UPDATE t_revenue_rev
         SET rev_name = ?,
-            rev_amount = ?
+            rev_amount = ?,
+            rev_expect_date = ?
         WHERE rev_id = ?`;
 
-        const params = [revenue.name, revenue.amount, revenue._id];
+        const params = [revenue.name, revenue.amount, revenue.expectDate, revenue._id];
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {

@@ -8,7 +8,7 @@ import { Category } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
@@ -40,7 +40,9 @@ function EnvelopeListItem(props : any) {
         return _.sum( _.map(transactions,'amount') );
       })//
       .then(setTotalFilled);
-  }, [])  
+  }, []);
+
+  console.log('render EnvelopeListItem ', envelope.name);
 
   return (
     <Animatable.View animation={"flipInY"} duration={1000} delay={index*300} >
@@ -48,7 +50,7 @@ function EnvelopeListItem(props : any) {
         <View style={{...styles.image}}>
           <View style={{flex: 1, flexDirection: 'column'}}>
             <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center", fontSize: 20, flexWrap: "nowrap", overflow: "hidden", color: category.color }}>{envelope.funds.toFixed(2)}€</Text>
-            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds : envelope.amount}€</Text>
+            <Text style={{flex: 1, alignItems: 'center', textAlign: 'center', flexGrow: 1, textAlignVertical: "center"}}>{envelope.funds > envelope.amount ? envelope.funds.toFixed(2) : envelope.amount.toFixed(2)}€</Text>
           </View>
           <Text style={{fontSize: 10}}>{dueDate}</Text>
         </View>
@@ -64,7 +66,20 @@ function EnvelopeListItem(props : any) {
 
 }
 
+function EnvelopeSectionList({navigation, envelopes, categories} : {navigation:any, envelopes : Envelope[], categories: Category[]}) {
 
+  const renderItemHandler = ({item, index} : {item: Envelope, index: number}) => {
+    const category = _.find(categories, {'_id': item.category_id});
+    return <EnvelopeListItem envelope={item} category={category} navigation={navigation} index={index} />;
+  };
+
+  const memoizedRenterItemHandler = useMemo(() => renderItemHandler, [envelopes]);
+
+  return (
+    <FlatList data={envelopes} renderItem={memoizedRenterItemHandler} numColumns={horizontalSplit(ITEM_WIDTH)} style={styles.list} contentContainerStyle={styles.list} />
+  );
+
+}
 
 
 
@@ -101,6 +116,12 @@ function BudgetState({envelopes, totalRevenue} : {envelopes: Envelope[], totalRe
 }
 
 
+interface EnvelopesScreenState {
+  loading: boolean;
+  categories: Category[];
+  envelopes: Envelope[],
+  totalRevenue: number
+}
 
 const ITEM_WIDTH = 160;
 
@@ -108,13 +129,20 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const viewRef = useRef(null);
 
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
+    const [infos, setInfos] = useState<EnvelopesScreenState>({
+      loading: false,
+      categories: [],
+      envelopes: [],
+      totalRevenue: 0
+    });
+
+    /*
     const [categories, setCategories] = useState<Category[]>([]);
-
     const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
-
     const [totalRevenue, setTotalRevenue] = useState(0);
+    */
 
     const isFocused = useIsFocused();
 
@@ -127,63 +155,77 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     };
 
     useEffect(() => {
-      setLoading(true);
+      console.log('EnvelopesScreen useEffect');
+      // setLoading(true);
+      setInfos( (oldInfo) => ({
+        ...oldInfo,
+        loading: true
+      }));
       Promise.all([categoriesDao.load(), envelopeDao.load(), revenueDao.load()]).then( ([categories, envelopes, revenues]) => {
+        /*
         setCategories(categories);
         setEnvelopes(envelopes);
         setTotalRevenue( _.sum( _.map(revenues, revenue => revenue.amount) ) );
+        */
+        setInfos({
+          loading: false,
+          categories: categories,
+          envelopes: envelopes,
+          totalRevenue: _.sum( _.map(revenues, revenue => revenue.amount) )
+        });
         if( onChange ) onChange(categories);
       }).catch(err => {
         console.error(err);
       }).finally(() => {
-        setLoading(false);
+        // setLoading(false);
       });
 
+      /*
       const unsubscribe = navigation.addListener('focus', () => {
         if( viewRef != null && viewRef.current != null ) {
           // viewRef.current.animate({ 0: { opacity: 0.5, }, 1: { opacity: 1 } });
         }
       });
       return () => unsubscribe;
+      */
 
-    }, [navigation, isFocused])
+    }, [isFocused])
 
-    if( loading ) {
-      <SafeAreaView style={scroll_styles.container}>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    }
     
-    const envelopes_group = _.groupBy(envelopes, 'category_id');
+    
+    const envelopes_group = _.groupBy(infos.envelopes, 'category_id');
 
     const editCategoryHandler = (category: Category) => {
       navigation.navigate({name: 'EditCategory', params: {category: category} });
     };
-        
+    
+    /*
     const addEnvelopHandler = (category: Category) => {
       navigation.navigate({name: 'CreateEnvelope', params: {category: category} });
     };
 
+    /*
     const renderItemHandler = ({item, index} : {item: Envelope, index: number}) => {
       const category = _.find(categories, {'_id': item.category_id});
       return <EnvelopeListItem envelope={item} category={category} navigation={navigation} index={index} />;
     };
+    */
 
-    const renderSectionHandler = ({item, section} : any) => {
-
+    const renderSectionHandler = ({item} : {item: Envelope[]}) => {
       return (
-        <FlatList data={item} renderItem={renderItemHandler} numColumns={horizontalSplit(ITEM_WIDTH)} style={styles.list} contentContainerStyle={styles.list} />
+        <EnvelopeSectionList navigation={navigation} envelopes={item} categories={infos.categories} />
       );
-
     };
 
     const renderHeaderHandler = ({section}: any) => {
-      const category = {_id: section._id, name: section.name, color: section.color} as Category;
+      const { category_id } = section.data[0][0];
+
+      const category = _.find(infos.categories, item => item._id == category_id);
       return <TopNav
-              style={{backgroundColor: category.color }}
-              middleContent={section.name}
+              style={{backgroundColor: category?.color }}
+              middleContent={category?.name}
               leftContent={<Icon name="edit" size={20} />}
-              leftAction={() => editCategoryHandler(category)}
+              leftAction={category ? () => editCategoryHandler(category) : () => {} }
             />;
     };
 
@@ -212,9 +254,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
     };
 
     const data = _.transform(envelopes_group, (result, value, key) => {
-      const category = _.find(categories, {"_id": _.parseInt(key) });
-      return result.push( _.assign({"data": [value]}, category) );
-    }, [])
+      const category = _.find(infos.categories, {"_id": _.parseInt(key) });
+      return result.push( _.assign({"data": [value]}, infos.category) );
+    }, []);
+
+    const memoizedRenderSectionHandler = useMemo(() => renderSectionHandler, [data] );
 
     const emptyComponent = (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', margin: 20, }}>
@@ -222,8 +266,24 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
       </View>
     );
 
+    if( ! isFocused ) {
+      return (
+        <SafeAreaView style={scroll_styles.container}>
+        </SafeAreaView>
+      );
+    }
+
+    if( infos.loading ) {
+      return (
+        <SafeAreaView style={scroll_styles.container}>
+          <Text>Loading...</Text>
+        </SafeAreaView>
+      );
+    }
+
+    console.log('EnvelopesScreen render ', data.length, isFocused, navigation.getState() );
+
     return (
-        
         <SafeAreaView style={scroll_styles.container}>
 
             <Animatable.View
@@ -234,11 +294,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
             >
               <SectionList
                 sections={data}
-                keyExtractor={(item, index) => item + index}
-                renderItem={renderSectionHandler}
+                keyExtractor={(item, index) => `${item[index]._id}` }
+                renderItem={memoizedRenderSectionHandler}
                 renderSectionHeader={renderHeaderHandler}
                 renderSectionFooter={renderFooterHandler}
-                ListFooterComponent={ <BudgetState envelopes={envelopes} totalRevenue={totalRevenue} /> }
+                ListFooterComponent={ <BudgetState envelopes={infos.envelopes} totalRevenue={infos.totalRevenue} /> }
                 ListEmptyComponent={ emptyComponent }
               />
             </Animatable.View>

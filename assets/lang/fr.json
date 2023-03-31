@@ -2,11 +2,15 @@
     "buttons": {
         "add": "Ajouter",
         "add_first_account": "Ajouter votre premier compte",
+        "cancel": "Annuler",
         "category_new": "Nouvelle catégorie",
         "create_first_envelope": "Créez vote première enveloppe",
+        "delete": "Supprimer",
         "edit": "Modifier",
         "fill": "Remplir",
+        "next": "Suivant",
         "pay": "Payer",
+        "previous": "Précédent",
         "save": "Sauvegarder",
         "start_tutorial": "Démarrer le tutoriel",
         "transfer" : "Transférer"
@@ -76,14 +80,17 @@
         "settings": "Paramètres"
     },
     "title": {
+        "account_create": "Création de Compte",
+        "account_edit": "Modification de Compte",
         "category_new": "Nouvelle catégorie",
         "category_edit": "Modification",
+        "confirm_delete": "Confirmez la suppression",
         "envelop_new": "Nouvelle Enveloppe",
         "envelop_create": "Nouvelle Enveloppe",
         "envelop_fill": "Remplissage",
-        "account_create": "Création de Compte",
         "revenue_edit": "Modification de Revenu",
         "revenue_new": "Nouveau Revenue",
+        "statistics": "Statistiques",
         "settings": "Paramètres"
     },
     "tutorial": {

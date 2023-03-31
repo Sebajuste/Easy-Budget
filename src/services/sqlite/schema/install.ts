@@ -2,7 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { SchemaAction } from './schema-sqlite';
 
 
-const DATABASE_VERSION = '1.0.0';
+const DATABASE_VERSION = '1.0.1';
 
 
 export class InstallSQLite implements SchemaAction {
@@ -56,6 +56,19 @@ export class InstallSQLite implements SchemaAction {
                                     OR NEW.evp_current_amount < 0
                                 THEN
                                     RAISE (ABORT, 'Total evp_current_amount must be less than total act_balance')
+                            END;
+                    END;`, args: []
+                },
+                { sql: `CREATE TRIGGER IF NOT EXISTS check_envelope_amount_delete
+                    BEFORE DELETE
+                    ON t_envelope_evp
+                    FOR EACH ROW
+                    BEGIN
+                        SELECT
+                            CASE
+                                WHEN OLD.evp_current_amount > 0
+                                THEN
+                                    RAISE (ABORT, 'Cannot be deleted when evp_current_amount is not equals to 0')
                             END;
                     END;`, args: []
                 },
@@ -141,8 +154,9 @@ export class InstallSQLite implements SchemaAction {
                     ats_amount DECIMAL(10,2) NOT NULL,
                     ats_date DATETIME DEFAULT (datetime('now')),
                     ats_reconciled BOOLEAN DEFAULT FALSE,
-                    ats_envelope_id INTEGER REFERENCES t_envelope_evp(evp_id) DEFAULT NULL,
-                    ats_account_id INTEGER NOT NULL REFERENCES t_account_act(act_id)
+                    ats_category_id INTEGER CONSTRAINT "fk__ats_category_id" REFERENCES t_category_cat(cat_id) ON DELETE SET NULL DEFAULT NULL,
+                    ats_envelope_id INTEGER CONSTRAINT "fk__ats_envelope_id" REFERENCES t_envelope_evp(evp_id) ON DELETE SET NULL DEFAULT NULL,
+                    ats_account_id INTEGER NOT NULL CONSTRAINT "fk__ats_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
                 { sql: `CREATE TRIGGER IF NOT EXISTS check_ats_type_insert
                     BEFORE INSERT
@@ -173,11 +187,9 @@ export class InstallSQLite implements SchemaAction {
                     ets_name TEXT NOT NULL,
                     ets_amount DECIMAL(10,2) NOT NULL,
                     ets_date DATETIME DEFAULT (datetime('now')),
-                    ets_envelope_id INTEGER NOT NULL REFERENCES t_envelope_evp(evp_id),
-                    ets_account_id INTEGER NOT NULL REFERENCES t_account_act(act_id)
+                    ets_envelope_id INTEGER NOT NULL CONSTRAINT "fk__ets_envelope_id" REFERENCES t_envelope_evp(evp_id) ON DELETE CASCADE,
+                    ets_account_id INTEGER NOT NULL CONSTRAINT "fk__ets_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
-    
-                
     
                 // Settings
                 { sql: `CREATE TABLE IF NOT EXISTS t_settings_set (

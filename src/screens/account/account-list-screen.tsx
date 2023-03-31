@@ -12,6 +12,7 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
 import ErrorMessage from "../../components/error-message";
+import { acc } from "react-native-reanimated";
 
 
 export function AccountListScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: Account[]) => void}) {
@@ -38,6 +39,9 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
             accountDao.load().then(result => {
                 setAccounts(result);
                 if( onChange ) onChange(result);
+            }).catch(err => {
+                console.error(err);
+                setError(err);
             });
         } else {
             setError('Invalid AccountDao');
@@ -54,8 +58,9 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
                 <Section style={{margin: 5}} key={index}>
                     <SectionContent >
                         <Text>{account.name}</Text>
-                        <Text>{account.balance.toFixed(2)} €</Text>
-                        <Text>[{account.envelope_balance.toFixed(2)}] €</Text>
+                        <Text>Solde : {account.balance.toFixed(2)} €</Text>
+                        <Text>Réconcilié : {account.total_reconciled?.toFixed(2)} €</Text>
+                        <Text>Disponible : [{account.envelope_balance.toFixed(2)}] €</Text>
                     </SectionContent>
                 </Section>
             </TouchableHighlight>
@@ -71,7 +76,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
-                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total} €</Text>
+                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total.toFixed(2)} €</Text>
                     {accounts_items}
                 </ScrollView>
             ) : (

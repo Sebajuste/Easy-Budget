@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {  useEffect, useRef, useState } from "react";
 import { DrawerActions, NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigationOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider } from "react-native-rapi-ui";
-import { TouchableOpacity, useWindowDimensions, Pressable, View, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Pressable, View, ActivityIndicator } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -37,6 +37,7 @@ import { DAOFactory, DATABASE_TYPE } from "./services/dao-manager";
 import { DaoType } from "./services/dao";
 import { styles } from "./styles";
 import InitConfigScreen from "./screens/settings/init-config-screen";
+import BudgetScreen from "./screens/budget/budget-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -49,6 +50,7 @@ const navTo = (navigation: any, pageName : string) => {
 
 const TABS_LIST = [
     {label: 'common:home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
+    {label: 'title:statistics', route: 'Stats', component: BudgetScreen, type: Icon, activeIcon: 'bar-chart' },
     {label: 'common:envelops', route: 'Envelops', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelop'} },
     {label: 'common:revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro', headerRight: {icon: 'plus', route: 'CreateRevenue'} },
     {label: 'common:accounts', route: 'Accounts', component: AccountListScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
@@ -188,6 +190,7 @@ function MainStackScreen() {
             <Stack.Screen name="Transaction" component={ AccountTransactionScreen } options={{title: t('common:transaction') }}/>
 
             <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: t('title:account_create')}}/>
+            <Stack.Screen name="EditAccount" component={ AccountScreen } options={{title: t('title:account_edit')}}/>
 
                                                                                                                                                         
             <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: t('title:account_create'), headerRight: () => (<Pressable style={{padding: 15}} onPress={() => navigation.navigate({name: 'CreateAccount'})} ><Icon name="plus" style={{fontSize: 17}} /></Pressable>) })}/>
