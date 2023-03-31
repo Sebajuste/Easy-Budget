@@ -18,13 +18,17 @@ export default function RevenueScreen({navigation, route} : any) {
 
     const revenue : Revenue = route.params?.revenue;
 
+    console.log('RevenueScreen: ', revenue)
+
     const [error, setError] = useState(null);
 
     const [name, setName] = useState( revenue?.name || '' );
 
     const [amount, setAmount] = useState( revenue?.amount.toString() || '' );
 
-    const [expectDate, setExpectDate] = useState( revenue?.expecteDate || new Date() );
+    console.log('revenue?.expecteDate: ', revenue?.expectDate )
+
+    const [expectDate, setExpectDate] = useState<Date>( revenue?.expectDate ? (new Date(revenue.expectDate)) : new Date() );
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
@@ -36,13 +40,13 @@ export default function RevenueScreen({navigation, route} : any) {
         if( revenue) {
             revenue.name = name;
             revenue.amount = parseFloat(amount.trim());
-            revenue.expecteDate = expectDate;
+            revenue.expecteDate = expectDate.toISOString();
             revenueDao.update(revenue).then(() => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
         } else {
-            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expecteDate: expectDate}).then((id) => {
+            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expecteDate: expectDate.toISOString()}).then((id) => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);

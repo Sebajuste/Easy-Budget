@@ -10,6 +10,29 @@ import { AccountTransaction, AccountTransactionDao } from "../../services/transa
 import { scroll_styles } from "../../styles";
 
 
+const MONTHS : {[key:number]:string}= {
+    0: 'Janvier',
+    1: 'Février',
+    2: 'Mars',
+    3: 'Avril',
+    4: 'Mai',
+    5: 'Juin',
+    6: 'Juillet',
+    7: 'Aout',
+    8: 'Septembre',
+    9: 'Octobre',
+    10: 'Novembre',
+    11: 'Décembre'
+}
+
+function getMonth(index: number) : string {
+    if( MONTHS.hasOwnProperty(index)  ) {
+        return MONTHS[index];
+    }
+    return '???';
+}
+
+
 export default function BudgetScreen() {
 
     const [stats, setStats] = useState<any[]>([]);
@@ -67,7 +90,7 @@ export default function BudgetScreen() {
                 <Button text={t('buttons:previous')} onPress={previousHandler} />
                 <View style={{flex: 1, margin: 5}}>
                     <Text>Year : {date.getFullYear() }</Text>
-                    <Text>Mois : {date.getMonth()}</Text>
+                    <Text>Month : { getMonth(date.getMonth()) }</Text>
                 </View>
                 <Button text={t('buttons:next')} onPress={nextHandler} />
             </View>

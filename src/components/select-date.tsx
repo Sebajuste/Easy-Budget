@@ -6,6 +6,8 @@ import { Button, Text } from "react-native-rapi-ui";
 
 export function SelectDateComponent({date, label, minimumDate, onChange, style} : {date : Date, label?: string, minimumDate?: Date, onChange : any, style ?: any}) {
 
+    console.log('SelectDateComponent ', date);
+
     const dateStr = date.toISOString().slice(0,10);// .replace(/-/g,"");
 
     const [showDatePicker, setShowDatePicker] = useState(false);

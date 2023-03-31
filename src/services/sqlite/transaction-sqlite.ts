@@ -61,7 +61,13 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
-                tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
+                tx.executeSql(SQL, [], (_tx, { rows: {_array} }) => {
+
+                    _array = _.map(_array, item => {
+                        item.reconciled = item.reconciled == 'true' || item.reconciled == 'TRUE' || item.reconciled === 1;
+                        return item;
+                    });
+
                     resolve(_array);
                 }, (tx, err) => {
                     reject(err);

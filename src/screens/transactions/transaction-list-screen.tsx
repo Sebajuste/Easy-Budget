@@ -59,31 +59,10 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
 
-    /*
-    const [confirm, setConfirm] = useState(false);
-
-    const openDeleteHandler = () => {
-        setConfirm(true);
-    };
-    */
 
     const openEditHandler = () => {
         navigation.navigate({name: 'EditAccount', params: {account: account} });
     };
-
-    /*
-    const deleteHandler =  () => {
-        const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-        accountDao.remove(account)//
-        .then( () => {
-            const popAction = StackActions.pop(1);
-            navigation.dispatch(popAction);
-        })//
-        .catch(err => {
-            console.error(err);
-        });
-    };
-    */
 
     const newTransactionHandler = () => {
         navigation.navigate({name: 'Transaction', params: {account: account}});
@@ -97,6 +76,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     useEffect(() => {
         transactionDao.load().then(transactions => {
+            console.log('transactions: ', transactions);
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);
     }, [isFocused]);

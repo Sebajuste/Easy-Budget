@@ -8,7 +8,7 @@ import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 import { t } from "../../services/i18n";
-import { Revenue, RevenueDao } from "../../services/revenue";
+import { Revenue } from "../../services/revenue";
 
 import { scroll_styles } from "../../styles";
 

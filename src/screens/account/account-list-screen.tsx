@@ -60,7 +60,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
                         <Text>{account.name}</Text>
                         <Text>Solde : {account.balance.toFixed(2)} €</Text>
                         <Text>Réconcilié : {account.total_reconciled?.toFixed(2)} €</Text>
-                        <Text>Disponnible : [{account.envelope_balance.toFixed(2)}] €</Text>
+                        <Text>Disponible : [{account.envelope_balance.toFixed(2)}] €</Text>
                     </SectionContent>
                 </Section>
             </TouchableHighlight>
