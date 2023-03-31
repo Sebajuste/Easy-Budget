@@ -161,9 +161,6 @@ export class EnvelopeTransactionDaoStorage extends EnvelopeTransactionDao {
             const envelope = _.find(envelopes, envelope => envelope._id == transaction.envelope_id);
             const account = _.find(accounts, account => account._id == transaction.account_id);
 
-            console.log(`[${transaction._id}] transaction : balance: ${account?.balance}, envelope_balance: ${account?.envelope_balance}, envelope_funds: ${envelope?.funds}, transaction.amount: ${transaction.amount}`);
-
-
             if(envelope && account && account.balance - transaction.amount >= 0 && envelope.funds + transaction.amount >= 0) {
                 envelope.funds += transaction.amount;
                 account.balance -= transaction.amount;

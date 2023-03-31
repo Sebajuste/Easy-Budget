@@ -10,12 +10,12 @@ const SQLITE_VERSION = "1.0";
 const DATABASE_NAME = "easy_budget.db";
 
 
-async function getDatabaseVersion(client : SQLite.WebSQLDatabase ) : Promise<any> {
-    new Promise<any[]>((resolve, reject) => {
+async function getDatabaseVersion(client : SQLite.WebSQLDatabase ) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
         client.transaction((tx:SQLTransaction) => {
             const SQL = `SELECT set_value as value FROM t_settings_set WHERE set_name = 'version'`;
             tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
-                resolve(_array);
+                resolve(_array.length > 0 ? _array[0].value : '1.0.0');
             }, (tx, err) => {
                 reject(err);
                 return true;
@@ -77,13 +77,14 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
         return SCHEMA_ACTIONS['install'].action(this.client) //
         .then( async () => {
-            const versionSetting = await getDatabaseVersion(this.db);
-            const version = versionSetting ? versionSetting.value : '1.0.0';
-            console.log('Update version ', version);
+            const version = await getDatabaseVersion(this.db);
+            console.log('Database version ', version);
             if( SCHEMA_ACTIONS[version] ) {
                 return await SCHEMA_ACTIONS[version].action(this.client).catch(err => {
                     this.error = err;
                 });
+            } else {
+                console.log('No upgrade required');
             }
         })
         .catch(err => {

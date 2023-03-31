@@ -26,7 +26,7 @@ export default function RevenueScreen({navigation, route} : any) {
 
     const [amount, setAmount] = useState( revenue?.amount.toString() || '' );
 
-    console.log('revenue?.expecteDate: ', revenue?.expectDate )
+    console.log('revenue?.expectDate: ', revenue?.expectDate )
 
     const [expectDate, setExpectDate] = useState<Date>( revenue?.expectDate ? (new Date(revenue.expectDate)) : new Date() );
 
@@ -40,13 +40,13 @@ export default function RevenueScreen({navigation, route} : any) {
         if( revenue) {
             revenue.name = name;
             revenue.amount = parseFloat(amount.trim());
-            revenue.expecteDate = expectDate.toISOString();
+            revenue.expectDate = expectDate.toISOString();
             revenueDao.update(revenue).then(() => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);
         } else {
-            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expecteDate: expectDate.toISOString()}).then((id) => {
+            revenueDao.add({_id: 0, name: name, amount: parseFloat(amount.trim()), expectDate: expectDate.toISOString()}).then((id) => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
             }).catch(console.error);

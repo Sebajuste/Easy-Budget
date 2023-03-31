@@ -1,4 +1,5 @@
 import { useIsFocused } from "@react-navigation/core";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-rapi-ui";
@@ -8,6 +9,7 @@ import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { t } from "../../services/i18n";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
+import { horizontalScale } from "../../util/ui-metrics";
 
 
 const MONTHS : {[key:number]:string}= {
@@ -72,7 +74,7 @@ export default function BudgetScreen() {
             </View>
             <View style={styles.details}>
                 <Text style={styles.name}>{item.category}</Text>
-                <Text>{item.amount} €</Text>
+                <Text>{item.amount.toFixed(2)} €</Text>
              </View>
         </View>
     );
@@ -82,6 +84,8 @@ export default function BudgetScreen() {
     useEffect(() => {
         updateStats(date);
     }, [isFocused, date]);
+
+    const total : number = _.sum( _.map(stats, item => item.amount ) );
 
     return (
         <SafeAreaView style={scroll_styles.container}>
@@ -96,6 +100,16 @@ export default function BudgetScreen() {
             </View>
 
             <FlatList data={stats} keyExtractor={(stat, index) => `${index}`} renderItem={renderItemHandler} ItemSeparatorComponent={itemSeparatorHandler} />
+
+            <View style={{flexDirection: 'row', justifyContent: 'space-around', margin: 5, borderRadius: 10, backgroundColor: 'white', flexWrap: 'wrap'}}>
+
+                <View style={{margin: 5, padding: 5, borderRadius: 10, minWidth: horizontalScale(110)}}>
+                    <Text style={{textAlign: 'center'}}>{total.toFixed(2)} €</Text>
+                    <Text style={{textAlign: 'center', fontSize: 12}}>{t('common:total')}</Text>
+                </View>
+
+            </View>
+
         </SafeAreaView>
     );
 

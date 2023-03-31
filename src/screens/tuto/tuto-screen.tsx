@@ -71,11 +71,11 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
             const count_month = countMonth(envelope.period);
             const delta_year = dueDate.getFullYear() - now.getFullYear();
             const delta_month = Math.min(count_month, delta_year*12 + (dueDate.getMonth() - now.getMonth()) );
-            console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
+            // console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
             const month_to_be_filled = count_month - delta_month;
-            console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
+            // console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
             const filled_require = month_budget * month_to_be_filled - envelope.funds;
-            console.log(`fillEnvelopeCalculation [${envelope.name}] filled_require: ${filled_require}`);
+            // console.log(`fillEnvelopeCalculation [${envelope.name}] filled_require: ${filled_require}`);
             return [envelope, filled_require];
         });
 

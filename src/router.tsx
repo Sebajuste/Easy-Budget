@@ -147,10 +147,8 @@ function MainStackScreen() {
     useEffect(() => {
         setLoading(true);
         settingsDao.find('language').then(r => {
-            console.log('check init with lang : ', r)
             if( r ) {
                 setIsInit(true);
-                // navigation.navigate('Drawer');
             } else {
                 setIsInit(false);
             }

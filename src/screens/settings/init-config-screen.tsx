@@ -100,8 +100,6 @@ export default function InitConfigScreen({navigation} : any) {
 
     };
 
-    // console.log('InitConfigScreen navigation: ', navigation);
-
     return (
         <SafeAreaView style={scroll_styles.container}>
 
