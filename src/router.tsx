@@ -37,7 +37,10 @@ import { DAOFactory, DATABASE_TYPE } from "./services/dao-manager";
 import { DaoType } from "./services/dao";
 import { styles } from "./styles";
 import InitConfigScreen from "./screens/settings/init-config-screen";
-import BudgetScreen from "./screens/budget/budget-screen";
+import { Envelope, envelopeNextDate } from "./services/envelope";
+import _ from "lodash";
+import StatisticsCategoryScreen from "./screens/statistics/statistics-category-screen";
+import StatisticsScreen from "./screens/statistics/statistics-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -50,7 +53,7 @@ const navTo = (navigation: any, pageName : string) => {
 
 const TABS_LIST = [
     {label: 'common:home', route: 'Home', component: HomeScreen, type: Icon, activeIcon: 'home' },
-    {label: 'title:statistics', route: 'Stats', component: BudgetScreen, type: Icon, activeIcon: 'bar-chart' },
+    {label: 'title:statistics', route: 'Stats', component: StatisticsScreen, type: Icon, activeIcon: 'bar-chart' },
     {label: 'common:envelops', route: 'Envelops', component: EnvelopesScreen, type: Icon, activeIcon: 'envelope-o', headerRight: {icon: 'plus', route: 'CreateEnvelop'} },
     {label: 'common:revenues', route: 'Revenues', component: RevenueListScreen, type: Icon, activeIcon: 'euro', headerRight: {icon: 'plus', route: 'CreateRevenue'} },
     {label: 'common:accounts', route: 'Accounts', component: AccountListScreen, type: Icon, activeIcon: 'bank', headerRight: {icon: 'plus', route: 'CreateAccount'} },
@@ -144,18 +147,32 @@ function MainStackScreen() {
 
     const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
 
+    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+
     useEffect(() => {
         setLoading(true);
         settingsDao.find('language').then(r => {
-            if( r ) {
-                setIsInit(true);
-            } else {
-                setIsInit(false);
-            }
+            setIsInit( r ? true : false );
+            return r ? true : false;
+        }).then((init) => {
 
+            if( init ) {
+                // Update all old dueDate
+                const now = new Date();
+                now.setDate(1);
+                return envelopeDao.load().then(envelopes => {
+                    return _.filter(envelopes, (envelope : Envelope) => envelope.dueDate.getTime() < now.getTime() );
+                }).then( envelopes => {
+                    return _.map(envelopes, envelope => Object.assign({}, envelope, {dueDate: envelopeNextDate(envelope) }));
+                } ).then(envelopes => {
+                    const futures = _.map(envelopes, envelope => envelopeDao.update(envelope) );
+                    return Promise.all(futures);
+                });
+            }
+            
         }).finally(() => {
             setLoading(false);
-        })
+        });
 
     }, []);
 
@@ -174,6 +191,8 @@ function MainStackScreen() {
 
             <Stack.Screen name="Drawer" component={AppDrawer} options={{ headerShown: false }}/>
             
+            <Stack.Screen name="StatisticsCategory" component={ StatisticsCategoryScreen } options={{title: t('title:statistics')}}/>
+
             <Stack.Screen name="CreateRevenue" component={ RevenueScreen } options={{title: t('title:revenue_new')}}/>
             <Stack.Screen name="EditRevenue" component={ RevenueScreen } options={{title: t('title:revenue_edit')}}/>
 

@@ -99,7 +99,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
         const params = [
             transaction.name,
             transaction.type == TransactionType.TRANSFER ? TransactionType.OUTCOME.toString() : transaction.type.toString(),
-            transaction.amount,
+            transaction.type == TransactionType.INCOME ? transaction.amount : -transaction.amount,
             transaction.date.toISOString(),
             transaction.category_id == '' ? null : transaction.category_id,
             transaction.envelope_id == '' ? null : transaction.envelope_id,
@@ -121,8 +121,8 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                     });
                 }
 
-                const editBalance = getEditBalance(transaction); // (transaction.type == TransactionType.OUTCOME || transaction.type == TransactionType.TRANSFER ? transaction.amount : -transaction.amount);
-                const editEnvelopeBalance = getEditEnvelopeBalance(transaction); // (transaction.type == TransactionType.OUTCOME ? 0 : (transaction.type == TransactionType.TRANSFER ? transaction.amount : -transaction.amount));
+                const editBalance = getEditBalance(transaction);
+                const editEnvelopeBalance = getEditEnvelopeBalance(transaction);
 
                 const accountParams = [
                     editBalance,
@@ -201,11 +201,10 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
     statsForMonth(year: number, month: number): Promise<any[]> {
 
-        const SQL = `SELECT cat_name as category, cat_color as color, cat_icon as icon, date, amount
+        const SQL = `SELECT cat_id as categoryID, cat_name as category, cat_color as color, cat_icon as icon,  date, amount
             FROM (
                 SELECT ats_category_id, strftime('%Y-%m', ats_date) as date, SUM(ats_amount) as amount
                 FROM t_account_transaction_ats
-                WHERE ats_type = 'OUTCOME'
                 GROUP BY ats_category_id, strftime('%Y-%m', ats_date)
             ) as temp
                 INNER JOIN t_category_cat
@@ -214,8 +213,6 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             ORDER BY amount DESC`;
 
         const monthStr = `${month}`;
-
-        monthStr.length == 1
 
         const params = [`${year}-${monthStr.length == 1 ? '0'+monthStr : monthStr}`]; // [`${year}-${month}`];
 
@@ -230,6 +227,32 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             });
         });
 
+    }
+
+    statsCategoryForMonth(year: number, month: number, categoryID: string | number) : Promise<any> {
+
+        const SQL = `SELECT cat_name as category, cat_color as color, cat_icon as icon, ats_name as name, ats_date as date, ats_amount as amount
+            FROM t_account_transaction_ats
+                INNER JOIN t_category_cat
+                    ON cat_id = ats_category_id
+            WHERE strftime('%Y-%m', ats_date) = ?
+                AND ats_category_id = ?
+            ORDER BY ats_date DESC`
+
+        const monthStr = `${month}`;
+
+        const params = [`${year}-${monthStr.length == 1 ? '0'+monthStr : monthStr}`, categoryID];
+
+        return new Promise((resolve, reject) => {
+            sqlite_client().transaction(tx => {
+                tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
+                    resolve(_array);
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+            });
+        });
     }
 
 }

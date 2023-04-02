@@ -1,8 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { SchemaAction } from './schema-sqlite';
-
-
-const DATABASE_VERSION = '1.0.1';
+import { DATABASE_VERSION, SchemaAction } from './schema-sqlite';
 
 
 export class InstallSQLite implements SchemaAction {
