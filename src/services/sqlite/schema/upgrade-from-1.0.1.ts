@@ -1,10 +1,9 @@
+import * as SQLite from 'expo-sqlite';
 import { WebSQLDatabase } from "expo-sqlite";
-import { SchemaAction } from "./schema-sqlite";
 
-const DATABASE_VERSION = '1.0.2';
+import { DATABASE_VERSION, SchemaAction } from "./schema-sqlite";
 
-
-export class UpgradeSQLite_1_0_2 implements SchemaAction {
+export class UpgradeSQLite_1_0_1 implements SchemaAction {
 
     action(client: WebSQLDatabase): Promise<void> {
 
