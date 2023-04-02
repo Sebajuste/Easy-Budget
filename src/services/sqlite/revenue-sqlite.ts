@@ -38,6 +38,8 @@ export class RevenueDaoSQLite extends RevenueDao {
 
     add(revenue: Revenue): Promise<string | number | undefined> {
 
+        console.log('add ', revenue);
+
         const SQL = 'INSERT INTO t_revenue_rev (rev_name, rev_amount, rev_expect_date) VALUES (?, ?, ?)';
 
         const params = [revenue.name, revenue.amount, revenue.expectDate ];

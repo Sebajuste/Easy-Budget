@@ -76,7 +76,6 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     useEffect(() => {
         transactionDao.load().then(transactions => {
-            console.log('transactions: ', transactions);
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);
     }, [isFocused]);

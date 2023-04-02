@@ -304,8 +304,6 @@ export class EnvelopeTransactionDaoSQLite extends EnvelopeTransactionDao {
 
     public add(transaction: EnvelopeTransaction): Promise<string | number | undefined> {
 
-        console.log(`Add transaction `, transaction);
-
         const SQL_TRANSACTION = `INSERT INTO t_envelopes_transaction_ets (
             ets_name, ets_amount, ets_envelope_id, ets_account_id, ets_date
         ) VALUES (

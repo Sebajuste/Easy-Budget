@@ -11,16 +11,6 @@ export class UpgradeSQLite1_1_0 implements SchemaAction {
         
         return new Promise<void>( (resolve, reject) => {
 
-            client.transaction(tx => {
-
-                tx.executeSql('PRAGMA foreign_key_list(t_envelopes_transaction_ets)', [], (_, { rows: {_array} }) => {
-
-                    console.log('foreign_key_list: ', _array)
-
-                });
-
-            })
-
             client.exec([
 
                 { sql: `ALTER TABLE t_envelopes_transaction_ets RENAME TO t_envelopes_transaction_ets_backup`, args: [] },
@@ -75,7 +65,6 @@ export class UpgradeSQLite1_1_0 implements SchemaAction {
                     if( resultSet ) {
                         
                         for(const item of resultSet) {
-                            console.log('item update : ', item);
                             if( item.hasOwnProperty('error') ) {
                                 const itemError = item as SQLite.ResultSetError;
                                 console.error(itemError.error);
@@ -84,7 +73,7 @@ export class UpgradeSQLite1_1_0 implements SchemaAction {
                             }
                         }
                     }
-                    console.log('Database Install done');
+                    console.log(`Database Upgrade ${DATABASE_VERSION} done`);
                     resolve();
                 }
                 

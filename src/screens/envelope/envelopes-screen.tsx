@@ -281,8 +281,6 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
       );
     }
 
-    console.log('EnvelopesScreen render ', data.length, isFocused, navigation.getState() );
-
     return (
         <SafeAreaView style={scroll_styles.container}>
 

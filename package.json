@@ -1,6 +1,6 @@
 {
   "name": "easy-budget",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "scripts": {
     "start:dev": "expo start --dev-client",
     "start": "expo start -c",
