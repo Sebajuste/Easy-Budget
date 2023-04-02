@@ -12,7 +12,7 @@ export class AccountDaoSQLite extends AccountDao {
     load(): Promise<Account[]> {
 
         /*
-       const SQL = `
+        const SQL = `
         SELECT act_id as _id,
             act_name as name,
             act_balance as balance,
@@ -22,6 +22,23 @@ export class AccountDaoSQLite extends AccountDao {
         `;
         */
 
+        const SQL = `SELECT act_id as _id,
+            act_name as name,
+            act_balance as balance,
+            act_envelope_balance as envelope_balance,
+            act_created_at as created_at,
+            temp.total as total_reconciled
+        FROM t_account_act
+            LEFT OUTER JOIN ( SELECT ats_account_id, SUM(ats_amount) as total
+                FROM t_account_transaction_ats
+                WHERE ats_reconciled = 1
+                GROUP BY ats_account_id
+            ) as temp
+                ON temp.ats_account_id = act_id
+        `;
+        
+
+        /*
         const SQL = `
         SELECT act_id as _id,
             act_name as name,
@@ -46,6 +63,7 @@ export class AccountDaoSQLite extends AccountDao {
                 GROUP BY ats_account_id
             ) as income
                 ON income.ats_account_id = act_id`;
+        */
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
@@ -96,9 +114,9 @@ export class AccountDaoSQLite extends AccountDao {
         ) VALUES (?, ?, ?)`;
 
         const SQL_TRANSACTION = `INSERT INTO t_account_transaction_ats (
-            ats_name, ats_type, ats_amount, ats_date, ats_account_id
+            ats_name, ats_type, ats_amount, ats_date, ats_account_id, ats_reconciled
         ) VALUES (
-            ?, 'INCOME', ?, ?, ?
+            ?, 'INCOME', ?, ?, ?, 1
         )`;
 
         const params = [account.name, account.balance, account.envelope_balance];

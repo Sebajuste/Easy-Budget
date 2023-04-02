@@ -1,7 +1,7 @@
 import { useIsFocused } from "@react-navigation/core";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { FlatList, SafeAreaView, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { Button } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { DaoType } from "../../services/dao";
@@ -35,7 +35,7 @@ function getMonth(index: number) : string {
 }
 
 
-export default function BudgetScreen() {
+export default function StatisticsScreen({navigation} : {navigation : any}) {
 
     const [stats, setStats] = useState<any[]>([]);
 
@@ -67,16 +67,22 @@ export default function BudgetScreen() {
         });
     };
 
+    const selectCategoryHandler = (categoryID: string|number) => {
+        navigation.navigate({name: 'StatisticsCategory', params: {date: date.toISOString(), categoryID: categoryID}});
+    };
+
     const renderItemHandler = ({item, index} : {item: any, index: number}) => (
-        <View style={styles.item} >
-            <View style={{ ...styles.avatar, backgroundColor: item.color}}>
-                <Icon name={item.icon} style={{color: 'white', fontSize: 18}} />
+        <TouchableHighlight onPress={() => selectCategoryHandler(item.categoryID)} key={index} >
+            <View style={styles.item}>
+                <View style={{ ...styles.avatar, backgroundColor: item.color}}>
+                    <Icon name={item.icon} style={{color: 'white', fontSize: 18}} />
+                </View>
+                <View style={styles.details}>
+                    <Text style={styles.name}>{item.category}</Text>
+                    <Text>{item.amount.toFixed(2)} €</Text>
+                </View>
             </View>
-            <View style={styles.details}>
-                <Text style={styles.name}>{item.category}</Text>
-                <Text>{item.amount.toFixed(2)} €</Text>
-             </View>
-        </View>
+        </TouchableHighlight>
     );
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);

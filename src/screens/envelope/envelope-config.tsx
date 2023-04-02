@@ -56,8 +56,6 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-    const showDueDate = period != Period.MONTHLY;
-
     const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
     const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
 
@@ -204,7 +202,7 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
                 <View>
 
                     <View>
-                        { showDueDate ? (<SelectDateComponent label={t('common:due_date')} date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />) : (<></>) }
+                        <SelectDateComponent label={t('common:due_date')} date={dueDate} minimumDate={now} onChange={(newDate: Date) => setDueDate(newDate) } />
                     </View>
 
                 </View>

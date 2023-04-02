@@ -5,7 +5,7 @@ import { SchemaAction } from "./schema-sqlite";
 
 const DATABASE_VERSION = '1.0.1';
 
-export class UpgradeSQLite1_1_0 implements SchemaAction {
+export class UpgradeSQLite_1_0_1 implements SchemaAction {
 
     action(client: WebSQLDatabase): Promise<void> {
         

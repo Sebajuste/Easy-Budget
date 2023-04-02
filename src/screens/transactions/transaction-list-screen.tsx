@@ -37,7 +37,7 @@ function AccountTransactionItem({transaction, index} : {transaction : AccountTra
                 <Text>{typeof transaction.date == 'string' ? new Date(transaction.date).toLocaleDateString() : transaction.date.toLocaleDateString()}</Text>                        
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={ transaction.type == TransactionType.INCOME ? {backgroundColor: 'green', padding: 5 } : {}}>{ transaction.type == TransactionType.OUTCOME ? '-' : '' } {transaction.amount.toFixed(2)} €</Text>
+                <Text style={ transaction.type == TransactionType.INCOME ? {backgroundColor: 'green', padding: 5 } : {}}>{transaction.amount.toFixed(2)} €</Text>
             </View>
             <View style={{margin: 10}}>
                 <CheckBox disabled={false} value={reconciled} onValueChange={reconciledHandler} />

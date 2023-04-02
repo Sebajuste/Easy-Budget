@@ -93,7 +93,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const account = _.find(accounts, account => account._id == accountID );
 
-    const formValid = account && (amount - envelope.funds) < account.envelope_balance;
+    const formValid = account && (amount - envelope.funds) <= account.envelope_balance;
 
     const accountItems = accounts.map(account => {
         return {

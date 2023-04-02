@@ -5,10 +5,6 @@ import { RevenueDaoSQLite } from "./revenue-sqlite";
 import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './transaction-sqlite';
 import { DAO, DaoType } from '../dao';
 import { SettingsDaoSQLite } from './settings-sqlite';
-import { SchemaAction } from './schema/schema-sqlite';
-import { InstallSQLite } from './schema/install';
-import { RepairSQLite } from './schema/repair';
-import { UpgradeSQLite1_1_0 } from './schema/upgrade-1.1.0';
 
 export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 

@@ -2,7 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { SchemaAction } from './schema-sqlite';
 
 
-const DATABASE_VERSION = '1.0.1';
+const DATABASE_VERSION = '1.0.2';
 
 
 export class InstallSQLite implements SchemaAction {

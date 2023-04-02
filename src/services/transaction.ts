@@ -57,6 +57,8 @@ export abstract class AccountTransactionDao extends DAO<AccountTransaction> {
 
     abstract remove(transaction: AccountTransaction): Promise<void>;
 
-    abstract statsForMonth(year: number, month: number): Promise<any[]> 
+    abstract statsForMonth(year: number, month: number): Promise<any[]>;
+
+    abstract statsCategoryForMonth(year: number, month: number, categoryID: string | number) : Promise<any>;
 
 }

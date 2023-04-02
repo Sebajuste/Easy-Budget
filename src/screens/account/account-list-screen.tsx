@@ -51,7 +51,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
     const total = _.sum( _.map(accounts, account => account.balance) );
 
-    const accounts_items = accounts.map( (account, index) => {
+    const accounts_items = accounts.map( (account: Account, index) => {
 
         return (
             <TouchableHighlight onPress={() => selectHandler(account)} key={index} >
