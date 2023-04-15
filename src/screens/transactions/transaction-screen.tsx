@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
@@ -7,12 +7,12 @@ import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import { SelectDateComponent } from "../../components/select-date";
 import { Envelope } from "../../services/envelope";
 import { Account } from "../../services/account";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, TransactionType } from "../../services/transaction";
 import { DaoType } from "../../services/dao";
 
 import { t } from "../../services/i18n";
 import { styles_form } from "../../styles";
+import { DatabaseContext } from "../../services/db-context";
 
 
 export function AccountTransactionScreen({navigation, route} : any) {
@@ -45,9 +45,11 @@ export function AccountTransactionScreen({navigation, route} : any) {
 
     const amount = parseFloat(strAmount);
 
-    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
     const setEnvelopeHandler = (value: string) => {
         envelopeDao.find(value).then(setEnvelope);

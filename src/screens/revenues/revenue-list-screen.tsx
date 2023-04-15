@@ -1,16 +1,16 @@
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScrollView, TouchableHighlight, View } from "react-native";
 import { Button, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 import { t } from "../../services/i18n";
 import { Revenue } from "../../services/revenue";
 
 import { scroll_styles } from "../../styles";
+import { DatabaseContext } from "../../services/db-context";
 
 
 
@@ -40,7 +40,9 @@ export default function RevenueListScreen({navigation, onChange} : {navigation: 
 
     const [revenues, setRevenues] = useState<Revenue[]>([]);
 
-    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const revenueDao = dbManager.getDAOFromType<Revenue>(DaoType.REVENUE);
 
     const isFocused = useIsFocused();
 

@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { Account, AccountDao } from "../../services/account";
+import { Account } from "../../services/account";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import ErrorMessage from "../../components/error-message";
 import { styles_form } from "../../styles";
 import { DeleteConfirmModal } from "../../components/modal";
+import { DatabaseContext } from "../../services/db-context";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -23,7 +23,9 @@ export function AccountScreen({navigation, route} : any) {
 
     const [confirm, setConfirm] = useState(false);
 
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
 
     const openDeleteHandler = () => {
         setConfirm(true);

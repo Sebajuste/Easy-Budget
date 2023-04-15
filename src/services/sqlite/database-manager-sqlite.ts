@@ -6,10 +6,12 @@ import { DatabaseManager } from "../database-manager";
 import { SCHEMA_ACTIONS } from './schema/schema-config';
 import { SQLTransaction } from 'expo-sqlite';
 import { ReadingOptions } from 'expo-file-system';
+import { DAO, DaoType, InvalidDao } from '../dao';
+import { SQLITE_DAO_FACTORY } from './dao-sqlite';
 
 
 const SQLITE_VERSION = "1.0";
-// const DATABASE_NAME = "easy_budget.db";
+const DATABASE_NAME = "easy_budget.db";
 
 
 async function getDatabaseVersion(client : SQLite.WebSQLDatabase ) : Promise<string> {
@@ -56,7 +58,7 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     }
 
-    public async open(dbName:string) : Promise<void> {
+    public async open(dbName?:string) : Promise<void> {
 
         const dirUri = FileSystem.documentDirectory + 'SQLite';
 
@@ -71,7 +73,10 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         );
         */
 
-        const fileUri = `${dirUri}/${dbName}`;
+        const localDbName = dbName == undefined ? this.database_name : dbName;
+
+
+        const fileUri = `${dirUri}/${localDbName}`;
         const readOptions = {encoding: FileSystem.EncodingType.Base64} as ReadingOptions;
 
         FileSystem.readAsStringAsync(fileUri, readOptions).then(data => {
@@ -86,16 +91,16 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         */
 
         return new Promise((resolve, reject) => {
-            SQLite.openDatabase(dbName, SQLITE_VERSION, "", 1, (db) => {
+            SQLite.openDatabase(localDbName, SQLITE_VERSION, "", 1, (db) => {
                 this.db = db;
-                this.database_name = dbName;
+                this.database_name = localDbName;
                 console.log('Database opened');
                 resolve();
             });
         });
     }
 
-    async close() {
+    public async close() {
         if( this.db ) {
             return this.db.closeAsync().then(() => {
                 console.log('Database closed');
@@ -156,14 +161,53 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     public getLastError() {
         return this.error;
-    }    
+    }
+
+    public getDAOFromType<T>(daoType : DaoType) : DAO<T> {
+
+        if ( ! this.db ) {
+            throw new Error('Database not initialized');
+        }
+
+        const className = daoType.toString();
+
+        if( SQLITE_DAO_FACTORY.has(className) ) {
+            const daoFactory = SQLITE_DAO_FACTORY.get(className);
+            if( daoFactory ) {
+                const dao = daoFactory(this.db);
+                return dao as DAO<T>;
+            }
+        }
+
+        return new InvalidDao(className);
+    }
 }
 
+
+export class DatabaseManagerFactory {
+
+
+    static create() : Promise<DatabaseManager> {
+
+        const dbManager = new DatabaseManagerSQLite();
+
+        return dbManager.open(DATABASE_NAME).then( fb => {
+            console.log('DB opened');
+            return dbManager.init()
+        }).then(r => dbManager);
+
+    }
+
+
+}
+
+/*
 export let DB_MANAGER_SQLite : DatabaseManagerSQLite; // = new DatabaseManagerSQLite();
+
 
 const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve, reject) => {
     DB_MANAGER_SQLite = new DatabaseManagerSQLite();
-    DB_MANAGER_SQLite.open().then(db => {
+    DB_MANAGER_SQLite.open(DATABASE_NAME).then(db => {
         console.log('DB opened');
         return DB_MANAGER_SQLite.init();
     })//
@@ -176,10 +220,13 @@ const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve, reject
     
 });
 
+
 export function sqlite_client_async() {
     return sqlite_client_future;
 }
 
+
 export const sqlite_client = () : SQLite.WebSQLDatabase => {
     return DB_MANAGER_SQLite.client;
 };
+*/

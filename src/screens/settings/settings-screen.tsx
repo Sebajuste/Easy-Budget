@@ -4,19 +4,22 @@ import { Layout, Picker } from "react-native-rapi-ui";
 import _ from "lodash";
 
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { t } from "../../services/i18n";
 import { LanguageContext } from "../../services/i18n/language-context";
 import { Settings } from "../../services/settings";
 import { scroll_styles } from "../../styles";
 import * as config from "../../services/i18n/config.i18n";
+import { DatabaseContext } from "../../services/db-context";
 
 
 export default function SettingsScreen() {
 
     const { language, setLanguage } = useContext(LanguageContext);
 
-    const settingDao = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const settingsDao = dbManager.getDAOFromType<Settings>(DaoType.SETTINGS);
+
 
     const languages_items  = _.map(_.toPairs(config.supportedLocales), ([lang, config]) => {
         return {
@@ -27,7 +30,7 @@ export default function SettingsScreen() {
 
     const changeLanguageHandler = (lang:string) => {
         setLanguage(lang);
-        settingDao.update({
+        settingsDao.update({
             name: 'language',
             value: lang
         })//

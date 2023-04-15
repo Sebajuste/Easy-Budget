@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { StackActions, useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
 import { Button, CheckBox, Text } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import _ from "lodash";
 
 import { Account } from "../../services/account";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { AccountTransaction, TransactionType } from "../../services/transaction";
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
+import { DatabaseContext } from "../../services/db-context";
 
 
 
@@ -19,7 +19,9 @@ function AccountTransactionItem({transaction, index} : {transaction : AccountTra
 
     const [reconciled, setReconciled] = useState(transaction.reconciled);
 
-    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
     const reconciledHandler = (val: boolean) => {
         setReconciled(val);
@@ -57,7 +59,9 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const isFocused = useIsFocused();
 
-    const transactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
 
     const openEditHandler = () => {

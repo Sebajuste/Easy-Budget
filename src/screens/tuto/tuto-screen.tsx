@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,7 +10,6 @@ import { scroll_styles } from "../../styles";
 import { AccountListScreen } from "../account/account-list-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
 import { Account } from "../../services/account";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { EnvelopeTransaction } from "../../services/transaction";
 import { Revenue } from "../../services/revenue";
 import RevenueListScreen from "../revenues/revenue-list-screen";
@@ -18,6 +17,7 @@ import RevenueListScreen from "../revenues/revenue-list-screen";
 import { t } from "../../services/i18n";
 import { Category } from "../../services/category";
 import { DaoType } from "../../services/dao";
+import { DatabaseContext } from "../../services/db-context";
 
 
 
@@ -55,9 +55,11 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const [info, setInfo] = useState({fill_required: 0, total_funds: 0} as FirstFillInfo);
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
+    const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
 
     const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
 

@@ -1,18 +1,18 @@
 import { Slider } from "@miblanchard/react-native-slider";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Button, Layout, Picker, Text } from "react-native-rapi-ui";
-import { Account, AccountDao } from "../../services/account";
+import { Account } from "../../services/account";
 import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { EnvelopeTransaction } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import EnvelopeTransactionView from "../transactions/transaction-view";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { DatabaseContext } from "../../services/db-context";
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -33,8 +33,11 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const amount = solde - funds;
 
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
-    const transactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
+    const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
+
 
     const selectAccountHandler = (value: string) => {
         setAccountID(value);

@@ -1,23 +1,28 @@
+import { useContext, useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import * as FileSystem from 'expo-file-system';
 import { View } from "react-native-animatable";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
+import _ from "lodash";
+
 import { DeleteConfirmModal } from "../../components/modal";
-import { Account, AccountDao } from "../../services/account";
+import { Account } from "../../services/account";
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { Settings, SettingsDao } from "../../services/settings";
-import { EnvelopeTransactionDao } from "../../services/transaction";
+
+import { Envelope} from "../../services/envelope";
+import { Settings } from "../../services/settings";
+import { DatabaseContext } from "../../services/db-context";
+import { DatabaseManager } from "../../services/database-manager";
 
 
-async function checkDatabase() {
+async function checkDatabase(dbManager : DatabaseManager ) {
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
   
     /*
     const total_fill = await transactionDao.load()//
@@ -55,9 +60,9 @@ export function DatabaseScreen() {
 
     const [deleteVisible, setDeleteVisible] = useState(false);
 
-    const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
 
-    const settingsDao = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
+    const settingsDao = dbManager.getDAOFromType<Settings>(DaoType.SETTINGS);
 
     const isFocused = useIsFocused();
 
@@ -74,6 +79,29 @@ export function DatabaseScreen() {
         });
     };
 
+    const saveBackupHandler = () => {
+
+      dbManager.close().then(v => {
+
+        
+        // FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) 
+
+        const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
+
+        const timestamp = new Date().toISOString();
+        const backupPath = `${FileSystem.documentDirectory}Backups/easy_budget_backup_${timestamp}.db`;
+
+        console.log('backupPath : ', backupPath);
+
+        return FileSystem.copyAsync({ from: dbPath, to: backupPath });
+
+        
+      }).then(r => {
+        return dbManager.open();
+      });
+
+    };
+
     useEffect(() => {
       setLoading(true);
 
@@ -81,7 +109,7 @@ export function DatabaseScreen() {
 
       settingsDao.load().then(console.log);
 
-      const p2 = checkDatabase().then(setDatabaseCheck).catch(console.error);
+      const p2 = checkDatabase(dbManager).then(setDatabaseCheck).catch(console.error);
 
       Promise.all([p1, p2]).finally(() => setLoading(false));
 
@@ -110,6 +138,7 @@ export function DatabaseScreen() {
         <SafeAreaView style={{flex: 1, margin: 5}}>
           <View>
             <Text>Google Drive save</Text>
+            <Button text="Save Backup" onPress={saveBackupHandler}></Button>
           </View>
           <View style={{flex: 1, margin: 20}}>
             <ScrollView>
@@ -118,7 +147,7 @@ export function DatabaseScreen() {
           </View>
           <View style={{margin: 20}}>
             <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
-            <Text style={{marginBottom: 20}}>Version  : { version }  </Text>
+            <Text style={{marginBottom: 20}}>Database Version   : { version }  </Text>
             { message ? <Text style={{marginBottom: 20}}>{message}</Text> : null }
             <Button text="DELETE Database" onPress={()=> setDeleteVisible(true)}></Button>
           </View>

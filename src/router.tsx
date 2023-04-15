@@ -1,4 +1,4 @@
-import React, {  useEffect, useRef, useState } from "react";
+import React, {  useContext, useEffect, useRef, useState } from "react";
 import { DrawerActions, NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigationOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -26,14 +26,11 @@ import RevenueScreen from "./screens/revenues/revenue-screen";
 import RevenueListScreen from "./screens/revenues/revenue-list-screen";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
-
-
 import { CategoryListScreen } from "./screens/category/category-list-screen";
 import { DatabaseScreen } from "./screens/database/database-screen";
-import { LanguageContext, t } from "./services/i18n";
+import { t } from "./services/i18n";
 import DrawerContent from "./screens/drawer/left-drawer";
 import SettingsScreen from "./screens/settings/settings-screen";
-import { DAOFactory, DATABASE_TYPE } from "./services/dao-manager";
 import { DaoType } from "./services/dao";
 import { styles } from "./styles";
 import InitConfigScreen from "./screens/settings/init-config-screen";
@@ -41,6 +38,7 @@ import { Envelope, envelopeNextDate } from "./services/envelope";
 import _ from "lodash";
 import StatisticsCategoryScreen from "./screens/statistics/statistics-category-screen";
 import StatisticsScreen from "./screens/statistics/statistics-screen";
+import { DatabaseContext } from "./services/db-context";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -145,9 +143,11 @@ function MainStackScreen() {
 
     const [loading, setLoading] = useState(false);
 
-    const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+    const settingsDao = dbManager.getDAOFromType(DaoType.SETTINGS);
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
     useEffect(() => {
         setLoading(true);

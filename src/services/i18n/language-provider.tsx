@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { DaoType } from "../dao";
-import { DAOFactory, DATABASE_TYPE } from "../dao-manager";
 import { Settings } from "../settings";
 import { LanguageContext, LanguageSettings } from "./language-context";
 import * as config from "./config.i18n";
+import { DatabaseContext } from "../db-context";
 
 export function LanguageProvider({ children }: any) {
 
@@ -13,9 +13,11 @@ export function LanguageProvider({ children }: any) {
 
     const [isI18nInitialized, setIsI18nInitialized] = useState(false);
 
-    useEffect(() => {
+    const { dbManager } = useContext( DatabaseContext );
 
-        const settingsDao = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
+    const settingsDao = dbManager.getDAOFromType<Settings>(DaoType.SETTINGS);
+
+    useEffect(() => {
 
         settingsDao.find('language').then((setting) => {
             if( setting ) {

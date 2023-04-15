@@ -8,15 +8,15 @@ import { Category } from "../../services/category";
 import { container_state_styles, scroll_styles } from "../../styles";
 
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Revenue } from "../../services/revenue";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { horizontalScale, horizontalSplit, verticalScale } from "../../util/ui-metrics";
 import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
+import { DatabaseContext } from "../../services/db-context";
 
 
 function EnvelopeListItem(props : any) {
@@ -29,12 +29,15 @@ function EnvelopeListItem(props : any) {
 
   const isValid = isValidEnvelope(envelope, totalFilled);
 
+  const { dbManager } = useContext(DatabaseContext);
+
+  const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
+
   const selectHandler = () => {
     navigation.navigate({name: 'FillEnvelope', params: {envelope: envelope, envelopeCategory: category}});
   };
 
   useEffect(() => {
-    const envelopeTransactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE) as EnvelopeTransactionDao;
     envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), new Date() )//
       .then(transactions => {
         return _.sum( _.map(transactions,'amount') );
@@ -146,9 +149,11 @@ export default function EnvelopesScreen({navigation, onChange} : {navigation : a
 
     const isFocused = useIsFocused();
 
-    const categoriesDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
-    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const categoriesDao = dbManager.getDAOFromType<Category>(DaoType.CATEGORY);
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
+    const revenueDao = dbManager.getDAOFromType<Revenue>(DaoType.REVENUE);
 
     const createEnvelopeHandler = () => {
       navigation.navigate('CreateEnvelop');
