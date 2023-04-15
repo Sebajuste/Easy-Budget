@@ -1,5 +1,5 @@
 import { StackActions, useIsFocused } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Picker, Text, TextInput } from "react-native-rapi-ui";
 import uuid from 'react-native-uuid';
@@ -8,11 +8,11 @@ import _ from "lodash";
 import { SelectDateComponent } from "../../components/select-date";
 import { budgetPerMonth, Envelope, Period, periodFromString, periodToString } from "../../services/envelope";
 import { Category } from "../../services/category";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { styles_form } from "../../styles";
 import { DeleteConfirmModal } from "../../components/modal";
+import { DatabaseContext } from "../../services/db-context";
 
 
 const operation_type_picker_items = [
@@ -56,8 +56,10 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
-    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
+    const categoryDao = dbManager.getDAOFromType<Category>(DaoType.CATEGORY);
 
     const isFocused = useIsFocused();
 

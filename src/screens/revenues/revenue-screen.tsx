@@ -1,16 +1,16 @@
 import { StackActions } from "@react-navigation/native";
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { View } from "react-native"
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
 import ErrorMessage from "../../components/error-message";
 import { DeleteConfirmModal } from "../../components/modal";
 import { SelectDateComponent } from "../../components/select-date";
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 import { t } from "../../services/i18n";
 import { Revenue, RevenueDao } from "../../services/revenue";
 import { styles, styles_form } from "../../styles";
+import { DatabaseContext } from "../../services/db-context";
 
 
 
@@ -32,7 +32,9 @@ export default function RevenueScreen({navigation, route} : any) {
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-    const revenueDao = DAOFactory.getDAOFromType<Revenue>(DaoType.REVENUE, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const revenueDao = dbManager.getDAOFromType<Revenue>(DaoType.REVENUE);
 
     const saveHandler = () => {
         

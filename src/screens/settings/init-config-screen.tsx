@@ -5,8 +5,8 @@ import * as Animatable from 'react-native-animatable';
 
 import { LanguageContext, t } from "../../services/i18n";
 import { scroll_styles } from "../../styles";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { DaoType } from "../../services/dao";
+import { DatabaseContext } from "../../services/db-context";
 
 
 const FOCUSED = {
@@ -79,7 +79,9 @@ export default function InitConfigScreen({navigation} : any) {
 
     const {language, setLanguage} = useContext(LanguageContext);
 
-    const settingsDao = DAOFactory.getDAOFromType(DaoType.SETTINGS, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const settingsDao = dbManager.getDAOFromType(DaoType.SETTINGS);
 
     const changeLanguageHandler = (lang:string) => {
         setLanguage(lang);

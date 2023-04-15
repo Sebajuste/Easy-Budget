@@ -195,7 +195,7 @@ export class InstallSQLite implements SchemaAction {
                     set_value TEXT NOT NULL
                 )`,args: []},
     
-                { sql: `INSERT INTO t_settings_set (set_name, set_value)
+                { sql: `INSERT OR IGNORE INTO t_settings_set (set_name, set_value)
                     SELECT 'version', '${DATABASE_VERSION}'
                     WHERE NOT EXISTS (SELECT * FROM t_settings_set WHERE set_name = 'version')
                 `, args: []},
@@ -241,6 +241,7 @@ export class InstallSQLite implements SchemaAction {
                     WHERE NOT EXISTS (SELECT * FROM t_category_cat WHERE cat_name = 'Autres')
                 `,
                 args: []}
+                
                 
             ], false, (err : any, resultSet) => {
     

@@ -1,15 +1,15 @@
 import { useIsFocused } from "@react-navigation/core";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { Button } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { t } from "../../services/i18n";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import { horizontalScale } from "../../util/ui-metrics";
+import { DatabaseContext } from "../../services/db-context";
 
 
 const MONTHS : {[key:number]:string}= {
@@ -41,7 +41,9 @@ export default function StatisticsScreen({navigation} : {navigation : any}) {
 
     const [date, setDate] = useState(new Date());
 
-    const transactionDao : AccountTransactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE) as AccountTransactionDao;
+    const { dbManager } = useContext(DatabaseContext);
+
+    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
 
     const isFocused = useIsFocused();
 

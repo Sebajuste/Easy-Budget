@@ -36,7 +36,7 @@ export class InvalidDao<T> extends DAO<T> {
 
     private errorResult<U>() : Promise<U> {
       return new Promise((resolve, reject) => {
-        reject('Invalid DAO ' + this.name);
+        reject('Error result. Cause : Invalid DAO ' + this.name);
       });
     }
 

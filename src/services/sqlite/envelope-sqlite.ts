@@ -1,8 +1,19 @@
-import { Envelope, EnvelopeDao, Period } from "../envelope";
-import { sqlite_client } from "./database-manager-sqlite";
+import * as SQLite from 'expo-sqlite';
 import _ from "lodash";
 
+import { Envelope, EnvelopeDao, Period } from "../envelope";
+import assert from '../../util/assert';
+
+
 export class EnvelopeSQLiteDao extends EnvelopeDao {
+
+    private client : SQLite.WebSQLDatabase;
+
+    constructor(client: SQLite.WebSQLDatabase) {
+        super();
+        assert( client );
+        this.client = client;
+    }
 
     addAll(entry: Envelope[]): Promise<string[] | number[] | undefined[]> {
         throw new Error("Method not implemented.");
@@ -31,7 +42,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
                     ON cat_id = evp_category_id
             `;
 
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
 
                     
@@ -72,7 +83,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
             WHERE evp_id = ?
             `;
 
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [selector], (tx2, { rows: {_array} }) => {
 
                     if( _array.length > 0 ) {
@@ -111,7 +122,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
         const params = [envelope.name, envelope.funds, envelope.amount, envelope.period.toString(), envelope.dueDate.toISOString(), envelope.category_id];
         
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -138,7 +149,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
         const params = [envelope.name, envelope.funds, envelope.amount,  envelope.period.toString(), envelope.dueDate.toISOString(), envelope.category_id, envelope._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -154,7 +165,7 @@ export class EnvelopeSQLiteDao extends EnvelopeDao {
         const SQL = `DELETE FROM t_envelope_evp WHERE evp_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [envelope._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

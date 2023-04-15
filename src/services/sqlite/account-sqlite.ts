@@ -1,9 +1,18 @@
-import { Account, AccountDao } from "../account";
-import { sqlite_client } from "./database-manager-sqlite";
+import * as SQLite from 'expo-sqlite';
 
+import assert from "../../util/assert";
+import { Account, AccountDao } from "../account";
 
 
 export class AccountDaoSQLite extends AccountDao {
+
+    private client : SQLite.WebSQLDatabase;
+
+    constructor(client: SQLite.WebSQLDatabase) {
+        super();
+        assert( client );
+        this.client = client;
+    }
     
     addAll(entry: Account[]): Promise<string[] | number[] | undefined[]> {
         throw new Error("Method not implemented.");
@@ -66,7 +75,7 @@ export class AccountDaoSQLite extends AccountDao {
         */
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -89,7 +98,7 @@ export class AccountDaoSQLite extends AccountDao {
         WHERE act_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
                     resolve(_array.length > 0 ? _array[0] : null);
                 }, (tx, err) => {
@@ -122,7 +131,7 @@ export class AccountDaoSQLite extends AccountDao {
         const params = [account.name, account.balance, account.envelope_balance];
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL_ACCOUNT, params, (_, { insertId }) => {
 
                     const transaction_params = [
@@ -157,7 +166,7 @@ export class AccountDaoSQLite extends AccountDao {
         const params = [account.name, account._id];
         
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     console.log('account updated', account)
                     resolve();
@@ -183,7 +192,7 @@ export class AccountDaoSQLite extends AccountDao {
         const SQL = 'DELETE FROM t_account_act WHERE act_id = ?';
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [account._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

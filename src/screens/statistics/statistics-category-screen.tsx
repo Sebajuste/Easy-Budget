@@ -4,11 +4,11 @@ import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { LanguageContext, t } from "../../services/i18n";
 import { AccountTransaction, AccountTransactionDao } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
 import { horizontalScale } from "../../util/ui-metrics";
+import { DatabaseContext } from "../../services/db-context";
 
 const MONTHS : {[key:number]:string}= {
     0: 'Janvier',
@@ -42,7 +42,9 @@ export default function StatisticsCategoryScreen({route} : {route: any}) {
 
     const [stats, setStats] = useState<any[]>([]);
 
-    const transactionDao : AccountTransactionDao = DAOFactory.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION, DATABASE_TYPE) as AccountTransactionDao;
+    const { dbManager } = useContext(DatabaseContext);
+
+    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
 
     const renderItemHandler = ({item, index} : {item: any, index: number}) => (
         <View style={styles.item} key={index}>

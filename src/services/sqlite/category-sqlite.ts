@@ -1,7 +1,17 @@
+import * as SQLite from 'expo-sqlite';
+
+import assert from "../../util/assert";
 import { Category, CategoryDao } from "../category";
-import { sqlite_client } from "./database-manager-sqlite";
 
 export class CategorySQLiteDao extends CategoryDao {
+
+    private client : SQLite.WebSQLDatabase;
+
+    constructor(client: SQLite.WebSQLDatabase) {
+        super();
+        assert( client );
+        this.client = client;
+    }
     
     addAll(entry: Category[]): Promise<string[] | number[] | undefined[]> {
         throw new Error("Method not implemented.");
@@ -13,7 +23,7 @@ export class CategorySQLiteDao extends CategoryDao {
 
             const SQL = `SELECT cat_id as _id, cat_name as name, cat_color as color, cat_icon as icon FROM t_category_cat`;
 
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -41,7 +51,7 @@ export class CategorySQLiteDao extends CategoryDao {
         const SQL = `INSERT INTO t_category_cat (cat_name, cat_color, cat_icon) VALUES (?, ?, 'none')`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [category.name, category.color], (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {
@@ -59,7 +69,7 @@ export class CategorySQLiteDao extends CategoryDao {
         const params = [category.name, category.color, category._id];
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
@@ -75,7 +85,7 @@ export class CategorySQLiteDao extends CategoryDao {
         const SQL = `DELETE FROM t_category_cat WHERE cat_id = ?`;
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [category._id], (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {

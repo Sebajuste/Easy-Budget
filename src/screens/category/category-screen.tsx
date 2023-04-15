@@ -1,17 +1,17 @@
 import { StackActions } from "@react-navigation/native";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { Category, CategoryDao } from "../../services/category";
-import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
+import { Category } from "../../services/category";
+import { Envelope } from "../../services/envelope";
 import { ColorPicker } from "react-native-color-picker";
 import { fromHsv, toHsv } from "react-native-color-picker/dist/utils";
 import ErrorMessage from "../../components/error-message";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { styles_form } from "../../styles";
+import { DatabaseContext } from "../../services/db-context";
 
 
 export default function CategoryScreen({navigation, route} : {navigation : any, route : any}) {
@@ -26,8 +26,10 @@ export default function CategoryScreen({navigation, route} : {navigation : any, 
 
     const [hasEnvelope, setHasEnvelope] = useState(false);
 
-    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE); // getDao<CategoryDao>(CategoryDao, Database.ASYNC_STORAGE);
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);// getDao<EnvelopeDao>(EnvelopeDao, Database.ASYNC_STORAGE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const categoryDao = dbManager.getDAOFromType<Category>(DaoType.CATEGORY);
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
     useEffect(() => {
 

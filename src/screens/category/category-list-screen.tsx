@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable'
 
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Category } from "../../services/category";
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
+import { DatabaseContext } from "../../services/db-context";
 
 
 
@@ -49,7 +49,9 @@ export function CategoryListScreen({navigation} : any) {
 
     const isFocused = useIsFocused();
 
-    const categoryDao = DAOFactory.getDAOFromType<Category>(DaoType.CATEGORY, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const categoryDao = dbManager.getDAOFromType<Category>(DaoType.CATEGORY);
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 

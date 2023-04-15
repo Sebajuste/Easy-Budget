@@ -1,14 +1,14 @@
 import { useIsFocused } from "@react-navigation/native";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Button, Section, Text } from "react-native-rapi-ui";
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 import { Envelope, envelopePreviousDueDate, isValidEnvelope, updateNextDueDate } from "../../services/envelope";
 import { t } from "../../services/i18n";
 import { EnvelopeTransaction, EnvelopeTransactionDao } from "../../services/transaction";
 import { container_state_styles, scroll_styles } from "../../styles";
+import { DatabaseContext } from "../../services/db-context";
 
 
 function NextPaimentItem({envelope, onPayment} : {envelope:Envelope, onPayment?: (envelope:Envelope) => void}) {
@@ -19,7 +19,9 @@ function NextPaimentItem({envelope, onPayment} : {envelope:Envelope, onPayment?:
 
     const dateStr : string = envelope.dueDate && typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate).toDateString() : '';
 
-    const envelopeTransactionDao = DAOFactory.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION, DATABASE_TYPE) as EnvelopeTransactionDao;
+    const { dbManager } = useContext(DatabaseContext);
+
+    const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
 
     const statusStyle = isValidEnvelope(envelope, totalFill)  ? container_state_styles.success : container_state_styles.danger;
 
@@ -53,7 +55,10 @@ export default function NextPaymentListView({onPayment} : {onPayment?: (envelope
 
     const isFocused = useIsFocused();
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
+
+    const { dbManager } = useContext(DatabaseContext);
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
     useEffect(() => {
 

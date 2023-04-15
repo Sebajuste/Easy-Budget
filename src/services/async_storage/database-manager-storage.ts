@@ -1,9 +1,18 @@
 import { AsyncStorage } from "react-native";
 import { DatabaseManager } from "../database-manager";
+import { DaoType, DAO } from "../dao";
 
 export class DatabaseManagerAsyncStorage extends DatabaseManager {
 
-    async open() {
+    async dbList() : Promise<string[]> {
+
+        return new Promise((resolve) => {
+            resolve([]);
+        });
+
+    }
+
+    async open(dbName:string) {
 
     }
 
@@ -27,6 +36,10 @@ export class DatabaseManagerAsyncStorage extends DatabaseManager {
 
     getLastError() {
         return null;
+    }
+
+    getDAOFromType<T>(daoType: DaoType): DAO<T> {
+        throw new Error("Method not implemented.");
     }
 
 }

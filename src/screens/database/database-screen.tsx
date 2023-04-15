@@ -1,22 +1,30 @@
+import { useContext, useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
+import * as Sharing from 'expo-sharing';
 import { View } from "react-native-animatable";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Account, AccountDao } from "../../services/account";
+import _ from "lodash";
+
+import { DeleteConfirmModal } from "../../components/modal";
+import { Account } from "../../services/account";
 import { DaoType } from "../../services/dao";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
-import { Envelope, EnvelopeDao } from "../../services/envelope";
-import { Settings, SettingsDao } from "../../services/settings";
-import { EnvelopeTransactionDao } from "../../services/transaction";
+
+import { Envelope} from "../../services/envelope";
+import { Settings } from "../../services/settings";
+import { DatabaseContext } from "../../services/db-context";
+import { DatabaseManager } from "../../services/database-manager";
 
 
-async function checkDatabase() {
+async function checkDatabase(dbManager : DatabaseManager ) {
 
-    const envelopeDao = DAOFactory.getDAOFromType<Envelope>(DaoType.ENVELOPE, DATABASE_TYPE);
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+
+
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
   
     /*
     const total_fill = await transactionDao.load()//
@@ -52,9 +60,11 @@ export function DatabaseScreen() {
 
     const [databaseResult, setDatabaseResult] = useState([]);
 
-    const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
+    const [deleteVisible, setDeleteVisible] = useState(false);
 
-    const settingsDao = DAOFactory.getDAOFromType<Settings>(DaoType.SETTINGS, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const settingsDao = dbManager.getDAOFromType<Settings>(DaoType.SETTINGS);
 
     const isFocused = useIsFocused();
 
@@ -71,6 +81,56 @@ export function DatabaseScreen() {
         });
     };
 
+    const saveBackupHandler = () => {
+
+      const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
+
+      const timestamp = new Date().toISOString();
+      const backupFileUri = `${FileSystem.cacheDirectory}easy_budget_${timestamp}.db`;
+
+      dbManager.close().then(v => {
+        return FileSystem.copyAsync({ from: dbPath, to: backupFileUri });
+      })//
+      .then( r => {
+        return Sharing.shareAsync(`file://${backupFileUri}`);
+      })//
+      .then( r => {
+        return FileSystem.deleteAsync(backupFileUri);
+      })//
+      .finally( () => dbManager.open() ) //
+      .catch(console.error);
+
+    };
+
+    const restoreBackupHandler = async () => {
+
+      const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
+
+      try {
+        const result = await DocumentPicker.getDocumentAsync({ type: 'application/octet-stream' });
+        // const result = await DocumentPicker.getDocumentAsync();
+
+        if (result.type === 'success' && result.uri) {
+
+          await dbManager.close();
+
+          await FileSystem.copyAsync({ from: result.uri, to: dbPath });
+
+          await dbManager.open();
+
+          await dbManager.init();
+
+          console.log('La restauration de la sauvegarde a réussi');
+        } else {
+          console.log('Aucun fichier n\'a été sélectionné');
+        }
+
+      } catch(err) {
+        console.error(err);
+      }
+
+    };
+
     useEffect(() => {
       setLoading(true);
 
@@ -78,7 +138,7 @@ export function DatabaseScreen() {
 
       settingsDao.load().then(console.log);
 
-      const p2 = checkDatabase().then(setDatabaseCheck).catch(console.error);
+      const p2 = checkDatabase(dbManager).then(setDatabaseCheck).catch(console.error);
 
       Promise.all([p1, p2]).finally(() => setLoading(false));
 
@@ -105,6 +165,10 @@ export function DatabaseScreen() {
 
     return (
         <SafeAreaView style={{flex: 1, margin: 5}}>
+          <View style={{margin: 20}}>
+            <Button text="Save Backup" onPress={saveBackupHandler} style={{marginBottom: 10}} />
+            <Button text="Restore Backup" onPress={restoreBackupHandler} style={{marginBottom: 10}} />
+          </View>
           <View style={{flex: 1, margin: 20}}>
             <ScrollView>
               {errorItems}
@@ -112,10 +176,11 @@ export function DatabaseScreen() {
           </View>
           <View style={{margin: 20}}>
             <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
-            <Text style={{marginBottom: 20}}>Version  : { version }  </Text>
+            <Text style={{marginBottom: 20}}>Database Version   : { version }  </Text>
             { message ? <Text style={{marginBottom: 20}}>{message}</Text> : null }
-            <Button text="DELETE Database" onPress={clearDatabaseHandler}></Button>
+            <Button text="DELETE Database" onPress={()=> setDeleteVisible(true)}></Button>
           </View>
+          <DeleteConfirmModal visible={deleteVisible} onConfirm={clearDatabaseHandler} onCancel={ ()=> setDeleteVisible(false)} options={{title: 'Delete Database'}} />
         </SafeAreaView>
     );
 

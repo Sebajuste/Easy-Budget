@@ -1,9 +1,13 @@
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
+import * as Crypto from 'expo-crypto';
 
 import { DatabaseManager } from "../database-manager";
 import { SCHEMA_ACTIONS } from './schema/schema-config';
 import { SQLTransaction } from 'expo-sqlite';
+import { ReadingOptions } from 'expo-file-system';
+import { DAO, DaoType, InvalidDao } from '../dao';
+import { SQLITE_DAO_FACTORY } from './dao-sqlite';
 
 
 const SQLITE_VERSION = "1.0";
@@ -31,6 +35,8 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
     private error: any;
 
+    private database_name : string = '';
+
     constructor() {
         super();
         this.error = null;
@@ -40,10 +46,24 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         return this.db;
     }
 
-    public async open() : Promise<void> {
+    public async dbList() : Promise<string[]> {
 
-        if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
-            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
+        const dirUri = FileSystem.documentDirectory + 'SQLite';
+
+        if (!(await FileSystem.getInfoAsync(dirUri)).exists) {
+            await FileSystem.makeDirectoryAsync(dirUri);
+        }
+
+        return FileSystem.readDirectoryAsync(dirUri);
+
+    }
+
+    public async open(dbName?:string) : Promise<void> {
+
+        const dirUri = FileSystem.documentDirectory + 'SQLite';
+
+        if (!(await FileSystem.getInfoAsync(dirUri)).exists) {
+            await FileSystem.makeDirectoryAsync(dirUri);
         }
         /*
         // To download from external file
@@ -53,20 +73,37 @@ export class DatabaseManagerSQLite extends DatabaseManager {
         );
         */
 
+        const localDbName = dbName == undefined ? this.database_name : dbName;
+
+
+        const fileUri = `${dirUri}/${localDbName}`;
+        const readOptions = {encoding: FileSystem.EncodingType.Base64} as ReadingOptions;
+
+        FileSystem.readAsStringAsync(fileUri, readOptions).then(data => {
+            return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, data);
+        }).then(digest => {
+            
+        }).catch(console.error);
+
+        /*
+        const { modificationTime: modTime } = await FileSystem.getInfoAsync(fileUri, { md5: false });
+        console.log('modificationTime: ', new Date(modTime*1000).toString() );
+        */
+
         return new Promise((resolve, reject) => {
-            SQLite.openDatabase(DATABASE_NAME, SQLITE_VERSION, "", 1, (db) => {
+            SQLite.openDatabase(localDbName, SQLITE_VERSION, "", 1, (db) => {
                 this.db = db;
+                this.database_name = localDbName;
                 console.log('Database opened');
                 resolve();
             });
         });
     }
 
-    async close() {
+    public async close() {
         if( this.db ) {
             return this.db.closeAsync().then(() => {
                 console.log('Database closed');
-                // this.db = null;
             });
         }
     }
@@ -75,19 +112,17 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
         this.error = null;
 
-        return SCHEMA_ACTIONS['install'].action(this.client) //
-        .then( async () => {
-            const version = await getDatabaseVersion(this.db);
-            console.log('Database version ', version);
+        getDatabaseVersion(this.db).then(version => {
             if( SCHEMA_ACTIONS[version] ) {
-                return await SCHEMA_ACTIONS[version].action(this.client).catch(err => {
+                return SCHEMA_ACTIONS[version].action(this.client).catch(err => {
                     this.error = err;
                 });
             } else {
                 console.log('No upgrade required');
             }
-        })
-        .catch(err => {
+        }, err => {
+            return SCHEMA_ACTIONS['install'].action(this.client);
+        }).catch(err => {
             console.error(err);
             this.error = err;
         });
@@ -98,24 +133,63 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
         return this.close()//
         .then( () => this.db.deleteAsync())//
-        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) )//
+        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${this.database_name}`, {idempotent: true}) )//
         .then( () => {
             console.log('Database removed');
-            return this.open();
+            return this.open(this.database_name);
         });
 
     }
 
     public getLastError() {
         return this.error;
-    }    
+    }
+
+    public getDAOFromType<T>(daoType : DaoType) : DAO<T> {
+
+        if ( ! this.db ) {
+            throw new Error('Database not initialized');
+        }
+
+        const className = daoType.toString();
+
+        if( SQLITE_DAO_FACTORY.has(className) ) {
+            const daoFactory = SQLITE_DAO_FACTORY.get(className);
+            if( daoFactory ) {
+                const dao = daoFactory(this.db);
+                return dao as DAO<T>;
+            }
+        }
+
+        return new InvalidDao(className);
+    }
 }
 
+
+export class DatabaseManagerFactory {
+
+
+    static create() : Promise<DatabaseManager> {
+
+        const dbManager = new DatabaseManagerSQLite();
+
+        return dbManager.open(DATABASE_NAME).then( fb => {
+            console.log('DB opened');
+            return dbManager.init()
+        }).then(r => dbManager);
+
+    }
+
+
+}
+
+/*
 export let DB_MANAGER_SQLite : DatabaseManagerSQLite; // = new DatabaseManagerSQLite();
 
-export const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve, reject) => {
+
+const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve, reject) => {
     DB_MANAGER_SQLite = new DatabaseManagerSQLite();
-    DB_MANAGER_SQLite.open().then(db => {
+    DB_MANAGER_SQLite.open(DATABASE_NAME).then(db => {
         console.log('DB opened');
         return DB_MANAGER_SQLite.init();
     })//
@@ -128,10 +202,13 @@ export const sqlite_client_future = new Promise<SQLite.WebSQLDatabase>((resolve,
     
 });
 
+
 export function sqlite_client_async() {
     return sqlite_client_future;
 }
 
+
 export const sqlite_client = () : SQLite.WebSQLDatabase => {
     return DB_MANAGER_SQLite.client;
 };
+*/

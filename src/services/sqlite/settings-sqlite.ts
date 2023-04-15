@@ -1,17 +1,26 @@
-
+import * as SQLite from 'expo-sqlite';
 import _ from 'lodash';
+
 import { Settings, SettingsDao } from '../settings';
-import { sqlite_client, sqlite_client_async } from "./database-manager-sqlite";
+import assert from '../../util/assert';
 
 
 export class SettingsDaoSQLite extends SettingsDao {
+
+    private client : SQLite.WebSQLDatabase;
+
+    constructor(client: SQLite.WebSQLDatabase) {
+        super();
+        assert( client );
+        this.client = client;
+    }
 
     load(): Promise<Settings[]> {
 
         const SQL = `SELECT set_name as name, set_value as value FROM t_settings_set`;
 
         return new Promise<any[]>((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [], (_, { rows: {_array} }) => {
                     resolve(_array);
                 }, (tx, err) => {
@@ -27,10 +36,10 @@ export class SettingsDaoSQLite extends SettingsDao {
 
         const SQL = `SELECT set_name as name, set_value as value FROM t_settings_set WHERE set_name = ?`;
 
-        const client = await sqlite_client_async();
+        //const client = await sqlite_client_async();
 
         return new Promise<Settings|null>((resolve, reject) => {
-            client.transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
                     resolve(_array.length > 0 ? _array[0] : null);
                 }, (tx, err) => {
@@ -40,26 +49,6 @@ export class SettingsDaoSQLite extends SettingsDao {
             });
         });
 
-        /*
-        return new Promise<Settings|null>((resolve, reject) => {
-
-            const client = await sqlite_client_async();
-
-            if( client ) {
-                client.transaction(tx => {
-                    tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
-                        resolve(_array.length > 0 ? _array[0] : null);
-                    }, (tx, err) => {
-                        reject(err);
-                        return true;
-                    });
-                });
-            } else {
-                reject('DB not ready');
-            }
-
-        });
-        */
     }
 
     add(settings: Settings): Promise<string | number | undefined> {
@@ -69,7 +58,7 @@ export class SettingsDaoSQLite extends SettingsDao {
         const params = [settings.name, settings.value];
 
         return new Promise((resolve, reject) => {
-            sqlite_client().transaction(tx => {
+            this.client.transaction(tx => {
                 tx.executeSql(SQL, params, (_, { insertId }) => {
                     resolve(insertId);
                 }, (tx, err) => {

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { CheckBox, Section, SectionContent, Text } from "react-native-rapi-ui";
+import { Section, SectionContent, Text } from "react-native-rapi-ui";
 import { EnvelopeTransaction } from "../../services/transaction";
 
 

@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScrollView, TouchableHighlight, View } from "react-native";
 import { Button, Section, SectionContent, Text } from "react-native-rapi-ui";
 import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import _ from 'lodash';
 
-import { Account, AccountDao } from "../../services/account";
+import { Account } from "../../services/account";
 import { scroll_styles } from "../../styles";
-import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
-import ErrorMessage from "../../components/error-message";
-import { acc } from "react-native-reanimated";
+import ErrorMessage from "../../components/error-message";;
+import { DatabaseContext } from "../../services/db-context";
 
 
 export function AccountListScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: Account[]) => void}) {
@@ -23,7 +22,9 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
 
     const isFocused = useIsFocused();
 
-    const accountDao = DAOFactory.getDAOFromType<Account>(DaoType.ACCOUNT, DATABASE_TYPE);
+    const { dbManager } = useContext(DatabaseContext);
+
+    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
 
     const selectHandler = (account: Account) => {
         navigation.navigate({name: 'AccountTransaction', params: {account: account} });
