@@ -127,31 +127,13 @@ export class DatabaseManagerSQLite extends DatabaseManager {
             this.error = err;
         });
 
-        /*
-        return SCHEMA_ACTIONS['install'].action(this.client) //
-        .then( async () => {
-            const version = await getDatabaseVersion(this.db);
-            console.log('Database version ', version);
-            if( SCHEMA_ACTIONS[version] ) {
-                return await SCHEMA_ACTIONS[version].action(this.client).catch(err => {
-                    this.error = err;
-                });
-            } else {
-                console.log('No upgrade required');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            this.error = err;
-        });
-        */
     }
 
     public delete(): Promise<void> {
 
         return this.close()//
         .then( () => this.db.deleteAsync())//
-        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) )//
+        .then( () => FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${this.database_name}`, {idempotent: true}) )//
         .then( () => {
             console.log('Database removed');
             return this.open(this.database_name);

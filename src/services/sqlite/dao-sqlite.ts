@@ -8,7 +8,7 @@ import { AccountTransactionDaoSQLite, EnvelopeTransactionDaoSQLite } from './tra
 import { DAO, DaoType } from '../dao';
 import { SettingsDaoSQLite } from './settings-sqlite';
 
-export { DB_MANAGER_SQLite } from './database-manager-sqlite';
+// export { DB_MANAGER_SQLite } from './database-manager-sqlite';
 
 /*
 export const SQLITE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([

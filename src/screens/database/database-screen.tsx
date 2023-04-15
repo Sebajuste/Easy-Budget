@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
+import * as Sharing from 'expo-sharing';
 import { View } from "react-native-animatable";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
@@ -81,24 +83,51 @@ export function DatabaseScreen() {
 
     const saveBackupHandler = () => {
 
+      const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
+
+      const timestamp = new Date().toISOString();
+      const backupFileUri = `${FileSystem.cacheDirectory}easy_budget_${timestamp}.db`;
+
       dbManager.close().then(v => {
+        return FileSystem.copyAsync({ from: dbPath, to: backupFileUri });
+      })//
+      .then( r => {
+        return Sharing.shareAsync(`file://${backupFileUri}`);
+      })//
+      .then( r => {
+        return FileSystem.deleteAsync(backupFileUri);
+      })//
+      .finally( () => dbManager.open() ) //
+      .catch(console.error);
 
-        
-        // FileSystem.deleteAsync(FileSystem.documentDirectory + `SQLite/${DATABASE_NAME}`, {idempotent: true}) 
+    };
 
-        const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
+    const restoreBackupHandler = async () => {
 
-        const timestamp = new Date().toISOString();
-        const backupPath = `${FileSystem.documentDirectory}Backups/easy_budget_backup_${timestamp}.db`;
+      const dbPath = `${FileSystem.documentDirectory}SQLite/easy_budget.db`;
 
-        console.log('backupPath : ', backupPath);
+      try {
+        const result = await DocumentPicker.getDocumentAsync({ type: 'application/octet-stream' });
+        // const result = await DocumentPicker.getDocumentAsync();
 
-        return FileSystem.copyAsync({ from: dbPath, to: backupPath });
+        if (result.type === 'success' && result.uri) {
 
-        
-      }).then(r => {
-        return dbManager.open();
-      });
+          await dbManager.close();
+
+          await FileSystem.copyAsync({ from: result.uri, to: dbPath });
+
+          await dbManager.open();
+
+          await dbManager.init();
+
+          console.log('La restauration de la sauvegarde a réussi');
+        } else {
+          console.log('Aucun fichier n\'a été sélectionné');
+        }
+
+      } catch(err) {
+        console.error(err);
+      }
 
     };
 
@@ -136,9 +165,9 @@ export function DatabaseScreen() {
 
     return (
         <SafeAreaView style={{flex: 1, margin: 5}}>
-          <View>
-            <Text>Google Drive save</Text>
-            <Button text="Save Backup" onPress={saveBackupHandler}></Button>
+          <View style={{margin: 20}}>
+            <Button text="Save Backup" onPress={saveBackupHandler} style={{marginBottom: 10}} />
+            <Button text="Restore Backup" onPress={restoreBackupHandler} style={{marginBottom: 10}} />
           </View>
           <View style={{flex: 1, margin: 20}}>
             <ScrollView>
