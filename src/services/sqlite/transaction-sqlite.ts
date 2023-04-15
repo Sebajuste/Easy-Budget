@@ -169,7 +169,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             ats_reconciled = ?
         WHERE ats_id = ?`;
 
-        const params = [transaction.name, transaction.type, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.category_id, transaction.date, transaction.reconciled ? 1 : 0, transaction._id];
+        const params = [transaction.name, transaction.type, transaction.amount, transaction.envelope_id, transaction.account_id, transaction.category_id, transaction.date.toString(), transaction.reconciled ? 1 : 0, transaction._id];
 
         return new Promise((resolve, reject) => {
             sqlite_client().transaction(tx => {
@@ -201,7 +201,7 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
 
     statsForMonth(year: number, month: number): Promise<any[]> {
 
-        const SQL = `SELECT cat_id as categoryID, cat_name as category, cat_color as color, cat_icon as icon,  date, amount
+        const SQL = `SELECT cat_id as categoryID, cat_name as category, cat_color as color, cat_icon as icon, date, amount
             FROM (
                 SELECT ats_category_id, strftime('%Y-%m', ats_date) as date, SUM(ats_amount) as amount
                 FROM t_account_transaction_ats

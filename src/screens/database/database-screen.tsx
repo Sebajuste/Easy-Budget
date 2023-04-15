@@ -5,6 +5,7 @@ import { View } from "react-native-animatable";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DeleteConfirmModal } from "../../components/modal";
 import { Account, AccountDao } from "../../services/account";
 import { DaoType } from "../../services/dao";
 import { DAOFactory, DATABASE_TYPE } from "../../services/dao-manager";
@@ -51,6 +52,8 @@ export function DatabaseScreen() {
     const [databaseCheck, setDatabaseCheck] = useState(false);
 
     const [databaseResult, setDatabaseResult] = useState([]);
+
+    const [deleteVisible, setDeleteVisible] = useState(false);
 
     const dbManager = DAOFactory.getDatabaseManager(DATABASE_TYPE);
 
@@ -105,6 +108,9 @@ export function DatabaseScreen() {
 
     return (
         <SafeAreaView style={{flex: 1, margin: 5}}>
+          <View>
+            <Text>Google Drive save</Text>
+          </View>
           <View style={{flex: 1, margin: 20}}>
             <ScrollView>
               {errorItems}
@@ -114,8 +120,9 @@ export function DatabaseScreen() {
             <Text style={{marginBottom: 20}}>Database Integrity : { databaseCheck ? 'OK': 'ERROR' }  </Text>
             <Text style={{marginBottom: 20}}>Version  : { version }  </Text>
             { message ? <Text style={{marginBottom: 20}}>{message}</Text> : null }
-            <Button text="DELETE Database" onPress={clearDatabaseHandler}></Button>
+            <Button text="DELETE Database" onPress={()=> setDeleteVisible(true)}></Button>
           </View>
+          <DeleteConfirmModal visible={deleteVisible} onConfirm={clearDatabaseHandler} onCancel={ ()=> setDeleteVisible(false)} options={{title: 'Delete Database'}} />
         </SafeAreaView>
     );
 

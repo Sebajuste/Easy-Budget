@@ -40,26 +40,6 @@ export class SettingsDaoSQLite extends SettingsDao {
             });
         });
 
-        /*
-        return new Promise<Settings|null>((resolve, reject) => {
-
-            const client = await sqlite_client_async();
-
-            if( client ) {
-                client.transaction(tx => {
-                    tx.executeSql(SQL, [selector], (_, { rows: {_array} }) => {
-                        resolve(_array.length > 0 ? _array[0] : null);
-                    }, (tx, err) => {
-                        reject(err);
-                        return true;
-                    });
-                });
-            } else {
-                reject('DB not ready');
-            }
-
-        });
-        */
     }
 
     add(settings: Settings): Promise<string | number | undefined> {
