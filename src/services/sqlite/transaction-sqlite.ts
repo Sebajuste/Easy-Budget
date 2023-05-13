@@ -116,14 +116,16 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
             transaction.account_id,
         ];
 
+        const client = this.client;
+
         return new Promise((resolve, reject) => {
 
             let insertId = 0;
 
-            this.client.transaction(async tx => {
+            this.client.transaction(tx => {
 
                 if( transaction.type == TransactionType.OUTCOME && transaction.envelope_id !== '') {
-                    await tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_, { insertId }) => {
+                    tx.executeSql(SQL_ENVELOPE, [transaction.amount, transaction.envelope_id], (_, { insertId }) => {
                     }, (tx, err) => {
                         console.error('Error update envelope', err);
                         console.error(err);
@@ -140,30 +142,32 @@ export class AccountTransactionDaoSQLite extends AccountTransactionDao {
                     transaction.account_id
                 ];
 
-                await tx.executeSql(SQL_ACCOUNT, accountParams, (_, { insertId }) => {
+                tx.executeSql(SQL_ACCOUNT, accountParams, (_, { insertId }) => {
                 }, (tx, err) => {
                     console.error('Error update account', accountParams, err);
                     console.error(err);
                     return true;
                 });
 
-                await tx.executeSql(SQL_TRANSACTION, params, (_, { result } : any) => {
+                tx.executeSql(SQL_TRANSACTION, params, (_, { result } : any) => {
                     insertId = result;
                 }, (tx, err) => {
                     console.error('Error insert transaction', params, err);
                     return true;
                 });
             }, err => {
+                console.error(err);
                 reject(err);
             }, () => {
                 resolve(insertId);
             });
+
         });
     }
 
     addAll(transactions: AccountTransaction[]): Promise<(string|number|undefined)[]> {
-        
-        return Promise.all( transactions.map(this.add) );
+
+        return Promise.all( transactions.map(transaction => this.add(transaction) ) );
     }
 
     update(transaction: AccountTransaction): Promise<void> {

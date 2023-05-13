@@ -10,6 +10,7 @@ import ErrorMessage from "../../components/error-message";
 import { styles_form } from "../../styles";
 import { DeleteConfirmModal } from "../../components/modal";
 import { DatabaseContext } from "../../services/db-context";
+import { AccountTransaction, TransactionType } from "../../services/transaction";
 
 export function AccountScreen({navigation, route} : any) {
 
@@ -21,11 +22,14 @@ export function AccountScreen({navigation, route} : any) {
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
+    const [reconciled, setReconciled] = useState( (account && account.total_reconciled) ? `${account.total_reconciled.toFixed(2)}` : '0' )
+
     const [confirm, setConfirm] = useState(false);
 
     const { dbManager } = useContext(DatabaseContext);
 
     const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
+    const accountTransactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
     const openDeleteHandler = () => {
         setConfirm(true);
@@ -68,6 +72,28 @@ export function AccountScreen({navigation, route} : any) {
 
     };
 
+    const correctHandler = () => {
+
+        const correction = parseFloat(reconciled) - (account.total_reconciled || 0);
+
+        const transaction = {
+            name: 'Correction',
+            type: TransactionType.INCOME,
+            amount: Math.trunc(correction * 100) / 100,
+            date: new Date(),
+            account_id: account._id,
+            category_id: '',
+            envelope_id: '',
+            reconciled: true
+
+        } as AccountTransaction;
+
+        accountTransactionDao.add(transaction)//
+        .then(r => console.log('result: ', r))//
+        .catch(console.error)
+
+    };
+
     const deleteHandler = () => {
         accountDao.remove(account).then(v => {
             const popAction = StackActions.pop(2);
@@ -79,6 +105,8 @@ export function AccountScreen({navigation, route} : any) {
     };
 
     const formValid = name.trim().length > 0 && balance.trim().length > 0;
+
+    const disableCorrection = Math.abs( parseFloat(reconciled) - (account.total_reconciled || 0)) < 0.01;
 
     return (
         <Layout style={{margin: 10}}>
@@ -100,7 +128,30 @@ export function AccountScreen({navigation, route} : any) {
                 </View>
 
                 { route.params?.account ? (
-                    null
+                    <>
+                    <View style={styles_form.row}>
+
+                        <View style={styles_form.group}>
+                            <Text>Correction</Text>
+                        </View>
+
+                        <View style={styles_form.group}>
+                            <Text style={{ fontSize: 12 }}>{ t('common:amount') }</Text>
+                            <TextInput
+                                placeholder="0.00"
+                                value={reconciled}
+                                onChangeText={setReconciled}
+                                keyboardType="numeric"
+                            />
+                        </View>
+
+                    </View>
+                    <View style={styles_form.row}>
+                        <View style={styles_form.group}>
+                            <Button text="Correct" disabled={disableCorrection} onPress={correctHandler}></Button>
+                        </View>
+                    </View>
+                    </>
                 ) : (
                     <View style={styles_form.row}>
                         <View style={styles_form.group}>

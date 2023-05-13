@@ -5,7 +5,7 @@ import { Button, Text } from "react-native-rapi-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { budgetPerMonth, countMonth, Envelope } from "../../services/envelope";
+import { autoFillEnvelopes, budgetPerMonth, countMonth, Envelope, fillCalculation, fillEnvelopeCalculation } from "../../services/envelope";
 import { scroll_styles } from "../../styles";
 import { AccountListScreen } from "../account/account-list-screen";
 import EnvelopesScreen from "../envelope/envelopes-screen";
@@ -61,31 +61,11 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
     const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
     const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
 
-    const fillEnvelopeCalculation = (envelopes : Envelope[]) : any[] => {
-
-        const now = new Date();
-
-        const eveloped_filtered = _.orderBy(envelopes, ['dueDate'], ['asc']).filter(envelope => envelope.funds < envelope.amount );
-
-        return _.map( eveloped_filtered , envelope => {
-            const month_budget = budgetPerMonth(envelope.amount, envelope.period);
-            const dueDate = typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate;
-            const count_month = countMonth(envelope.period);
-            const delta_year = dueDate.getFullYear() - now.getFullYear();
-            const delta_month = Math.min(count_month, delta_year*12 + (dueDate.getMonth() - now.getMonth()) );
-            // console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
-            const month_to_be_filled = count_month - delta_month;
-            // console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
-            const filled_require = month_budget * month_to_be_filled - envelope.funds;
-            // console.log(`fillEnvelopeCalculation [${envelope.name}] filled_require: ${filled_require}`);
-            return [envelope, filled_require];
-        });
-
-    };
-
+    
+    /*
     const fillCalculation = () => {
 
-        Promise.all([envelopeDao?.load(), accountDao?.load()]).then(([envelopes, accounts]) => {
+        return Promise.all([envelopeDao?.load(), accountDao?.load()]).then(([envelopes, accounts]) => {
 
             const fill_required_envelopes = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => (fill_required) );
             const fill_required = _.sum(fill_required_envelopes);
@@ -95,10 +75,10 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
                 fill_required: fill_required,
                 total_funds: total_funds
             };
-        }).then(setInfo);
+        });
         
-
     };
+    */
 
     const nextHandler = () => {
 
@@ -107,6 +87,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const fillAutoHandler = () => {
 
+        /*
         const now = new Date();
 
         Promise.all([envelopeDao.load(), accountDao.load()])//
@@ -138,10 +119,19 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
                 nextHandler();
             })//
             .catch(console.error);
+        */
+
+        Promise.all([envelopeDao?.load(), accountDao?.load()]).then( ([envelopes, accounts]) => autoFillEnvelopes(envelopes, accounts) ) //
+        .then( transactions => transactionDao.addAll(transactions) ) //
+        .then( result => nextHandler() )//
+        .catch(console.error);
     };
 
     useEffect(() => {
-        fillCalculation();
+
+        Promise.all([envelopeDao?.load(), accountDao?.load()]).then(([envelopes, accounts]) => fillCalculation(envelopes, accounts) ).then(setInfo);
+
+        // fillCalculation().then(setInfo);
     }, []);
 
     const canBeAutoFilled = info.total_funds >= info.fill_required;

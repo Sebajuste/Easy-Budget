@@ -1,5 +1,7 @@
 import _ from "lodash";
 import { DAO } from "./dao";
+import { Account } from "./account";
+import { EnvelopeTransaction } from "./transaction";
 
 export enum Period {
     MONTHLY = "MONTHLY",
@@ -151,7 +153,6 @@ export function updateNextDueDate(envelopes: Envelope[]) : Envelope[] {
 
 export abstract class EnvelopeDao extends DAO<Envelope> {
   abstract load() : Promise<Envelope[]>;
-  // abstract save(envelopes: Envelope[]) : Promise<void>;
   abstract add(envelope : Envelope) : Promise<string|number|undefined>;
   abstract update(envelope : Envelope) : Promise<void>;
   abstract remove(envelope : Envelope) : Promise<void>;
@@ -162,6 +163,75 @@ export function isValidEnvelope(envelope: Envelope, currentPeriodFilled:number) 
   const month_fill_amount = budgetPerMonth(envelope.amount, envelope.period);
   const diff_year_now_duedate = envelope.dueDate.getFullYear() - now.getFullYear();
   const diff_date_now_duedate = diff_year_now_duedate == 0 ? (envelope.dueDate.getMonth() - now.getMonth()) : ( (12-now.getMonth()) + (diff_year_now_duedate-1)*12 + envelope.dueDate.getMonth() );
-  const isValid = envelope.funds + (currentPeriodFilled + (month_fill_amount * diff_date_now_duedate) ) >= envelope.amount;
+  // const isValid = envelope.funds + (currentPeriodFilled + (month_fill_amount * diff_date_now_duedate) ) >= envelope.amount;
+  const isValid = envelope.funds > envelope.amount - (month_fill_amount * diff_date_now_duedate);
   return isValid;
+}
+
+export function fillEnvelopeCalculation(envelopes : Envelope[]) : any[] {
+
+  const now = new Date();
+
+  const fill_required_envelopes = _.filter(envelopes, envelope => envelope.funds < envelope.amount || ! isValidEnvelope(envelope, 0) );
+
+  const ordered_envelopes = _.orderBy(fill_required_envelopes, ['dueDate'], ['asc']);
+
+  // const enveloped_filtered = _.orderBy(envelopes, ['dueDate'], ['asc']).filter(envelope => envelope.funds < envelope.amount || ! isValidEnvelope(envelope, 0) );
+
+  return _.map( ordered_envelopes , envelope => {
+      const month_budget = budgetPerMonth(envelope.amount, envelope.period);
+      const dueDate = typeof envelope.dueDate === 'string' ? new Date(envelope.dueDate) : envelope.dueDate;
+      const count_month = countMonth(envelope.period);
+      const delta_year = dueDate.getFullYear() - now.getFullYear();
+      const delta_month = Math.min(count_month, delta_year*12 + (dueDate.getMonth() - now.getMonth()) );
+      // console.log(`fillEnvelopeCalculation [${envelope.name}] count_month: ${count_month}, delta_month: ${delta_month}`)
+      const month_to_be_filled = count_month - delta_month;
+      // console.log(`fillEnvelopeCalculation [${envelope.name}] month_budget: ${month_budget}, month_to_be_filled: ${month_to_be_filled}, envelope.funds: ${envelope.funds}`)
+      const amount_filled_required = month_budget * month_to_be_filled - envelope.funds;
+      // console.log(`fillEnvelopeCalculation [${envelope.name}] filled_require: ${filled_require}`);
+      return [envelope, amount_filled_required];
+  });
+
+};
+
+export function fillCalculation(envelopes: Array<Envelope>, accounts: Array<Account>) {
+
+  const fill_required_envelopes = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => (fill_required) );
+  const fill_required = _.sum(fill_required_envelopes);
+  const total_funds = _.sum( _.map(accounts, account => account.envelope_balance) );
+
+  return {
+    fill_required: fill_required,
+    total_funds: total_funds
+  };
+  
+};
+
+export function autoFillEnvelopes(envelopes: Array<Envelope>, accounts: Array<Account>) {
+
+  const now = new Date();
+
+  const temp_accounts = _.map(accounts, account => ({account: account, temp_balance: account.envelope_balance}));
+
+  const transactions = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => {
+    const temp_account = _.find(temp_accounts, temp_account => temp_account.temp_balance >= fill_required);
+
+    if( temp_account ) {
+        temp_account.temp_balance -= fill_required;
+        const transaction : EnvelopeTransaction = {
+            name: `Auto fill ${envelope.name as string}`,
+            amount: fill_required as number,
+            envelope_id: envelope._id,
+            account_id: temp_account.account._id,
+            date: now,
+        } as EnvelopeTransaction;
+
+        return transaction;
+    }
+    console.error(`Oups cannot create transaction`);
+    throw new Error(`No account found to fill amount [${fill_required}]`);
+  });
+
+  return _.filter(transactions, tx => tx.amount != 0);
+
 }

@@ -124,10 +124,16 @@ export function AccountTransactionScreen({navigation, route} : any) {
                 reconciled: false
             } as AccountTransaction;
 
-            transactionDao.addAll([transferFrom, transferTo]).then(result => {
+            console.log('add transfer from', transferFrom, ' to ', transferTo);
+
+            transactionDao.addAll([transferFrom, transferTo])//
+            .then(result => {
                 const popAction = StackActions.pop(1);
                 navigation.dispatch(popAction);
-            }).catch(console.error);
+            }).catch(err => {
+                console.error('Cannot create transaction')
+                console.error(err);
+            });
         }
     };
 

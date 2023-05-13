@@ -39,9 +39,7 @@ function EnvelopeListItem(props : any) {
 
   useEffect(() => {
     envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), new Date() )//
-      .then(transactions => {
-        return _.sum( _.map(transactions,'amount') );
-      })//
+      .then(transactions => _.sum( _.map(transactions,'amount') ) )//
       .then(setTotalFilled);
   }, []);
 

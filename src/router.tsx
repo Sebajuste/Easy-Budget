@@ -39,6 +39,7 @@ import _ from "lodash";
 import StatisticsCategoryScreen from "./screens/statistics/statistics-category-screen";
 import StatisticsScreen from "./screens/statistics/statistics-screen";
 import { DatabaseContext } from "./services/db-context";
+import { Revenue } from "./services/revenue";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -149,6 +150,8 @@ function MainStackScreen() {
 
     const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
+    const revenueDao = dbManager.getDAOFromType<Revenue>(DaoType.REVENUE);
+
     useEffect(() => {
         setLoading(true);
         settingsDao.find('language').then(r => {
@@ -160,7 +163,7 @@ function MainStackScreen() {
                 // Update all old dueDate
                 const now = new Date();
                 now.setDate(1);
-                return envelopeDao.load().then(envelopes => {
+                const f1 = envelopeDao.load().then(envelopes => {
                     return _.filter(envelopes, (envelope : Envelope) => envelope.dueDate.getTime() < now.getTime() );
                 }).then( envelopes => {
                     return _.map(envelopes, envelope => Object.assign({}, envelope, {dueDate: envelopeNextDate(envelope) }));
@@ -168,6 +171,21 @@ function MainStackScreen() {
                     const futures = _.map(envelopes, envelope => envelopeDao.update(envelope) );
                     return Promise.all(futures);
                 });
+
+                const f2 = revenueDao.load().then(revenues => {
+                    return _.filter(revenues, (revenue : Revenue) => new Date(revenue.expectDate).getTime() < now.getTime() );
+                }).then(revenues => {
+                    return _.map(revenues, revenue => {
+                        const date = new Date(revenue.expectDate);
+                        date.setMonth(date.getMonth()+1);
+                        return Object.assign({}, revenue, {expectDate: date.toISOString() });
+                    });
+                }).then(revenues => {
+                    const futures = _.map(revenues, revenue => revenueDao.update(revenue) );
+                    return Promise.all(futures);
+                });
+
+                return Promise.all([f1, f2]);
             }
             
         }).finally(() => {

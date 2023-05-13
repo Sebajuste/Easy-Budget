@@ -4,7 +4,6 @@ export interface Account {
     _id: string | number;
     name: string;
     balance: number;
-    initial_balance: number;
     envelope_balance: number;
     created_at: Date;
     total_reconciled?: number;

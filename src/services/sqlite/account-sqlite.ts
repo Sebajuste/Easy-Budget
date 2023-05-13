@@ -20,30 +20,24 @@ export class AccountDaoSQLite extends AccountDao {
 
     load(): Promise<Account[]> {
 
-        /*
-        const SQL = `
-        SELECT act_id as _id,
-            act_name as name,
-            act_balance as balance,
-            act_envelope_balance as envelope_balance,
-            act_created_at as created_at
-        FROM t_account_act
-        `;
-        */
-
         const SQL = `SELECT act_id as _id,
             act_name as name,
-            act_balance as balance,
+            temp_balance.total as balance,
             act_envelope_balance as envelope_balance,
             act_created_at as created_at,
-            temp.total as total_reconciled
+            temp_reconciled.total as total_reconciled
         FROM t_account_act
             LEFT OUTER JOIN ( SELECT ats_account_id, SUM(ats_amount) as total
                 FROM t_account_transaction_ats
                 WHERE ats_reconciled = 1
                 GROUP BY ats_account_id
-            ) as temp
-                ON temp.ats_account_id = act_id
+            ) as temp_reconciled
+                ON temp_reconciled.ats_account_id = act_id
+            LEFT OUTER JOIN ( SELECT ats_account_id, SUM(ats_amount) as total
+                FROM t_account_transaction_ats
+                GROUP BY ats_account_id
+            ) as temp_balance
+                ON temp_balance.ats_account_id = act_id
         `;
         
 
