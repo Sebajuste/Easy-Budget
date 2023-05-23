@@ -142,6 +142,8 @@ export function EnvelopeConfigScreen({ navigation, route } : {navigation : any, 
         return <Text>Loading</Text>;
     }
 
+    console.log('render EnvelopeListItem ', envelope.name, envelope);
+
     const now = new Date();
 
     const formValid = name.trim().length > 0 && amount.trim().length > 0 && parseFloat(amount) != 0;

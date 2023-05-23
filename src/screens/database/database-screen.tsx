@@ -10,38 +10,35 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import _ from "lodash";
 
 import { DeleteConfirmModal } from "../../components/modal";
-import { Account } from "../../services/account";
+import { BankAccount } from "../../services/account";
 import { DaoType } from "../../services/dao";
 
 import { Envelope} from "../../services/envelope";
 import { Settings } from "../../services/settings";
 import { DatabaseContext } from "../../services/db-context";
 import { DatabaseManager } from "../../services/database-manager";
+import { Movement } from "../../services/transaction";
 
 
 async function checkDatabase(dbManager : DatabaseManager ) {
 
+    const movementDao = dbManager.getDAOFromType<Movement>(DaoType.TRANSACTION_MOVEMENT);
 
+    const balance = await movementDao.load().then( movements => _.reduce(movements, (acc, movement) => acc + (movement.debit - movement.credit ), 0) );
 
-    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
-    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
-  
+    return Math.abs(balance) <= 0.01;
+
     /*
-    const total_fill = await transactionDao.load()//
-      .then(transactions => _.filter(transactions, transaction => transaction.transactionType == TransactionType.FILL) )//
-      .then(transactions => _.sum(_.map(transactions, transaction => transaction.amount ) ) );
-    */
+    const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
 
     const total_funds = await envelopeDao.load().then(envelopes => _.sum(_.map(envelopes, envelope => envelope.funds )) );
   
-    const total_account_filled = await accountDao.load()//
-      .then(accounts => _.map(accounts, account => account.balance - account.envelope_balance))//
-      .then(totals => _.sum(totals));
+    const total_account_filled = 0;
   
     console.log(`total_account_filled: ${total_account_filled}, total_funds: ${total_funds}`);
 
     return Math.abs(total_account_filled - total_funds) < 0.001;
-    
+    */
 }
 
 
@@ -65,6 +62,8 @@ export function DatabaseScreen() {
     const { dbManager } = useContext(DatabaseContext);
 
     const settingsDao = dbManager.getDAOFromType<Settings>(DaoType.SETTINGS);
+
+    const movementDao = dbManager.getDAOFromType<Movement>(DaoType.TRANSACTION_MOVEMENT);
 
     const isFocused = useIsFocused();
 
@@ -145,6 +144,14 @@ export function DatabaseScreen() {
       // checkDatabase().then(setDatabaseCheck).catch(console.error).finally(() => setLoading(false));
 
       setDatabaseResult( dbManager.getLastError() )
+
+      movementDao.load().then(movements => {
+
+        for(const movement of movements) {
+          console.log(movement);
+        }
+
+      });
 
     }, [isFocused]);
 

@@ -5,6 +5,7 @@ export interface Category {
     name: string;
     color: string;
     icon: string;
+    account_id: string | number;
 }
 
 export abstract class CategoryDao extends DAO<Category> {

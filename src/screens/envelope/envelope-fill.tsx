@@ -1,18 +1,19 @@
 import { Slider } from "@miblanchard/react-native-slider";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Button, Layout, Picker, Text } from "react-native-rapi-ui";
-import { Account } from "../../services/account";
+import { BankAccount } from "../../services/account";
 import { Envelope } from "../../services/envelope";
 import _ from "lodash";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
-import { EnvelopeTransaction } from "../../services/transaction";
+import { EnvelopeTransaction, Movement, MovementDao, Transaction, TransactionAccount } from "../../services/transaction";
 import { scroll_styles } from "../../styles";
-import EnvelopeTransactionView from "../transactions/transaction-view";
+import EnvelopeTransactionView, { EnvelopeMovementView } from "../transactions/transaction-view";
 import { DaoType } from "../../services/dao";
 import { t } from "../../services/i18n";
 import { DatabaseContext } from "../../services/db-context";
+import { getBankTotalAvailabity } from "../../services/sqlite/account-sqlite";
 
 
 export function EnvelopFillScreen({navigation, route} : any) {
@@ -25,65 +26,70 @@ export function EnvelopFillScreen({navigation, route} : any) {
 
     const [solde, setSolde] = useState<number>( funds );
 
-    const [accountID, setAccountID] = useState( '' );
-
-    const [accounts, setAccounts] = useState<Account[]>([]);
-
-    const [transactions, setTransactions] = useState<EnvelopeTransaction[]>([]);
+    const [totalAvailable, setTotalAvailable] = useState(0);
+    
+    const [movements, setMovements] = useState<Movement[]>([]);
 
     const amount = solde - funds;
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
-    const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
-
-
-    const selectAccountHandler = (value: string) => {
-        setAccountID(value);
-        const account = _.find(accounts, account => value == accountID );
-        if( account ) {
-            if( amount > account.balance) {
-                setSolde(account.balance);
-            }
-        }
-    };
-
+    const transactionDao = dbManager.getDAOFromType<Transaction>(DaoType.TRANSACTION);
+    const movementDao = dbManager.getDAOFromType<Movement>(DaoType.TRANSACTION_MOVEMENT) as MovementDao;
+    const accountTxDao = dbManager.getDAOFromType<TransactionAccount>(DaoType.TRANSACTION_ACCOUNT);
 
     const saveHandler = () => {
 
-        const account = _.find(accounts, account => account._id == accountID );
-        if( account ) {
-            const transaction : EnvelopeTransaction = {
+        accountTxDao.find({name: 'Budget Used', type: 'Budget_Used'}).then(transactionAccount => {
+
+            if( transactionAccount == null ) {
+                throw new Error('Invalid budget account');
+            }
+
+            const fill_debit = {
+                account_id: envelope.account_id,
+                debit: amount,
+                credit: 0
+            } as Movement;
+
+            const fill_credit = {
+                account_id: transactionAccount._id, // Budget Used
+                debit: 0,
+                credit: amount
+            } as Movement;
+
+            const transaction = {
                 _id: uuid.v4(),
                 name: `Fill Envelope ${envelope.name}`,
-                amount: amount,
-                envelope_id: envelope._id,
-                account_id: account?._id,
                 date: new Date(),
-                reconciled: true
-            } as EnvelopeTransaction;
+                movements: [fill_debit, fill_credit]
+            } as Transaction;
 
-            transactionDao.add(transaction).then(v => {
-                const popAction = StackActions.pop(1);
-                navigation.dispatch(popAction);
-            }).catch(err => {
-                console.error(err);
-            })
+            return transactionDao.add(transaction);
 
-        }
+        }).then(v => {
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+        }).catch(err => {
+            console.error(err);
+        });
 
+    };
+
+    const editHandler = () => {
+        const action = StackActions.replace('ConfigEnvelop', {envelopeCategory: envelopeCategory, envelope: envelope});
+        navigation.dispatch(action);
     };
 
     useEffect(() => {
 
-        accountDao.load().then(setAccounts);
-        
-        transactionDao.load()//
-            .then(items => _.filter(items, item => item.envelope_id == envelope._id)  )//
+        movementDao.loadFilter({account_id: envelope.account_id})//
             .then(items => _.orderBy(items, ['date'], ['desc'] ) )//
-            .then(setTransactions);
-        
+            .then(setMovements);
+
+        getBankTotalAvailabity(movementDao).then(setTotalAvailable);
+            
+
     }, []);
 
     if( !envelope ) {
@@ -94,25 +100,11 @@ export function EnvelopFillScreen({navigation, route} : any) {
         );
     }
 
-    const account = _.find(accounts, account => account._id == accountID );
+    const formValid = (amount - envelope.funds) <= totalAvailable;
 
-    const formValid = account && (amount - envelope.funds) <= account.envelope_balance;
+    const movements_items = movements.map((movement, index) => <EnvelopeMovementView movement={movement} key={index} /> );
 
-    const accountItems = accounts.map(account => {
-        return {
-            label: `${account.name} [${account.envelope_balance.toFixed(2)}]`,
-            value: account._id as string
-        };
-    });
-
-    const editHandler = () => {
-        const action = StackActions.replace('ConfigEnvelop', {envelopeCategory: envelopeCategory, envelope: envelope});
-        navigation.dispatch(action);
-    };
-
-    const transactions_items = transactions?.map((transaction, index) => <EnvelopeTransactionView transaction={transaction} key={index} />);
-
-    const maxEnvelope = Math.min((account?.envelope_balance || 0) + funds, envelope.amount);
+    const maxEnvelope = Math.min(totalAvailable + funds, envelope.amount);;
 
     return (
         <Layout style={{margin: 10}}>
@@ -123,17 +115,10 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 null
             }
             
-            <View style={{ margin: 2, flexDirection: 'row' }}>
-                <View style={{flex: 1, margin: 2}}>
-                    <Text style={{ fontSize: 12 }}>{ t('common:account') }</Text>
-                    <Picker placeholder={ t('common:account') } items={accountItems} value={ accountID } onValueChange={selectAccountHandler} ></Picker>
-                </View>
-            </View>
-
             <View>
                 <Slider
                     value={solde}
-                    disabled={ !account }
+                    disabled={ false }
                     minimumValue={0}
                     maximumValue={maxEnvelope}
                     step={1}
@@ -141,7 +126,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
                 />
                 <View style={{flexDirection: 'row', margin: 10}}>
                     <Text style={{flex: 1, textAlign: "center"}}>{ t('common:envelope') }: {solde.toFixed(2)} €</Text>
-                    <Text style={{flex: 1, textAlign: "center"}}>{ t('common:account') }: {((account?.envelope_balance || 0) - (solde-funds)).toFixed(2)} €</Text>
+                    <Text style={{flex: 1, textAlign: "center"}}>{ t('common:availability') }: {(totalAvailable - (solde-funds)).toFixed(2)} €</Text>
                 </View>
             </View>
 
@@ -152,7 +137,7 @@ export function EnvelopFillScreen({navigation, route} : any) {
             <View style={{marginTop: 10, flex: 1}}>
                 <Text style={{padding: 10}}>{ t('common:last_transactions') } :</Text>
                 <ScrollView style={scroll_styles.scrollView}>
-                    {transactions_items}
+                    {movements_items}
                 </ScrollView>
             </View>
 

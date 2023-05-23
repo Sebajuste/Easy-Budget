@@ -44,7 +44,7 @@ export default function StatisticsCategoryScreen({route} : {route: any}) {
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
+    // const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
 
     const renderItemHandler = ({item, index} : {item: any, index: number}) => (
         <View style={styles.item} key={index}>
@@ -64,9 +64,11 @@ export default function StatisticsCategoryScreen({route} : {route: any}) {
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 
     useEffect(() => {
+        /*
         transactionDao.statsCategoryForMonth(date.getFullYear(), date.getUTCMonth()+1, categoryID)//
         .then(setStats)//
         .catch(console.error);
+        */
         
     }, []);
 

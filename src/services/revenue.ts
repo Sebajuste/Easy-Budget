@@ -6,6 +6,7 @@ export interface Revenue {
     name : string;
     amount : number;
     expectDate: string;
+    account_id?: string|number;
 }
 
 export abstract class RevenueDao extends DAO<Revenue> {

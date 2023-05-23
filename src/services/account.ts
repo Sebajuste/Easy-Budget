@@ -1,24 +1,23 @@
 import { DAO } from "./dao";
 
-export interface Account {
+export interface BankAccount {
     _id: string | number;
     name: string;
-    balance: number;
-    envelope_balance: number;
     created_at: Date;
-    total_reconciled?: number;
+    balance: number;
+    total_reconciled: number;
 }
 
-export abstract class AccountDao extends DAO<Account> {
+export abstract class BankAccountDao extends DAO<BankAccount> {
 
-    abstract load() : Promise<Account[]>;
+    abstract load() : Promise<BankAccount[]>;
 
     // abstract save(accounts: Account[]) : Promise<void>;
 
-    abstract add(account: Account) : Promise<number|string|undefined>;
+    abstract add(account: BankAccount) : Promise<number|string|undefined>;
 
-    abstract update(account: Account) : Promise<void>;
+    abstract update(account: BankAccount) : Promise<void>;
 
-    abstract remove(account: Account) : Promise<void>;
+    abstract remove(account: BankAccount) : Promise<void>;
 
 }

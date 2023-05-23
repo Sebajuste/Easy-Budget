@@ -112,19 +112,22 @@ export class DatabaseManagerSQLite extends DatabaseManager {
 
         this.error = null;
 
-        getDatabaseVersion(this.db).then(version => {
+        return getDatabaseVersion(this.db).then(version => {
+            console.log('version found: ', version);
             if( SCHEMA_ACTIONS[version] ) {
                 return SCHEMA_ACTIONS[version].action(this.client).catch(err => {
                     this.error = err;
                 });
             } else {
-                console.log('No upgrade required');
+                console.log('No upgrade required for ', version);
             }
         }, err => {
+            console.log('No version installed')
             return SCHEMA_ACTIONS['install'].action(this.client);
         }).catch(err => {
             console.error(err);
             this.error = err;
+            return err;
         });
 
     }

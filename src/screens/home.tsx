@@ -29,6 +29,8 @@ export default function HomeScreen({navigation} : any) {
       navigation.navigate({name: 'TutoScreen'});
     };
 
+    // <NextPaymentListView onPayment={paymentHandler} />
+
     return (
       <SafeAreaView style={scroll_styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -37,7 +39,7 @@ export default function HomeScreen({navigation} : any) {
         <View style={{ flex: 1, margin: 10 }}>
           <Text>{ t('common:next_paiements') } : </Text>
           <ScrollView style={scroll_styles.scrollView}>
-            <NextPaymentListView onPayment={paymentHandler} />
+
           </ScrollView>
         </View>
       </SafeAreaView>

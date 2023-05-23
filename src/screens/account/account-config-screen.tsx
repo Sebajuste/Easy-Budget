@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { View } from "react-native";
 import { Button, Layout, Text, TextInput } from "react-native-rapi-ui";
-import { Account } from "../../services/account";
+import { BankAccount } from "../../services/account";
 import uuid from 'react-native-uuid';
 import { StackActions } from "@react-navigation/native";
 import { DaoType } from "../../services/dao";
@@ -12,9 +12,9 @@ import { DeleteConfirmModal } from "../../components/modal";
 import { DatabaseContext } from "../../services/db-context";
 import { AccountTransaction, TransactionType } from "../../services/transaction";
 
-export function AccountScreen({navigation, route} : any) {
+export function AccountConfigScreen({navigation, route} : any) {
 
-    const account : Account = route.params?.account;
+    const account : BankAccount = route.params?.account;
 
     const [error, setError] = useState<string|null>(null);
 
@@ -22,14 +22,14 @@ export function AccountScreen({navigation, route} : any) {
 
     const [balance, setBalance] = useState( account ? `${account.balance}` : '0');
 
-    const [reconciled, setReconciled] = useState( (account && account.total_reconciled) ? `${account.total_reconciled.toFixed(2)}` : '0' )
+    const [reconciled, setReconciled] = useState( (account ? `${account.total_reconciled.toFixed(2)}` : '0' ) );
 
     const [confirm, setConfirm] = useState(false);
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
-    const accountTransactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
+    const accountDao = dbManager.getDAOFromType<BankAccount>(DaoType.BANK_ACCOUNT);
+    // const accountTransactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
     const openDeleteHandler = () => {
         setConfirm(true);
@@ -38,7 +38,6 @@ export function AccountScreen({navigation, route} : any) {
     const saveHandler = () => {
         const balanceFloat = parseFloat(balance);
         
-
         if(accountDao != null) {
 
             if( route.params?.account ) {
@@ -57,7 +56,7 @@ export function AccountScreen({navigation, route} : any) {
                     name: name,
                     balance: balanceFloat,
                     envelope_balance: balanceFloat,
-                } as Account;
+                } as BankAccount;
                 accountDao.add(account).then(v => {
                     const popAction = StackActions.pop(1);
                     navigation.dispatch(popAction);
@@ -68,12 +67,15 @@ export function AccountScreen({navigation, route} : any) {
             }
 
             
+        } else {
+            console.error('Invalid DAO');
         }
 
     };
 
     const correctHandler = () => {
 
+        /*
         const correction = parseFloat(reconciled) - (account.total_reconciled || 0);
 
         const transaction = {
@@ -90,7 +92,8 @@ export function AccountScreen({navigation, route} : any) {
 
         accountTransactionDao.add(transaction)//
         .then(r => console.log('result: ', r))//
-        .catch(console.error)
+        .catch(console.error);
+        */
 
     };
 
@@ -106,7 +109,7 @@ export function AccountScreen({navigation, route} : any) {
 
     const formValid = name.trim().length > 0 && balance.trim().length > 0;
 
-    const disableCorrection = Math.abs( parseFloat(reconciled) - (account.total_reconciled || 0)) < 0.01;
+    const disableCorrection = !account || Math.abs( parseFloat(reconciled) - (account.total_reconciled || 0)) < 0.01;
 
     return (
         <Layout style={{margin: 10}}>

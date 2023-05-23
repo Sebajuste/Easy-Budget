@@ -2,7 +2,223 @@ import * as SQLite from 'expo-sqlite';
 import { DATABASE_VERSION, SchemaAction } from './schema-sqlite';
 
 
+
+const QUERIES = [
+    {sql: `PRAGMA foreign_keys = ON;`, args: []},
+
+    {sql: `CREATE TABLE IF NOT EXISTS t_account_acc (
+        acc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        acc_name VARCHAR(64) NOT NULL,
+        acc_created_at DATETIME DEFAULT (datetime('now')),
+        acc_description TEXT,
+        acc_type VARCHAR(32) NOT NULL
+      )`, args: []},
+    {sql: `CREATE TABLE IF NOT EXISTS t_transaction_trn (
+        trn_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trn_date DATETIME NOT NULL DEFAULT (datetime('now')),
+        trn_name VARCHAR(64)
+      )`, args: []},
+    {sql: `CREATE TABLE IF NOT EXISTS t_movement_mvt (
+        mvt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mvt_debit DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
+        mvt_credit DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
+        mvt_transaction_id INTEGER NOT NULL REFERENCES t_transaction_trn(trn_id) ON DELETE CASCADE,
+        mvt_account_id INTEGER NOT NULL REFERENCES t_account_acc(acc_id) ON DELETE CASCADE
+      )`, args: []},
+    {sql: `CREATE TABLE t_reconciliation_rec (
+        rec_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rec_mouvement_id INTEGER NOT NULL UNIQUE REFERENCES t_movement_mvt(mvt_id) ON DELETE CASCADE
+    )`, args: []},
+    {sql: `CREATE VIEW IF NOT EXISTS v_account_balance_abl AS
+    SELECT
+      acc.acc_id AS account_id,
+
+      CASE WHEN mvt.mvt_account_id IS NULL THEN 0 ELSE mvt.mvt_debit - mvt.mvt_credit END as balance,
+      0 as envelope_balance,
+      CASE WHEN mvt_reconciled.mvt_account_id IS NULL THEN 0 ELSE mvt_reconciled.mvt_debit - mvt_reconciled.mvt_credit END as total_reconciled
+
+    FROM t_account_acc AS acc
+        LEFT JOIN (
+            SELECT mvt_account_id, SUM(mvt_debit) as mvt_debit, SUM(mvt_credit) as mvt_credit
+            FROM t_movement_mvt
+            GROUP BY mvt_account_id
+        ) as mvt
+            ON mvt.mvt_account_id = acc_id
+        LEFT JOIN (
+            SELECT mvt_account_id, SUM(mvt_debit) as mvt_debit, SUM(mvt_credit) as mvt_credit
+            FROM t_movement_mvt
+                INNER JOIN t_reconciliation_rec
+                    ON rec_mouvement_id = mvt_id
+            GROUP BY mvt_account_id
+        ) as mvt_reconciled
+            ON mvt_reconciled.mvt_account_id = acc_id
+
+    GROUP BY acc.acc_id`, args: []},
+
+    {sql: `CREATE TABLE IF NOT EXISTS t_income_inc (
+        inc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        inc_amount DECIMAL(10, 2) NOT NULL,
+        inc_expect_date DATE NOT NULL,
+        inc_account_id INTEGER NOT NULL REFERENCES t_account_acc(acc_id)
+      )`, args: []},
+      /*
+    {sql: `CREATE TABLE IF NOT EXISTS t_bank_account_bnk (
+        bnk_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bnk_name TEXT NOT NULL,
+        bnk_description TEXT,
+        bnk_account_id INTEGER NOT NULL REFERENCES t_account_acc(acc_id)
+      )`, args: []},
+      */
+    {sql: `CREATE TABLE IF NOT EXISTS t_category_cat (
+        cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cat_color TEXT NOT NULL,
+        cat_icon TEXT NOT NULL,
+        cat_account_id INTEGER NOT NULL REFERENCES t_account_acc(acc_id)
+      )`, args: []},
+    {sql: `CREATE TABLE IF NOT EXISTS t_envelope_evp (
+        evp_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        evp_due_date DATE NOT NULL,
+        evp_target_amount DECIMAL(10,2) NOT NULL,
+        evp_target_period VARCHAR(16) NOT NULL,
+        evp_category_id INTEGER NOT NULL REFERENCES t_category_cat(cat_id),
+        evp_account_id INTEGER NOT NULL REFERENCES t_account_acc(acc_id)
+      )`, args: []},
+    {sql: `CREATE TABLE IF NOT EXISTS t_settings_set (
+        set_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        set_name TEXT NOT NULL UNIQUE,
+        set_value TEXT NOT NULL
+      )`, args: []},
+
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_description, acc_type) VALUES ('Capital', '', 'Capital')`, args: []},
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_description, acc_type) VALUES ('Budget Used', '', 'Budget_Used')`, args: []},
+
+    {sql: `INSERT OR IGNORE INTO t_settings_set (set_name, set_value)
+        SELECT 'version', '1.0.0'
+         WHERE NOT EXISTS (SELECT * FROM t_settings_set WHERE set_name = 'version')
+    `, args: []},
+
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Habitation' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Habitation' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'purple' as cat_color, 'home' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Habitation' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Habitation')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Alimentation' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Alimentation' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'yellow' as cat_color, 'spoon' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Alimentation' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Alimentation')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Loisirs' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Loisirs' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'cyan' as cat_color, 'beer' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Loisirs' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Loisirs')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Banque' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Banque' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'orange' as cat_color, 'bank' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Banque' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Banque')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Achats & Shopping' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Achats & Shopping' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'green' as cat_color, 'shopping-cart' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Achats & Shopping' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Achats & Shopping')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Transport' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Transport' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'blue' as cat_color, 'car' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Transport' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Transport')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Santé' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Santé' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'red' as cat_color, 'heart' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Santé' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Santé')
+    `, args: []},
+
+    {sql: `INSERT INTO t_account_acc (acc_name, acc_type)
+        SELECT 'Autres' as acc_name, 'Category' as acc_type
+        WHERE NOT EXISTS (SELECT * FROM t_account_acc WHERE acc_name = 'Autres' AND acc_type = 'Category')
+    `, args: []},
+    {sql: `INSERT INTO t_category_cat (cat_color, cat_icon, cat_account_id )
+        SELECT 'grey' as cat_color, 'home' as cat_icon, acc_id
+        FROM t_account_acc
+        WHERE acc_name = 'Autres' AND NOT EXISTS (SELECT * FROM t_category_cat INNER JOIN t_account_acc ON acc_id = cat_account_id WHERE acc_name = 'Autres')
+    `, args: []},
+    
+];
+
+
 export class InstallSQLite implements SchemaAction {
+
+    action(client: SQLite.WebSQLDatabase): Promise<void> {
+        
+        return new Promise<void>( (resolve, reject) => {
+
+            client.exec(QUERIES, false, (err : any, resultSet) => {
+
+                if( err ) {
+                    console.error('Database Init error', err); 
+                    reject(err);
+                } else {
+                    console.log('resultSet: ', resultSet)
+                    if( resultSet ) {
+                        for(const item of resultSet) {
+                            if( item.hasOwnProperty('error') ) {
+                                const itemError = item as SQLite.ResultSetError;
+                                console.error(itemError.error);
+                                reject(itemError.error);
+                                return;
+                            }
+                        }
+                    }
+                    console.log('Database Install done');
+                    resolve();
+                }
+
+            });
+
+        });
+
+    }
+
+}
+
+/*
+export class InstallSQLiteOld implements SchemaAction {
 
     action(client: SQLite.WebSQLDatabase): Promise<void> {
         
@@ -92,7 +308,7 @@ export class InstallSQLite implements SchemaAction {
                                 RAISE (ABORT, 'evp_target_period must be MONTHLY, TRIMESTER, SEMESTER or YEARLY')
                         END;
                 END;`, args: []},
-    
+
                 // Accounts
                 { sql: `CREATE TABLE IF NOT EXISTS t_account_act (
                     act_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -187,6 +403,12 @@ export class InstallSQLite implements SchemaAction {
                     ets_envelope_id INTEGER NOT NULL CONSTRAINT "fk__ets_envelope_id" REFERENCES t_envelope_evp(evp_id) ON DELETE CASCADE,
                     ets_account_id INTEGER NOT NULL CONSTRAINT "fk__ets_account_id" REFERENCES t_account_act(act_id) ON DELETE CASCADE
                 )`, args: []},
+
+                { sql: `CREATE TABLE IF NOT EXISTS tj_envelope_transaction_evt (
+                    evt_envelope_id INTEGER NOT NULL REFERENCES t_envelope_evp(evp_id) ON DELETE CASCADE,
+                    evt_transaction_id INTEGER NOT NULL t_account_transaction_ats(ats_id) ON DELETE CASCADE,
+                    PRIMARY KEY(evt_envelope_id, evt_transaction_id)
+                )`, args: []},
     
                 // Settings
                 { sql: `CREATE TABLE IF NOT EXISTS t_settings_set (
@@ -272,3 +494,4 @@ export class InstallSQLite implements SchemaAction {
     }
 
 }
+*/

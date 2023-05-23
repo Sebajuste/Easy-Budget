@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { DAO } from "./dao";
-import { Account } from "./account";
+import { BankAccount } from "./account";
 import { EnvelopeTransaction } from "./transaction";
 
 export enum Period {
@@ -17,8 +17,9 @@ export interface Envelope {
     funds: number;
     period: Period;
     dueDate: Date;
-    category_id: string;
+    category_id: string | number;
     category?:string;
+    account_id : string | number;
 }
 
 export function periodToString(budgetPeriod : Period) {
@@ -162,9 +163,10 @@ export function isValidEnvelope(envelope: Envelope, currentPeriodFilled:number) 
   const now = new Date();
   const month_fill_amount = budgetPerMonth(envelope.amount, envelope.period);
   const diff_year_now_duedate = envelope.dueDate.getFullYear() - now.getFullYear();
-  const diff_date_now_duedate = diff_year_now_duedate == 0 ? (envelope.dueDate.getMonth() - now.getMonth()) : ( (12-now.getMonth()) + (diff_year_now_duedate-1)*12 + envelope.dueDate.getMonth() );
+  const diff_months_now_duedate = diff_year_now_duedate == 0 ? (envelope.dueDate.getMonth() - now.getMonth()) : ( (12-now.getMonth()) + (diff_year_now_duedate-1)*12 + envelope.dueDate.getMonth() );
   // const isValid = envelope.funds + (currentPeriodFilled + (month_fill_amount * diff_date_now_duedate) ) >= envelope.amount;
-  const isValid = envelope.funds > envelope.amount - (month_fill_amount * diff_date_now_duedate);
+  //const isValid = envelope.funds > envelope.amount - (month_fill_amount * diff_months_now_duedate);
+  const isValid = (month_fill_amount * diff_months_now_duedate) + envelope.funds >= envelope.amount;
   return isValid;
 }
 
@@ -194,7 +196,7 @@ export function fillEnvelopeCalculation(envelopes : Envelope[]) : any[] {
 
 };
 
-export function fillCalculation(envelopes: Array<Envelope>, accounts: Array<Account>) {
+export function fillCalculation(envelopes: Array<Envelope>, accounts: Array<BankAccount>) {
 
   const fill_required_envelopes = _.map(fillEnvelopeCalculation(envelopes), ([envelope, fill_required]) => (fill_required) );
   const fill_required = _.sum(fill_required_envelopes);
@@ -207,7 +209,7 @@ export function fillCalculation(envelopes: Array<Envelope>, accounts: Array<Acco
   
 };
 
-export function autoFillEnvelopes(envelopes: Array<Envelope>, accounts: Array<Account>) {
+export function autoFillEnvelopes(envelopes: Array<Envelope>, accounts: Array<BankAccount>) {
 
   const now = new Date();
 

@@ -21,14 +21,16 @@ function NextPaimentItem({envelope, onPayment} : {envelope:Envelope, onPayment?:
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
+    // const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
 
     const statusStyle = isValidEnvelope(envelope, totalFill)  ? container_state_styles.success : container_state_styles.danger;
 
     useEffect(() => {
+        /*
         envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), now).then(transactions => {
             setTotalFill( _.sum( _.map(transactions, 'amount') ) );
         });
+        */
     }, []);
 
     return (

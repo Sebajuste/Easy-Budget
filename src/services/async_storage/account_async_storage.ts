@@ -2,12 +2,12 @@ import { AsyncStorage } from "react-native";
 import uuid from 'react-native-uuid';
 import _ from "lodash";
 
-import { Account, AccountDao } from "../account";
+import { BankAccount, BankAccountDao } from "../account";
 import { acc } from "react-native-reanimated";
 
-export class AccountDaoStorage extends AccountDao {
+export class BankAccountDaoStorage extends BankAccountDao {
 
-    async load() : Promise<Account[]> {
+    async load() : Promise<BankAccount[]> {
         const json_accounts = await AsyncStorage.getItem('accounts');
         if( json_accounts ) {
             return JSON.parse(json_accounts) ;
@@ -15,20 +15,20 @@ export class AccountDaoStorage extends AccountDao {
         return [];
     }
 
-    find(selector: any) : Promise<Account|null> {
+    find(selector: any) : Promise<BankAccount|null> {
         return this.load().then(accounts => {
             const result = _.find(accounts, account => account._id === selector);
             return result ? result : null;
         });
     }
 
-    async save(accounts: Account[]) {
+    async save(accounts: BankAccount[]) {
         
         return await AsyncStorage.setItem('accounts', JSON.stringify(accounts));
 
     }
 
-    add(account: Account): Promise<string|number|undefined> {
+    add(account: BankAccount): Promise<string|number|undefined> {
         account._id = uuid.v4() as string;
         return this.load().then(accounts => {
             accounts.push(account);
@@ -36,11 +36,11 @@ export class AccountDaoStorage extends AccountDao {
         });
     }
 
-    addAll(accounts: Account[]): Promise<string[] | number[] | undefined[]> {
+    addAll(accounts: BankAccount[]): Promise<string[] | number[] | undefined[]> {
         throw new Error("Method not implemented.");
     }
 
-    update(account: Account): Promise<void> {
+    update(account: BankAccount): Promise<void> {
         return this.load().then(accounts => {
             const result = _.find(accounts, item => item._id == account._id );
             if( result ) {
@@ -52,7 +52,7 @@ export class AccountDaoStorage extends AccountDao {
         });
     }
 
-    remove(account: Account): Promise<void> {
+    remove(account: BankAccount): Promise<void> {
         return this.load().then(accounts => {
             accounts = _.remove(accounts, act => act._id != account._id);
             return this.save(accounts);

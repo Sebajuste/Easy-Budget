@@ -27,23 +27,25 @@ function EnvelopeListItem(props : any) {
 
   const dueDate = envelope.dueDate ? ( typeof envelope.dueDate === 'string' ? (new Date(envelope.dueDate).toDateString() ) : envelope.dueDate.toDateString()) : '';
 
-  const isValid = isValidEnvelope(envelope, totalFilled);
+  
 
   const { dbManager } = useContext(DatabaseContext);
 
-  const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
+  // const envelopeTransactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION) as EnvelopeTransactionDao;
 
   const selectHandler = () => {
     navigation.navigate({name: 'FillEnvelope', params: {envelope: envelope, envelopeCategory: category}});
   };
 
   useEffect(() => {
+    /*
     envelopeTransactionDao.range(envelope, envelopePreviousDueDate(envelope), new Date() )//
       .then(transactions => _.sum( _.map(transactions,'amount') ) )//
       .then(setTotalFilled);
+    */
   }, []);
 
-  console.log('render EnvelopeListItem ', envelope.name);
+  const isValid = isValidEnvelope(envelope, totalFilled);
 
   return (
     <Animatable.View animation={"flipInY"} duration={1000} delay={index*300} >

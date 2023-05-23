@@ -5,29 +5,37 @@ import { useIsFocused } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import _ from 'lodash';
 
-import { Account } from "../../services/account";
+import { BankAccount } from "../../services/account";
 import { scroll_styles } from "../../styles";
 
 import { t } from "../../services/i18n";
 import { DaoType } from "../../services/dao";
 import ErrorMessage from "../../components/error-message";;
 import { DatabaseContext } from "../../services/db-context";
+import { Movement } from "../../services/transaction";
+import { MovementDao } from "../../services/transaction";
+import { TransactionAccount } from "../../services/transaction";
+import { getBankTotalAvailabity } from "../../services/sqlite/account-sqlite";
 
 
-export function AccountListScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: Account[]) => void}) {
+export function AccountListScreen ({navigation, onChange} : {navigation: any, onChange?: (accounts: BankAccount[]) => void}) {
 
     const [error, setError] = useState<string|null>(null);
 
-    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [accounts, setAccounts] = useState<BankAccount[]>([]);
+
+    const [totalAvailable, setTotalAvailable] = useState(0);
 
     const isFocused = useIsFocused();
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
+    const bankAccountDao = dbManager.getDAOFromType<BankAccount>(DaoType.BANK_ACCOUNT);
+    const movementDao = dbManager.getDAOFromType<Movement>(DaoType.TRANSACTION_MOVEMENT) as MovementDao;
+    const accountTxDao = dbManager.getDAOFromType<TransactionAccount>(DaoType.TRANSACTION_ACCOUNT);
 
-    const selectHandler = (account: Account) => {
-        navigation.navigate({name: 'AccountTransaction', params: {account: account} });
+    const selectHandler = (account: BankAccount) => {
+        navigation.navigate({name: 'AccountView', params: {account: account} });
     };
 
     const addAccountHandler = () => {
@@ -35,9 +43,9 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
     };
 
     useEffect(() => {
-        if( accountDao != null) {
+        if( bankAccountDao != null) {
             setError(null);
-            accountDao.load().then(result => {
+            bankAccountDao.load().then(result => {
                 setAccounts(result);
                 if( onChange ) onChange(result);
             }).catch(err => {
@@ -48,11 +56,17 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
             setError('Invalid AccountDao');
         }
         
+        getBankTotalAvailabity(movementDao).then(setTotalAvailable);
+
     }, [isFocused])
 
     const total = _.sum( _.map(accounts, account => account.balance) );
 
-    const accounts_items = accounts.map( (account: Account, index) => {
+    const capital = 0;
+
+    const accounts_items = accounts.map( (account: BankAccount, index) => {
+
+        console.log(account);
 
         return (
             <TouchableHighlight onPress={() => selectHandler(account)} key={index} >
@@ -61,7 +75,6 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
                         <Text>{account.name}</Text>
                         <Text>Solde : {account.balance.toFixed(2)} €</Text>
                         <Text>Réconcilié : {account.total_reconciled?.toFixed(2)} €</Text>
-                        <Text>Disponible : [{account.envelope_balance.toFixed(2)}] €</Text>
                     </SectionContent>
                 </Section>
             </TouchableHighlight>
@@ -78,6 +91,7 @@ export function AccountListScreen ({navigation, onChange} : {navigation: any, on
             { accounts_items.length > 0 ? (
                 <ScrollView style={scroll_styles.scrollView}>
                     <Text style={{textAlign: 'right', margin: 10}}>{ t('common:all_accounts')} : {total.toFixed(2)} €</Text>
+                    <Text style={{textAlign: 'right', margin: 10}}>{ t('common:availability')} : {totalAvailable.toFixed(2)} €</Text>
                     {accounts_items}
                 </ScrollView>
             ) : (

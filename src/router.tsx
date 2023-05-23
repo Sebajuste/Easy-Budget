@@ -18,7 +18,7 @@ import CategoryScreen from "./screens/category/category-screen";
 
 import { AccountTransactionListScreen } from "./screens/transactions/transaction-list-screen";
 import { AccountTransactionScreen } from "./screens/transactions/transaction-screen";
-import { AccountScreen } from "./screens/account/account-screen";
+import { AccountConfigScreen } from "./screens/account/account-config-screen";
 import { EnvelopFillScreen } from "./screens/envelope/envelope-fill";
 import { EnvelopeConfigScreen } from "./screens/envelope";
 import { TutoAccountScreen, TutoEnvelopeScreen, TutoFinalScreen, TutoFirstFillEnvelopeScreen, TutoInfoEnvelopeScreen, TutoInfoFillEnvelopeScreen, TutoInfoRevenueScreen, TutoRevenueScreen, TutoScreen } from "./screens/tuto/tuto-screen";
@@ -40,6 +40,7 @@ import StatisticsCategoryScreen from "./screens/statistics/statistics-category-s
 import StatisticsScreen from "./screens/statistics/statistics-screen";
 import { DatabaseContext } from "./services/db-context";
 import { Revenue } from "./services/revenue";
+import AccountViewScreen from "./screens/account/account-view-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -224,8 +225,9 @@ function MainStackScreen() {
             <Stack.Screen name="AccountTransaction" component={ AccountTransactionListScreen } options={{title: t('common:transactions') }} />
             <Stack.Screen name="Transaction" component={ AccountTransactionScreen } options={{title: t('common:transaction') }}/>
 
-            <Stack.Screen name="CreateAccount" component={ AccountScreen } options={{title: t('title:account_create')}}/>
-            <Stack.Screen name="EditAccount" component={ AccountScreen } options={{title: t('title:account_edit')}}/>
+            <Stack.Screen name="AccountView" component={ AccountViewScreen } options={{title: t('title:account_create')}}/>
+            <Stack.Screen name="CreateAccount" component={ AccountConfigScreen } options={{title: t('title:account_create')}}/>
+            <Stack.Screen name="EditAccount" component={ AccountConfigScreen } options={{title: t('title:account_edit')}}/>
 
                                                                                                                                                         
             <Stack.Screen name="TutoAccountScreen" component={ TutoAccountScreen } options={({navigation}) => ({title: t('title:account_create'), headerRight: () => (<Pressable style={{padding: 15}} onPress={() => navigation.navigate({name: 'CreateAccount'})} ><Icon name="plus" style={{fontSize: 17}} /></Pressable>) })}/>

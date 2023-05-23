@@ -1,11 +1,17 @@
 
 export enum DaoType {
-    ACCOUNT = "AccountDao",
+    BANK_ACCOUNT = "BankAccountDao",
     REVENUE = "RevenueDao",
     SETTINGS = "SettingsDao",
     CATEGORY = "CategoryDao",
     ENVELOPE = "EnvelopeDao",
+    TRANSACTION = "TransactionDao",
+    TRANSACTION_MOVEMENT = "TransactionMovementDao",
+    TRANSACTION_ACCOUNT = "TransactionAccountDao",
+
+    /** @deprecated */
     ENVELOPE_TRANSACTION = "EnvelopeTransactionDao",
+    /** @deprecated */
     ACCOUNT_TRANSACTION = "AccountTransactionDao"
   }
 

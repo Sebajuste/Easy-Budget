@@ -18,11 +18,14 @@ export class RevenueDaoSQLite extends RevenueDao {
     load(): Promise<Revenue[]> {
 
         const SQL = `
-        SELECT rev_id as _id,
-            rev_name as name,
-            rev_amount as amount,
-            rev_expect_date as expectDate
-        FROM t_revenue_rev
+        SELECT inc_id as _id,
+            acc_name as name,
+            inc_amount as amount,
+            inc_expect_date as expectDate,
+            acc_id as account_id
+        FROM t_income_inc
+            INNER JOIN t_account_acc
+                ON acc_id = inc_account_id
         `;
 
         return new Promise((resolve, reject) => {
@@ -43,26 +46,69 @@ export class RevenueDaoSQLite extends RevenueDao {
         });
     }
 
-    find(selector: any) : Promise<Revenue|null> {
-        throw new Error("Method not implemented.");
+    find(selector: {_id: string|number}) : Promise<Revenue|null> {
+
+        const SQL = `
+        SELECT inc_id as _id,
+            acc_name as name,
+            inc_amount as amount,
+            inc_expect_date as expectDate,
+            acc_id as account_id
+        FROM t_income_inc
+            INNER JOIN t_account_acc
+                ON acc_id = inc_account_id
+        WHERE inc_id = ?
+        `;
+
+        return new Promise((resolve, reject) => {
+
+            this.client.transaction(tx => {
+
+                tx.executeSql(SQL, [selector._id], (tx, {rows : {_array}}) => {
+                    resolve( _.head(_array) );
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+
+            });
+
+        });
     }
 
     add(revenue: Revenue): Promise<string | number | undefined> {
 
         console.log('add ', revenue);
 
-        const SQL = 'INSERT INTO t_revenue_rev (rev_name, rev_amount, rev_expect_date) VALUES (?, ?, ?)';
+        const SQL_ACCOUNT = `INSERT INTO t_account_acc (acc_name, acc_type) VALUES (?, 'Income')`;
 
-        const params = [revenue.name, revenue.amount, revenue.expectDate ];
+        const SQL_INCOME = `INSERT INTO t_income_inc (inc_account_id, inc_amount, inc_expect_date) VALUES (?, ?, ?)`;
 
         return new Promise((resolve, reject) => {
             this.client.transaction(tx => {
-                tx.executeSql(SQL, params, (_, { insertId }) => {
-                    resolve(insertId);
+
+                tx.executeSql(SQL_ACCOUNT, [revenue.name], (_, { insertId }) => {
+                    
+                    if( insertId ) {
+                        const params = [insertId, revenue.amount, revenue.expectDate ];
+
+                        tx.executeSql(SQL_INCOME, params, (_, { insertId }) => {
+                            resolve(insertId);
+                        }, (tx, err) => {
+                            reject(err);
+                            return true;
+                        });
+                    } else {
+                        throw new Error('Cannot insert income account');
+                    }
+
                 }, (tx, err) => {
                     reject(err);
                     return true;
                 });
+
+
+                
             });
         });
     }
@@ -73,17 +119,30 @@ export class RevenueDaoSQLite extends RevenueDao {
     }
 
     update(revenue: Revenue): Promise<void> {
-        const SQL = `UPDATE t_revenue_rev
-        SET rev_name = ?,
-            rev_amount = ?,
-            rev_expect_date = ?
-        WHERE rev_id = ?`;
 
-        const params = [revenue.name, revenue.amount, revenue.expectDate, revenue._id];
+        const SQL_ACCOUNT = `UPDATE t_account_acc
+        SET acc_name = ?
+        WHERE acc_id = (SELECT inc_account_id FROM t_income_inc WHERE inc_id = ?)`;
+
+        const SQL_INCOME = `UPDATE t_income_inc
+        SET inc_amount = ?,
+            inc_expect_date = ?
+        WHERE inc_id = ?`;
+
 
         return new Promise((resolve, reject) => {
             this.client.transaction(tx => {
-                tx.executeSql(SQL, params, (_, { rows: {_array} }) => {
+
+                tx.executeSql(SQL_ACCOUNT, [revenue.name, revenue._id], (_, { rows: {_array} }) => {
+                    resolve();
+                }, (tx, err) => {
+                    reject(err);
+                    return true;
+                });
+
+                const params = [revenue.amount, revenue.expectDate, revenue._id];
+
+                tx.executeSql(SQL_INCOME, params, (_, { rows: {_array} }) => {
                     resolve();
                 }, (tx, err) => {
                     reject(err);

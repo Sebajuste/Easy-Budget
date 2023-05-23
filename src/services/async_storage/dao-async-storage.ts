@@ -1,12 +1,12 @@
 import { AsyncStorage } from "react-native";
-import { AccountDao } from "../account";
+import { BankAccountDao } from "../account";
 import { CategoryDao } from "../category";
 import { EnvelopeDao } from "../envelope";
 import { RevenueDao } from "../revenue";
 import { SettingsDao } from "../settings";
 import { AccountTransactionDao, EnvelopeTransactionDao } from "../transaction";
 
-import { AccountDaoStorage } from "./account_async_storage";
+import { BankAccountDaoStorage } from "./account_async_storage";
 import { DatabaseManagerAsyncStorage } from "./database-manager-storage";
 import { CategoryDaoStorage } from "./category-async-storage";
 import { EnvelopeDaoStorage } from "./envelope-async-storage";
@@ -20,7 +20,7 @@ import { DAO } from "../dao";
 export const DB_MANAGER_ASYNC = new DatabaseManagerAsyncStorage();
 
 export const ASYNC_STORAGE_DAO : Map<string, DAO<any> > = new Map<string, DAO<any> >([
-    [AccountDao.name, new  AccountDaoStorage() ],
+    [BankAccountDao.name, new  BankAccountDaoStorage() ],
     [RevenueDao.name, new  RevenueDaoStorage() ],
 
     [CategoryDao.name, new  CategoryDaoStorage() ],

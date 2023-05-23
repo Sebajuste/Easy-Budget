@@ -59,7 +59,7 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
 
     const envelopeDao = dbManager.getDAOFromType<Envelope>(DaoType.ENVELOPE);
     const accountDao = dbManager.getDAOFromType<Account>(DaoType.ACCOUNT);
-    const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
+    // const transactionDao = dbManager.getDAOFromType<EnvelopeTransaction>(DaoType.ENVELOPE_TRANSACTION);
 
     
     /*
@@ -121,10 +121,12 @@ export function TutoFirstFillEnvelopeScreen({navigation} : any) {
             .catch(console.error);
         */
 
+            /*
         Promise.all([envelopeDao?.load(), accountDao?.load()]).then( ([envelopes, accounts]) => autoFillEnvelopes(envelopes, accounts) ) //
         .then( transactions => transactionDao.addAll(transactions) ) //
         .then( result => nextHandler() )//
         .catch(console.error);
+        */
     };
 
     useEffect(() => {

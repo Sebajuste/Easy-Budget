@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
 import { Button, CheckBox, Text } from "react-native-rapi-ui";
@@ -15,21 +15,27 @@ import { DatabaseContext } from "../../services/db-context";
 
 
 
-function AccountTransactionItem({transaction, index} : {transaction : AccountTransaction, index: number}) {
+function AccountTransactionItem({transaction, navigation, index} : {transaction : AccountTransaction, navigation:any, index: number}) {
 
     const [reconciled, setReconciled] = useState(transaction.reconciled);
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
+    // const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
     const reconciledHandler = (val: boolean) => {
         setReconciled(val);
         transaction.reconciled = val;
-        transactionDao.update(transaction).catch(console.error);
+        // transactionDao.update(transaction).catch(console.error);
+    };
+
+    const selectHandler = () => {
+        // navigation.navigate({name: 'EditCategory', params: {category: category} });
+        navigation.navigate({name: 'Transaction', params: {transaction: transaction}});
     };
 
     return (
+        <TouchableOpacity onPress={selectHandler}>
         <View style={styles.transaction}>
             <View style={{ ...styles.avatar, backgroundColor: transaction?.color || 'silver'}} >
                 <Icon name={transaction.icon} style={{color: 'white', fontSize: 18}} />
@@ -45,12 +51,13 @@ function AccountTransactionItem({transaction, index} : {transaction : AccountTra
                 <CheckBox disabled={false} value={reconciled} onValueChange={reconciledHandler} />
             </View>
         </View>
+        </TouchableOpacity>
     );
 
 }
 
 
-
+/** @deprecated */
 export function AccountTransactionListScreen({navigation, route} : any) {
 
     const account : Account = route.params?.account;
@@ -61,7 +68,7 @@ export function AccountTransactionListScreen({navigation, route} : any) {
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
+    // const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION);
 
 
     const openEditHandler = () => {
@@ -73,15 +80,17 @@ export function AccountTransactionListScreen({navigation, route} : any) {
     };
 
     const transactionRenderHandler = ({item, index} : {item: AccountTransaction, index: number}) => (
-        <AccountTransactionItem transaction={item} index={index} />
+        <AccountTransactionItem transaction={item} index={index} navigation={navigation} />
     );
 
     const itemSeparatorHandler = () => (<View style={styles.seperator} />);
 
     useEffect(() => {
+        /*
         transactionDao.load().then(transactions => {
             return account ? _.filter(transactions, transaction => transaction.account_id == account._id ) : transactions;
         }).then(setTransactions);
+        */
     }, [isFocused]);
 
     return (

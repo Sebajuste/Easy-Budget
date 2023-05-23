@@ -43,14 +43,16 @@ export default function StatisticsScreen({navigation} : {navigation : any}) {
 
     const { dbManager } = useContext(DatabaseContext);
 
-    const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
+    // const transactionDao = dbManager.getDAOFromType<AccountTransaction>(DaoType.ACCOUNT_TRANSACTION) as AccountTransactionDao;
 
     const isFocused = useIsFocused();
 
     const updateStats = (date: Date) => {
+        /*
         transactionDao.statsForMonth(date.getFullYear(), date.getMonth()+1)//
         .then(setStats)//
         .catch(console.error);
+        */
     };
 
     const previousHandler = () => {
